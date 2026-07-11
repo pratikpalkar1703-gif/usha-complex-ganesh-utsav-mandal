@@ -854,7 +854,7 @@
       <!-- amount box -->
       <div id="rc-amount-box" style="margin:4px 16px 16px;background:linear-gradient(135deg,#fffde7 0%,#fef3c7 60%,#fde68a 100%);border:2.5px solid #d97706;border-radius:14px;padding:18px 16px 16px;text-align:center;box-shadow:0 4px 20px rgba(180,100,0,0.15),inset 0 1px 0 rgba(255,255,255,0.8);">
         <div id="rc-amount-label" style="font-size:9px;font-weight:800;color:#92400e;letter-spacing:2.5px;text-transform:uppercase;margin-bottom:8px;">देणगी रक्कम / Donation Amount</div>
-        <div id="r-amount" style="font-size:76px;font-weight:900;color:#7f1d1d;letter-spacing:-3px;line-height:1;text-shadow:0 2px 8px rgba(127,29,29,0.15);">₹0</div>
+        <div id="r-amount" style="font-size:76px;font-weight:900;color:#7f1d1d;letter-spacing:1px;line-height:1;text-shadow:0 2px 8px rgba(127,29,29,0.15);">₹0</div>
         <div style="height:1.5px;background:linear-gradient(90deg,transparent,#d97706,transparent);margin:10px 20px 8px;"></div>
         <div id="r-amount-words" style="font-size:12px;color:#92400e;font-style:italic;font-weight:600;"></div>
       </div>
@@ -1644,27 +1644,22 @@
       const card   = document.getElementById('receipt-card');
       const num    = document.getElementById('receipt-num').textContent.trim().replace(/\s+/g,'_');
 
-      // iOS Web Share API does NOT support PDF files — share as high-res PNG instead.
-      // Desktop: no share API available, so generate and download the PDF.
-      if (navigator.share) {
-        // Mobile path: render as PNG and share via native sheet
-        const canvas = await html2canvas(card, { scale: 3, useCORS: true, backgroundColor: '#ffffff', logging: false });
-        const blob   = await new Promise(res => canvas.toBlob(res, 'image/png'));
-        const file   = new File([blob], `Ganpati_Receipt_${num}.png`, { type: 'image/png' });
-        await navigator.share({
-          files: [file],
-          title: 'Ganpati Decoration Receipt 2026',
-          text: 'Usha Complex · Collection Receipt'
-        });
+      // Generate PDF from canvas (works on all platforms)
+      const canvas  = await html2canvas(card, { scale: 3, useCORS: true, backgroundColor: '#ffffff', logging: false });
+      const imgData = canvas.toDataURL('image/png');
+      const { jsPDF } = window.jspdf;
+      const pdf  = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a5' });
+      const pdfW = pdf.internal.pageSize.getWidth();
+      const pdfH = (canvas.height / canvas.width) * pdfW;
+      pdf.addImage(imgData, 'PNG', 0, 0, pdfW, pdfH);
+      const pdfBlob = pdf.output('blob');
+      const pdfFile = new File([pdfBlob], `Ganpati_Receipt_${num}.pdf`, { type: 'application/pdf' });
+
+      // Try sharing PDF natively; iOS rejects PDF in Web Share API so fall back to download
+      if (navigator.canShare && navigator.canShare({ files: [pdfFile] })) {
+        await navigator.share({ files: [pdfFile], title: 'Ganpati Decoration Receipt 2026', text: 'Usha Complex · Collection Receipt' });
       } else {
-        // Desktop path: generate proper PDF and download
-        const canvas  = await html2canvas(card, { scale: 3, useCORS: true, backgroundColor: '#ffffff', logging: false });
-        const imgData = canvas.toDataURL('image/png');
-        const { jsPDF } = window.jspdf;
-        const pdf  = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a5' });
-        const pdfW = pdf.internal.pageSize.getWidth();
-        const pdfH = (canvas.height / canvas.width) * pdfW;
-        pdf.addImage(imgData, 'PNG', 0, 0, pdfW, pdfH);
+        // iOS doesn't support PDF sharing — download to Files instead
         pdf.save(`Ganpati_Receipt_${num}.pdf`);
       }
     } catch(e) {
