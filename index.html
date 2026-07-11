@@ -315,16 +315,42 @@
     display: inline-flex;
     align-items: center;
     gap: 6px;
-    background: none;
-    border: none;
+    background: #fff;
+    border: 1.5px solid #fed7aa;
     color: #f97316;
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 700;
     cursor: pointer;
-    padding: 0 0 16px;
-    letter-spacing: 0.2px;
+    padding: 9px 18px;
+    border-radius: 20px;
+    margin-bottom: 18px;
+    box-shadow: 0 1px 4px rgba(249,115,22,0.10);
+    transition: background 0.2s, box-shadow 0.2s;
   }
-  .btn-back:hover { text-decoration: underline; }
+  .btn-back:hover { background: #fff7ed; box-shadow: 0 2px 8px rgba(249,115,22,0.18); }
+  .btn-back:active { transform: scale(0.97); }
+
+  /* ── DASHBOARD RESPONSIVE ── */
+  .dash-content {
+    padding: 0 16px 40px;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+  .stat-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+  @media (min-width: 640px) {
+    .stat-grid { grid-template-columns: repeat(3, 1fr); }
+  }
+  @media (min-width: 900px) {
+    .stat-grid { grid-template-columns: repeat(3, 1fr); gap: 16px; }
+    .dash-content { padding: 0 32px 60px; }
+    .dash-two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  }
+  .dash-two-col { display: block; }
 
   /* ── FOOTER ── */
   .footer {
@@ -855,8 +881,8 @@
   <!-- Dashboard Header -->
   <div class="header" style="padding:28px 20px 70px;">
     <div style="display:flex;align-items:center;justify-content:space-between;position:relative;z-index:2;">
-      <button onclick="closeDashboard()" style="background:rgba(255,255,255,0.22);border:1px solid rgba(255,255,255,0.4);color:#fff;padding:7px 13px;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer;">← Back</button>
-      <button onclick="logOut()" style="background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.35);color:#fff;padding:7px 13px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;">Logout</button>
+      <button onclick="closeDashboard()" style="background:rgba(255,255,255,0.22);border:1.5px solid rgba(255,255,255,0.5);color:#fff;padding:8px 16px;border-radius:20px;font-size:13px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;gap:5px;">← Back</button>
+      <button onclick="logOut()" style="background:rgba(255,255,255,0.15);border:1.5px solid rgba(255,255,255,0.4);color:#fff;padding:8px 16px;border-radius:20px;font-size:13px;font-weight:600;cursor:pointer;">Logout</button>
     </div>
     <div style="text-align:center;position:relative;z-index:1;margin-top:10px;">
       <div style="font-size:24px;font-weight:800;color:#fff;">📊 Collection Dashboard</div>
@@ -867,7 +893,7 @@
     <path d="M0,0 C360,60 1080,60 1440,0 L1440,0 L0,0 Z" fill="#fdf5ec"/>
   </svg>
 
-  <div style="padding:0 16px 40px;max-width:680px;margin:0 auto;">
+  <div class="dash-content">
 
     <!-- Date filter chips -->
     <div style="margin-bottom:14px;">
@@ -877,23 +903,15 @@
       </div>
     </div>
 
-    <!-- Stat cards -->
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
+    <!-- Stat cards (6 cards, 2-col mobile / 3-col desktop) -->
+    <div class="stat-grid">
       <div class="section-card" style="text-align:center;padding:18px 12px;">
-        <div id="label-total" style="font-size:11px;font-weight:700;color:#92400e;letter-spacing:1px;text-transform:uppercase;">Total Collected</div>
+        <div style="font-size:11px;font-weight:700;color:#92400e;letter-spacing:1px;text-transform:uppercase;">Total Collected</div>
         <div id="stat-total" style="font-size:26px;font-weight:900;color:#f97316;margin-top:6px;">₹0</div>
       </div>
       <div class="section-card" style="text-align:center;padding:18px 12px;">
-        <div id="label-count" style="font-size:11px;font-weight:700;color:#92400e;letter-spacing:1px;text-transform:uppercase;">Total Receipts</div>
+        <div style="font-size:11px;font-weight:700;color:#92400e;letter-spacing:1px;text-transform:uppercase;">Total Receipts</div>
         <div id="stat-count" style="font-size:26px;font-weight:900;color:#f97316;margin-top:6px;">0</div>
-      </div>
-      <div class="section-card" style="text-align:center;padding:18px 12px;">
-        <div style="font-size:11px;font-weight:700;color:#92400e;letter-spacing:1px;text-transform:uppercase;">Today's Collection</div>
-        <div id="stat-today" style="font-size:26px;font-weight:900;color:#f97316;margin-top:6px;">₹0</div>
-      </div>
-      <div class="section-card" style="text-align:center;padding:18px 12px;">
-        <div style="font-size:11px;font-weight:700;color:#92400e;letter-spacing:1px;text-transform:uppercase;">Today's Receipts</div>
-        <div id="stat-today-count" style="font-size:26px;font-weight:900;color:#f97316;margin-top:6px;">0</div>
       </div>
       <div class="section-card" style="text-align:center;padding:18px 12px;border:2px solid #fde68a;">
         <div style="font-size:11px;font-weight:700;color:#92400e;letter-spacing:1px;text-transform:uppercase;">🕐 Pending</div>
@@ -908,52 +926,71 @@
       <div class="section-card" style="text-align:center;padding:18px 12px;border:2px solid #bbf7d0;">
         <div style="font-size:11px;font-weight:700;color:#166534;letter-spacing:1px;text-transform:uppercase;">💵 Cash</div>
         <div id="stat-cash" style="font-size:22px;font-weight:900;color:#16a34a;margin-top:6px;">₹0</div>
-        <div style="font-size:10px;color:#a8a29e;margin-top:2px;" id="stat-cash-count">0 entries</div>
+        <div id="stat-cash-count" style="font-size:10px;color:#a8a29e;margin-top:2px;">0 entries</div>
       </div>
       <div class="section-card" style="text-align:center;padding:18px 12px;border:2px solid #bfdbfe;">
         <div style="font-size:11px;font-weight:700;color:#1e40af;letter-spacing:1px;text-transform:uppercase;">📲 GPay</div>
         <div id="stat-gpay" style="font-size:22px;font-weight:900;color:#2563eb;margin-top:6px;">₹0</div>
-        <div style="font-size:10px;color:#a8a29e;margin-top:2px;" id="stat-gpay-count">0 entries</div>
+        <div id="stat-gpay-count" style="font-size:10px;color:#a8a29e;margin-top:2px;">0 entries</div>
       </div>
     </div>
 
-    <!-- Wing breakdown -->
-    <div class="section-label" style="display:flex;align-items:center;gap:7px;font-size:11px;font-weight:700;color:#c2410c;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px;">🏢 Wing-wise Breakdown</div>
-    <div class="section-card" style="margin-bottom:16px;padding:14px 16px;">
-      <div id="wing-breakdown">
-        <div style="text-align:center;color:#d4b49a;font-size:13px;padding:12px 0;">Loading…</div>
+    <div class="dash-two-col">
+      <!-- Left column: Wing breakdown + Not Available -->
+      <div>
+        <!-- Wing breakdown -->
+        <div class="section-label" style="display:flex;align-items:center;gap:7px;font-size:11px;font-weight:700;color:#c2410c;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px;">🏢 Wing-wise Breakdown</div>
+        <div class="section-card" style="margin-bottom:16px;padding:14px 16px;">
+          <div id="wing-breakdown">
+            <div style="text-align:center;color:#d4b49a;font-size:13px;padding:12px 0;">Loading…</div>
+          </div>
+        </div>
+
+        <!-- Not Available -->
+        <div class="section-label" style="display:flex;align-items:center;gap:7px;font-size:11px;font-weight:700;color:#6b7280;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px;">🚪 Not Available</div>
+        <div class="section-card" style="padding:0;overflow:hidden;margin-bottom:16px;">
+          <div id="na-entries">
+            <div style="text-align:center;color:#d4b49a;font-size:13px;padding:20px;">Loading…</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right column: All Entries + Pending -->
+      <div>
+        <!-- All entries -->
+        <div class="section-label" style="display:flex;align-items:center;gap:7px;font-size:11px;font-weight:700;color:#c2410c;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px;">🧾 All Entries</div>
+        <div class="section-card" style="padding:0;overflow:hidden;margin-bottom:16px;">
+          <!-- Search + filter bar -->
+          <div style="display:flex;gap:8px;padding:10px 12px;border-bottom:1px solid #fef3e2;flex-wrap:wrap;">
+            <input type="text" id="entries-search" placeholder="Search name, room, mobile…" oninput="filterEntries()" style="flex:1;min-width:120px;background:#fffbf7;border:1.5px solid #fed7aa;border-radius:8px;padding:8px 12px;font-size:13px;color:#1c1917;outline:none;">
+            <select id="entries-wing-filter" onchange="filterEntries()" style="background:#fffbf7;border:1.5px solid #fed7aa;border-radius:8px;padding:8px 10px;font-size:13px;color:#1c1917;outline:none;cursor:pointer;">
+              <option value="">All Wings</option>
+              <option>A</option><option>B</option><option>C</option><option>D</option>
+              <option>E</option><option>F</option><option>G</option><option>H</option>
+              <option>I</option><option>J</option><option>K</option><option>L</option>
+              <option value="Other">Others</option>
+            </select>
+          </div>
+          <div id="all-entries" style="max-height:420px;overflow-y:auto;">
+            <div style="text-align:center;color:#d4b49a;font-size:13px;padding:20px;">Loading…</div>
+          </div>
+        </div>
+
+        <!-- Pending Rooms (collapsible by wing) -->
+        <div class="section-label" style="display:flex;align-items:center;justify-content:space-between;font-size:11px;font-weight:700;color:#92400e;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px;">
+          <span>🕐 Pending Rooms</span>
+          <span id="pending-label" style="font-size:10px;font-weight:600;color:#d97706;background:#fef3c7;padding:3px 8px;border-radius:8px;"></span>
+        </div>
+        <div class="section-card" style="padding:0;overflow:hidden;">
+          <div id="pending-entries">
+            <div style="text-align:center;color:#d4b49a;font-size:13px;padding:20px;">Loading…</div>
+          </div>
+        </div>
       </div>
     </div>
 
-    <!-- Recent entries -->
-    <div class="section-label" style="display:flex;align-items:center;gap:7px;font-size:11px;font-weight:700;color:#c2410c;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px;">🧾 Recent Entries</div>
-    <div class="section-card" style="padding:0;overflow:hidden;">
-      <div id="recent-entries">
-        <div style="text-align:center;color:#d4b49a;font-size:13px;padding:20px;">Loading…</div>
-      </div>
-    </div>
-
-    <!-- Not Available -->
-    <div class="section-label" style="display:flex;align-items:center;gap:7px;font-size:11px;font-weight:700;color:#6b7280;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px;margin-top:16px;">🚪 Not Available</div>
-    <div class="section-card" style="padding:0;overflow:hidden;margin-bottom:16px;">
-      <div id="na-entries">
-        <div style="text-align:center;color:#d4b49a;font-size:13px;padding:20px;">Loading…</div>
-      </div>
-    </div>
-
-    <!-- Pending Rooms -->
-    <div class="section-label" style="display:flex;align-items:center;justify-content:space-between;font-size:11px;font-weight:700;color:#92400e;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px;">
-      <span>🕐 Pending Rooms</span>
-      <span id="pending-label" style="font-size:10px;font-weight:600;color:#d97706;background:#fef3c7;padding:3px 8px;border-radius:8px;"></span>
-    </div>
-    <div class="section-card" style="padding:0;overflow:hidden;">
-      <div id="pending-entries">
-        <div style="text-align:center;color:#d4b49a;font-size:13px;padding:20px;">Loading…</div>
-      </div>
-    </div>
-
-    <div style="text-align:center;margin-top:20px;">
-      <button onclick="loadDashboard()" style="background:#fff;border:1.5px solid #fed7aa;color:#f97316;padding:10px 24px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;">🔄 Refresh</button>
+    <div style="text-align:center;margin-top:24px;">
+      <button onclick="loadDashboard()" style="background:#fff;border:1.5px solid #fed7aa;color:#f97316;padding:10px 24px;border-radius:20px;font-size:13px;font-weight:700;cursor:pointer;">🔄 Refresh</button>
     </div>
   </div>
 </div>
@@ -1538,6 +1575,7 @@
   }
 
   let cachedRows = [];
+  let _dashCollected = []; // all collected entries for search/filter
 
   // Generate every room code in Usha Complex
   function getAllRooms() {
@@ -1606,9 +1644,9 @@
   }
 
   function renderStats(rows, today, selectedDate) {
-    let total = 0, todayAmt = 0, todayCount = 0;
+    let total = 0;
     const wings = {};
-    const visitedRooms = new Set(); // rooms that have ANY entry (collected or NA)
+    const visitedRooms = new Set();
 
     rows.forEach(r => {
       if (r.roomCode) visitedRooms.add(String(r.roomCode));
@@ -1618,89 +1656,69 @@
       if (!wings[wing]) wings[wing] = { total: 0, count: 0 };
       wings[wing].total += amt;
       wings[wing].count++;
-      if (r.date === today) { todayAmt += amt; todayCount++; }
     });
 
-    // Pending = all rooms not yet visited at all
-    const allRooms    = getAllRooms();
+    const allRooms     = getAllRooms();
     const pendingRooms = [...allRooms].filter(rc => !visitedRooms.has(rc));
-    const naList2      = rows.filter(r => (r.status || '') === 'Not Available');
+    const naList       = rows.filter(r => (r.status || '') === 'Not Available');
+    const collected    = rows.filter(r => (r.status || 'Collected') !== 'Not Available');
 
-    // Cash / GPay breakdown
+    // Pending per wing
+    const pendingByWing = {};
+    pendingRooms.forEach(rc => {
+      const w = rc.charAt(0);
+      if (!pendingByWing[w]) pendingByWing[w] = 0;
+      pendingByWing[w]++;
+    });
+
+    // Cash / GPay
     let cashAmt = 0, cashCnt = 0, gpayAmt = 0, gpayCnt = 0;
-    rows.forEach(r => {
-      if ((r.status||'Collected') === 'Not Available') return;
+    collected.forEach(r => {
       const amt = Number(r.amount) || 0;
       if ((r.paymentMode||'').toLowerCase() === 'gpay') { gpayAmt += amt; gpayCnt++; }
       else if ((r.paymentMode||'').toLowerCase() === 'cash') { cashAmt += amt; cashCnt++; }
     });
 
-    document.getElementById('stat-total').textContent       = fmt(total);
-    document.getElementById('stat-count').textContent       = rows.filter(r => (r.status||'Collected') !== 'Not Available').length;
-    document.getElementById('stat-today').textContent       = fmt(todayAmt);
-    document.getElementById('stat-today-count').textContent = todayCount;
-    document.getElementById('stat-pending').textContent     = pendingRooms.length;
-    document.getElementById('stat-na').textContent          = naList2.length;
-    document.getElementById('pending-label').textContent    = `${pendingRooms.length} of ${allRooms.size} rooms`;
-    document.getElementById('stat-cash').textContent        = fmt(cashAmt);
-    document.getElementById('stat-cash-count').textContent  = `${cashCnt} ${cashCnt===1?'entry':'entries'}`;
-    document.getElementById('stat-gpay').textContent        = fmt(gpayAmt);
-    document.getElementById('stat-gpay-count').textContent  = `${gpayCnt} ${gpayCnt===1?'entry':'entries'}`;
+    document.getElementById('stat-total').textContent      = fmt(total);
+    document.getElementById('stat-count').textContent      = collected.length;
+    document.getElementById('stat-pending').textContent    = pendingRooms.length;
+    document.getElementById('stat-na').textContent         = naList.length;
+    document.getElementById('pending-label').textContent   = `${pendingRooms.length} of ${allRooms.size} rooms`;
+    document.getElementById('stat-cash').textContent       = fmt(cashAmt);
+    document.getElementById('stat-cash-count').textContent = `${cashCnt} ${cashCnt===1?'entry':'entries'}`;
+    document.getElementById('stat-gpay').textContent       = fmt(gpayAmt);
+    document.getElementById('stat-gpay-count').textContent = `${gpayCnt} ${gpayCnt===1?'entry':'entries'}`;
 
-    // Wing breakdown
-    const sortedWings = Object.entries(wings).sort((a,b) => b[1].total - a[1].total);
+    // Wing breakdown with pending
+    const allWingKeys = ['A','B','C','D','E','F','G','H','I','J','K','L'];
+    const wingsWithData = new Set([...Object.keys(wings), ...Object.keys(pendingByWing)]);
+    const sortedWings = allWingKeys.filter(w => wingsWithData.has(w));
     if (sortedWings.length === 0) {
       document.getElementById('wing-breakdown').innerHTML = '<div style="text-align:center;color:#d4b49a;font-size:13px;padding:12px;">No data</div>';
     } else {
-      const maxAmt = sortedWings[0][1].total;
-      document.getElementById('wing-breakdown').innerHTML = sortedWings.map(([wing, d]) => {
-        const pct = maxAmt > 0 ? Math.round((d.total / maxAmt) * 100) : 0;
-        return `<div style="margin-bottom:12px;">
-          <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px;">
-            <span style="font-weight:700;color:#1c1917;">Wing ${wing}</span>
-            <span style="color:#78716c;">${d.count} entr${d.count===1?'y':'ies'} · <strong style="color:#f97316;">${fmt(d.total)}</strong></span>
+      const maxAmt = Math.max(...sortedWings.map(w => (wings[w]||{}).total||0), 1);
+      document.getElementById('wing-breakdown').innerHTML = sortedWings.map(wing => {
+        const d = wings[wing] || { total: 0, count: 0 };
+        const pend = pendingByWing[wing] || 0;
+        const pct = Math.round((d.total / maxAmt) * 100);
+        return `<div style="margin-bottom:14px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;font-size:13px;margin-bottom:4px;">
+            <span style="font-weight:800;color:#1c1917;">Wing ${wing}</span>
+            <span style="display:flex;gap:6px;align-items:center;">
+              <span style="color:#78716c;font-size:12px;">${d.count} collected · <strong style="color:#f97316;">${fmt(d.total)}</strong></span>
+              ${pend > 0 ? `<span style="font-size:10px;font-weight:700;color:#d97706;background:#fef3c7;padding:2px 7px;border-radius:6px;">⏳ ${pend} pending</span>` : '<span style="font-size:10px;font-weight:700;color:#16a34a;background:#f0fdf4;padding:2px 7px;border-radius:6px;">✓ Done</span>'}
+            </span>
           </div>
-          <div style="height:8px;background:#fef3e2;border-radius:4px;overflow:hidden;">
-            <div style="height:100%;width:${pct}%;background:linear-gradient(90deg,#f97316,#fbbf24);border-radius:4px;"></div>
+          <div style="height:7px;background:#fef3e2;border-radius:4px;overflow:hidden;">
+            <div style="height:100%;width:${pct}%;background:linear-gradient(90deg,#f97316,#fbbf24);border-radius:4px;transition:width .4s;"></div>
           </div>
         </div>`;
       }).join('');
     }
 
-    // Split collected vs NA
-    const collected = rows.filter(r => (r.status || 'Collected') !== 'Not Available');
-    const naList    = rows.filter(r => (r.status || '') === 'Not Available');
-
-    // Override stats to use only collected rows
-    let cTotal = 0; const cWings = {};
-    collected.forEach(r => {
-      const amt = Number(r.amount) || 0; cTotal += amt;
-    });
-
-    // Recent collected entries (latest 20)
-    const recent = [...collected].reverse().slice(0, 20);
-    if (recent.length === 0) {
-      document.getElementById('recent-entries').innerHTML = '<div style="text-align:center;color:#d4b49a;font-size:13px;padding:20px;">No entries</div>';
-    } else {
-      document.getElementById('recent-entries').innerHTML = recent.map((r, i) => {
-        const payBadge = r.paymentMode === 'GPay'
-          ? '<span style="font-size:10px;font-weight:700;color:#2563eb;background:#eff6ff;padding:2px 6px;border-radius:5px;margin-left:5px;">📲 GPay</span>'
-          : r.paymentMode === 'Cash'
-          ? '<span style="font-size:10px;font-weight:700;color:#16a34a;background:#f0fdf4;padding:2px 6px;border-radius:5px;margin-left:5px;">💵 Cash</span>'
-          : '';
-        const typeBadge = r.type === 'Other'
-          ? '<span style="font-size:10px;font-weight:700;color:#7c3aed;background:#f5f3ff;padding:2px 6px;border-radius:5px;margin-left:5px;">🌟 Other</span>'
-          : '';
-        const loc = r.type === 'Other' ? 'Others' : (r.roomCode || '—');
-        return `<div style="display:flex;justify-content:space-between;align-items:center;padding:11px 16px;${i < recent.length-1 ? 'border-bottom:1px solid #fef3e2;' : ''}">
-          <div>
-            <div style="font-size:13px;font-weight:700;color:#1c1917;">${r.name || '—'}${typeBadge}</div>
-            <div style="font-size:11px;color:#a8a29e;margin-top:2px;">${loc} · ${r.date || '—'}${payBadge}</div>
-          </div>
-          <div style="font-size:15px;font-weight:800;color:#f97316;">${fmt(r.amount)}</div>
-        </div>`;
-      }).join('');
-    }
+    // All Entries (collected, newest first)
+    _dashCollected = [...collected].reverse();
+    filterEntries();
 
     // Not Available list
     if (naList.length === 0) {
@@ -1716,11 +1734,10 @@
         </div>`).join('');
     }
 
-    // Pending rooms (not visited at all) — grouped by wing
+    // Pending rooms — collapsible by wing
     if (pendingRooms.length === 0) {
       document.getElementById('pending-entries').innerHTML = '<div style="text-align:center;color:#16a34a;font-size:13px;padding:16px;font-weight:700;">🎉 All rooms visited!</div>';
     } else {
-      // Group by wing
       const byWing = {};
       pendingRooms.forEach(rc => {
         const w = rc.charAt(0);
@@ -1729,12 +1746,75 @@
       });
       document.getElementById('pending-entries').innerHTML = Object.entries(byWing).sort().map(([wing, rooms]) => `
         <div style="border-bottom:1px solid #fef3e2;">
-          <div style="padding:8px 16px 4px;font-size:11px;font-weight:800;color:#92400e;letter-spacing:1px;text-transform:uppercase;background:#fff8f0;">Wing ${wing} · ${rooms.length} pending</div>
-          <div style="padding:8px 16px;display:flex;flex-wrap:wrap;gap:6px;">
+          <div onclick="togglePendingWing('${wing}')" style="cursor:pointer;display:flex;align-items:center;justify-content:space-between;padding:10px 16px;background:#fff8f0;">
+            <span style="font-size:12px;font-weight:800;color:#92400e;letter-spacing:0.5px;text-transform:uppercase;">Wing ${wing} · ${rooms.length} pending</span>
+            <span id="pending-arrow-${wing}" style="font-size:11px;color:#d97706;font-weight:700;">▼</span>
+          </div>
+          <div id="pending-wing-${wing}" style="display:none;padding:8px 16px 10px;display:flex;flex-wrap:wrap;gap:6px;">
             ${rooms.map(rc => `<span style="font-size:12px;font-weight:700;color:#d97706;background:#fef3c7;padding:3px 8px;border-radius:6px;">${rc}</span>`).join('')}
           </div>
         </div>`).join('');
+      // Collapse all by default (override the display:flex above)
+      Object.keys(byWing).forEach(wing => {
+        const el = document.getElementById(`pending-wing-${wing}`);
+        if (el) el.style.display = 'none';
+      });
     }
+  }
+
+  function togglePendingWing(wing) {
+    const el = document.getElementById(`pending-wing-${wing}`);
+    const arrow = document.getElementById(`pending-arrow-${wing}`);
+    if (!el) return;
+    const isOpen = el.style.display !== 'none';
+    el.style.display = isOpen ? 'none' : 'flex';
+    el.style.flexWrap = 'wrap';
+    if (arrow) arrow.textContent = isOpen ? '▼' : '▲';
+  }
+
+  function filterEntries() {
+    const search = (document.getElementById('entries-search')?.value || '').toLowerCase().trim();
+    const wingFilter = (document.getElementById('entries-wing-filter')?.value || '');
+    let filtered = _dashCollected;
+    if (search) {
+      filtered = filtered.filter(r =>
+        (r.name||'').toLowerCase().includes(search) ||
+        (r.roomCode||'').toLowerCase().includes(search) ||
+        (r.mobile||'').toLowerCase().includes(search) ||
+        (r.receiptNum||'').toLowerCase().includes(search)
+      );
+    }
+    if (wingFilter) {
+      if (wingFilter === 'Other') {
+        filtered = filtered.filter(r => r.type === 'Other');
+      } else {
+        filtered = filtered.filter(r => (r.wing || (r.roomCode||'').charAt(0)).toUpperCase() === wingFilter);
+      }
+    }
+    const container = document.getElementById('all-entries');
+    if (!container) return;
+    if (filtered.length === 0) {
+      container.innerHTML = '<div style="text-align:center;color:#d4b49a;font-size:13px;padding:20px;">No entries found</div>';
+      return;
+    }
+    container.innerHTML = filtered.map((r, i) => {
+      const payBadge = r.paymentMode === 'GPay'
+        ? '<span style="font-size:10px;font-weight:700;color:#2563eb;background:#eff6ff;padding:2px 6px;border-radius:5px;margin-left:5px;">📲 GPay</span>'
+        : r.paymentMode === 'Cash'
+        ? '<span style="font-size:10px;font-weight:700;color:#16a34a;background:#f0fdf4;padding:2px 6px;border-radius:5px;margin-left:5px;">💵 Cash</span>'
+        : '';
+      const typeBadge = r.type === 'Other'
+        ? '<span style="font-size:10px;font-weight:700;color:#7c3aed;background:#f5f3ff;padding:2px 6px;border-radius:5px;margin-left:5px;">🌟 Other</span>'
+        : '';
+      const loc = r.type === 'Other' ? 'Others' : (r.roomCode || '—');
+      return `<div style="display:flex;justify-content:space-between;align-items:center;padding:11px 16px;${i < filtered.length-1 ? 'border-bottom:1px solid #fef3e2;' : ''}">
+        <div>
+          <div style="font-size:13px;font-weight:700;color:#1c1917;">${r.name||'—'}${typeBadge}</div>
+          <div style="font-size:11px;color:#a8a29e;margin-top:2px;">${loc} · ${r.date||'—'}${payBadge}</div>
+        </div>
+        <div style="font-size:15px;font-weight:800;color:#f97316;">${fmt(r.amount)}</div>
+      </div>`;
+    }).join('');
   }
 </script>
 
