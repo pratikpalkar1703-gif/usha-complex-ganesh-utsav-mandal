@@ -1630,14 +1630,14 @@
       const card   = document.getElementById('receipt-card');
       const num    = document.getElementById('receipt-num').textContent.trim().replace(/\s+/g,'_');
 
-      // Generate PDF from canvas (works on all platforms)
-      const canvas  = await html2canvas(card, { scale: 3, useCORS: true, backgroundColor: '#ffffff', logging: false });
+      // Generate PDF from canvas — custom page size matches receipt exactly (no cropping)
+      const canvas  = await html2canvas(card, { scale: 3, useCORS: true, backgroundColor: '#ffffff', logging: false, scrollX: 0, scrollY: -window.scrollY });
       const imgData = canvas.toDataURL('image/png');
       const { jsPDF } = window.jspdf;
-      const pdf  = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a5' });
-      const pdfW = pdf.internal.pageSize.getWidth();
-      const pdfH = (canvas.height / canvas.width) * pdfW;
-      pdf.addImage(imgData, 'PNG', 0, 0, pdfW, pdfH);
+      const mmW = 90; // receipt width in mm
+      const mmH = (canvas.height / canvas.width) * mmW;
+      const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: [mmW, mmH] });
+      pdf.addImage(imgData, 'PNG', 0, 0, mmW, mmH);
       const pdfBlob = pdf.output('blob');
       const pdfFile = new File([pdfBlob], `Ganpati_Receipt_${num}.pdf`, { type: 'application/pdf' });
 
@@ -1662,7 +1662,9 @@
     btn.disabled = true;
     try {
       const card = document.getElementById('receipt-card');
-      const canvas = await html2canvas(card, { scale: 3, useCORS: true, backgroundColor: '#ffffff', logging: false });
+      card.scrollIntoView({ behavior: 'instant', block: 'start' });
+      await new Promise(r => setTimeout(r, 80));
+      const canvas = await html2canvas(card, { scale: 3, useCORS: true, backgroundColor: '#ffffff', logging: false, scrollX: 0, scrollY: -window.scrollY });
       const num = document.getElementById('receipt-num').textContent.trim().replace(/\s+/g, '_');
 
       // ✅ Promise-wrap toBlob so await keeps user-gesture context alive on iOS Safari
