@@ -1220,6 +1220,7 @@
         ok = false;
       }
     });
+    const isNA2 = document.getElementById('not-available').checked;
     const mobile = document.getElementById('mobile').value;
     if (!isNA2 && mobile && !/^\d{10}$/.test(mobile)) {
       const el = document.getElementById('mobile');
@@ -1233,7 +1234,6 @@
       ok = false;
     }
     // Payment mode required (not for NA)
-    const isNA2 = document.getElementById('not-available').checked;
     if (!isNA2 && !document.querySelector('input[name="paymode"]:checked')) {
       const pmField = document.getElementById('payment-mode-field');
       if (!pmField.querySelector('.error-msg')) {
