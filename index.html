@@ -935,8 +935,25 @@
       </div>
     </div>
 
+    <!-- ── Overall Progress Bar ── -->
+    <div class="section-card" style="margin-bottom:16px;padding:18px 20px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+        <div>
+          <div style="font-size:12px;font-weight:700;color:#92400e;letter-spacing:1px;text-transform:uppercase;">Overall Progress</div>
+          <div id="progress-sub" style="font-size:11px;color:#a8a29e;margin-top:3px;">0 of 364 rooms visited</div>
+        </div>
+        <div style="text-align:right;">
+          <div id="progress-pct" style="font-size:28px;font-weight:900;color:#f97316;line-height:1;">0%</div>
+          <div id="stat-avg" style="font-size:11px;color:#78716c;margin-top:2px;">avg ₹0 / room</div>
+        </div>
+      </div>
+      <div style="height:14px;background:#fef3e2;border-radius:7px;overflow:hidden;">
+        <div id="progress-bar" style="height:100%;width:0%;background:linear-gradient(90deg,#f97316,#fbbf24);border-radius:7px;transition:width .8s ease;"></div>
+      </div>
+    </div>
+
     <div class="dash-two-col">
-      <!-- Left column: Wing breakdown + Not Available -->
+      <!-- Left column: Wing breakdown + Top Donors + Not Available + Re-visit -->
       <div>
         <!-- Wing breakdown -->
         <div class="section-label" style="display:flex;align-items:center;gap:7px;font-size:11px;font-weight:700;color:#c2410c;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px;">🏢 Wing-wise Breakdown</div>
@@ -946,6 +963,12 @@
           </div>
         </div>
 
+        <!-- Top Donors -->
+        <div class="section-label" style="display:flex;align-items:center;gap:7px;font-size:11px;font-weight:700;color:#c2410c;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px;">🏆 Top Donors</div>
+        <div class="section-card" style="padding:0;overflow:hidden;margin-bottom:16px;">
+          <div id="top-donors"><div style="text-align:center;color:#d4b49a;font-size:13px;padding:16px;">Loading…</div></div>
+        </div>
+
         <!-- Not Available -->
         <div class="section-label" style="display:flex;align-items:center;gap:7px;font-size:11px;font-weight:700;color:#6b7280;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px;">🚪 Not Available</div>
         <div class="section-card" style="padding:0;overflow:hidden;margin-bottom:16px;">
@@ -953,9 +976,15 @@
             <div style="text-align:center;color:#d4b49a;font-size:13px;padding:20px;">Loading…</div>
           </div>
         </div>
+
+        <!-- Re-visit List -->
+        <div class="section-label" style="display:flex;align-items:center;gap:7px;font-size:11px;font-weight:700;color:#7c3aed;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px;">🔁 Re-visit List</div>
+        <div class="section-card" style="padding:0;overflow:hidden;margin-bottom:16px;">
+          <div id="revisit-entries"><div style="text-align:center;color:#d4b49a;font-size:13px;padding:16px;">Loading…</div></div>
+        </div>
       </div>
 
-      <!-- Right column: All Entries + Pending -->
+      <!-- Right column: All Entries + Daily Trend + Pending -->
       <div>
         <!-- All entries -->
         <div class="section-label" style="display:flex;align-items:center;gap:7px;font-size:11px;font-weight:700;color:#c2410c;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px;">🧾 All Entries</div>
@@ -976,6 +1005,12 @@
           </div>
         </div>
 
+        <!-- Daily Trend -->
+        <div class="section-label" style="display:flex;align-items:center;gap:7px;font-size:11px;font-weight:700;color:#0369a1;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px;">📊 Daily Trend</div>
+        <div class="section-card" style="padding:14px 16px;margin-bottom:16px;">
+          <div id="daily-trend"><div style="text-align:center;color:#d4b49a;font-size:13px;padding:12px;">Loading…</div></div>
+        </div>
+
         <!-- Pending Rooms (collapsible by wing) -->
         <div class="section-label" style="display:flex;align-items:center;justify-content:space-between;font-size:11px;font-weight:700;color:#92400e;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px;">
           <span>🕐 Pending Rooms</span>
@@ -989,7 +1024,16 @@
       </div>
     </div>
 
-    <div style="text-align:center;margin-top:24px;">
+    <!-- ── Share Summary + Export PDF ── -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:20px;margin-bottom:4px;">
+      <button onclick="shareSummary()" style="background:linear-gradient(135deg,#22c55e,#16a34a);border:none;color:#fff;padding:13px 10px;border-radius:14px;font-size:14px;font-weight:700;cursor:pointer;letter-spacing:0.3px;">📤 Share Summary</button>
+      <button id="pdf-btn" onclick="exportPDF(this)" style="background:linear-gradient(135deg,#dc2626,#ef4444);border:none;color:#fff;padding:13px 10px;border-radius:14px;font-size:14px;font-weight:700;cursor:pointer;letter-spacing:0.3px;">📄 Export PDF</button>
+    </div>
+
+    <!-- Hidden print view (captured by html2canvas) -->
+    <div id="print-summary" style="position:fixed;left:-9999px;top:0;width:750px;background:#fff;padding:40px;font-family:'Segoe UI',Arial,sans-serif;font-size:14px;line-height:1.4;"></div>
+
+    <div style="text-align:center;margin-top:20px;">
       <button onclick="loadDashboard()" style="background:#fff;border:1.5px solid #fed7aa;color:#f97316;padding:10px 24px;border-radius:20px;font-size:13px;font-weight:700;cursor:pointer;">🔄 Refresh</button>
     </div>
   </div>
@@ -1716,6 +1760,21 @@
     document.getElementById('stat-gpay').textContent       = fmt(gpayAmt);
     document.getElementById('stat-gpay-count').textContent = `${gpayCnt} ${gpayCnt===1?'entry':'entries'}`;
 
+    // Progress bar
+    const totalRooms = allRooms.size;
+    const visitedCount = totalRooms - pendingRooms.length;
+    const progPct = totalRooms > 0 ? Math.round((visitedCount / totalRooms) * 100) : 0;
+    document.getElementById('progress-bar').style.width = progPct + '%';
+    document.getElementById('progress-pct').textContent = progPct + '%';
+    document.getElementById('progress-sub').textContent = `${visitedCount} of ${totalRooms} rooms visited · ${collected.length} collected · ${naList.length} NA`;
+    const avgAmt = collected.length > 0 ? Math.round(total / collected.length) : 0;
+    document.getElementById('stat-avg').textContent = `avg ${fmt(avgAmt)} / room`;
+
+    // Store for PDF
+    window._wingDataForPDF     = wings;
+    window._pendingByWingForPDF = pendingByWing;
+    window._dashStats = { total, collected: collected.length, pending: pendingRooms.length, na: naList.length, cashAmt, cashCnt, gpayAmt, gpayCnt, avgAmt, progPct, totalRooms, visitedCount };
+
     // Wing breakdown with pending
     const allWingKeys = ['A','B','C','D','E','F','G','H','I','J','K','L'];
     const wingsWithData = new Set([...Object.keys(wings), ...Object.keys(pendingByWing)]);
@@ -1749,6 +1808,11 @@
     // All Entries (collected, newest first)
     _dashCollected = [...collected].reverse();
     filterEntries();
+
+    // New sections
+    renderTopDonors(collected);
+    renderRevisit(naList);
+    renderDailyTrend(collected);
 
     // Not Available list
     if (naList.length === 0) {
@@ -1880,6 +1944,245 @@
         </div>
       </div>`;
     }).join('');
+  }
+
+  // ── TOP DONORS ──────────────────────────────────────────────────────────────
+  function renderTopDonors(collected) {
+    const el = document.getElementById('top-donors');
+    if (!el) return;
+    const sorted = [...collected]
+      .filter(r => Number(r.amount) > 0)
+      .sort((a, b) => Number(b.amount) - Number(a.amount))
+      .slice(0, 5);
+    if (sorted.length === 0) {
+      el.innerHTML = '<div style="text-align:center;color:#d4b49a;font-size:13px;padding:16px;">No entries yet</div>';
+      return;
+    }
+    const medals = ['🥇','🥈','🥉','4️⃣','5️⃣'];
+    el.innerHTML = sorted.map((r, i) => {
+      const loc = r.type === 'Other' ? 'Non-Resident' : (r.roomCode || '—');
+      return `<div style="display:flex;align-items:center;gap:10px;padding:11px 16px;${i < sorted.length-1 ? 'border-bottom:1px solid #fef3e2;' : ''}">
+        <span style="font-size:20px;line-height:1;">${medals[i]}</span>
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:13px;font-weight:700;color:#1c1917;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${r.name || '—'}</div>
+          <div style="font-size:11px;color:#a8a29e;margin-top:2px;">${loc}</div>
+        </div>
+        <div style="font-size:16px;font-weight:900;color:#f97316;flex-shrink:0;">${fmt(r.amount)}</div>
+      </div>`;
+    }).join('');
+  }
+
+  // ── RE-VISIT LIST ────────────────────────────────────────────────────────────
+  function renderRevisit(naList) {
+    const el = document.getElementById('revisit-entries');
+    if (!el) return;
+    if (naList.length === 0) {
+      el.innerHTML = '<div style="text-align:center;color:#16a34a;font-size:13px;padding:16px;font-weight:700;">✓ No pending revisits</div>';
+      return;
+    }
+    const today = new Date(); today.setHours(0,0,0,0);
+    const withDays = naList.map(r => {
+      const d = new Date(r.date || '');
+      d.setHours(0,0,0,0);
+      const days = isNaN(d.getTime()) ? 0 : Math.floor((today - d) / 86400000);
+      return { ...r, days };
+    }).sort((a, b) => b.days - a.days);
+    el.innerHTML = withDays.map((r, i) => {
+      const urgColor = r.days >= 3 ? '#dc2626' : r.days >= 1 ? '#d97706' : '#6b7280';
+      const urgBg    = r.days >= 3 ? '#fef2f2' : r.days >= 1 ? '#fef3c7' : '#f3f4f6';
+      const label    = r.days === 0 ? 'Today' : r.days === 1 ? '1 day ago' : `${r.days} days ago`;
+      return `<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 16px;${i < withDays.length-1 ? 'border-bottom:1px solid #f3f4f6;' : ''}">
+        <div>
+          <div style="font-size:13px;font-weight:700;color:#374151;">🚪 ${r.roomCode || '—'}</div>
+          <div style="font-size:11px;color:#a8a29e;margin-top:2px;">${r.date || '—'}</div>
+        </div>
+        <span style="font-size:11px;font-weight:700;color:${urgColor};background:${urgBg};padding:4px 10px;border-radius:8px;white-space:nowrap;">${label}</span>
+      </div>`;
+    }).join('');
+  }
+
+  // ── DAILY TREND CHART ────────────────────────────────────────────────────────
+  function renderDailyTrend(collected) {
+    const el = document.getElementById('daily-trend');
+    if (!el) return;
+    const byDate = {};
+    collected.forEach(r => {
+      if (!r.date) return;
+      if (!byDate[r.date]) byDate[r.date] = { amt: 0, cnt: 0 };
+      byDate[r.date].amt += Number(r.amount) || 0;
+      byDate[r.date].cnt++;
+    });
+    const entries = Object.entries(byDate)
+      .sort((a, b) => new Date(a[0]) - new Date(b[0]))
+      .slice(-14); // last 14 days
+    if (entries.length === 0) {
+      el.innerHTML = '<div style="text-align:center;color:#d4b49a;font-size:13px;padding:12px;">No data yet</div>';
+      return;
+    }
+    const maxAmt = Math.max(...entries.map(e => e[1].amt), 1);
+    const chartHeight = 80;
+    el.innerHTML = `
+      <div style="display:flex;align-items:flex-end;gap:3px;height:${chartHeight}px;margin-bottom:4px;">
+        ${entries.map(([date, d]) => {
+          const barH = Math.max(Math.round((d.amt / maxAmt) * chartHeight), 3);
+          const shortDate = date.split(' ').slice(0,2).join(' ');
+          const amtLabel = d.amt >= 1000 ? '₹' + Math.round(d.amt/1000) + 'k' : '₹' + d.amt;
+          return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:0;" title="${date}: ${fmt(d.amt)} (${d.cnt} entries)">
+            <div style="font-size:8px;color:#f97316;font-weight:700;margin-bottom:2px;white-space:nowrap;">${amtLabel}</div>
+            <div style="width:100%;height:${barH}px;background:linear-gradient(180deg,#fbbf24,#f97316);border-radius:3px 3px 0 0;min-height:3px;"></div>
+          </div>`;
+        }).join('')}
+      </div>
+      <div style="display:flex;align-items:flex-start;gap:3px;">
+        ${entries.map(([date]) => {
+          const parts = date.split(' ');
+          return `<div style="flex:1;font-size:8px;color:#a8a29e;text-align:center;line-height:1.3;">${parts[0]}<br>${parts[1]||''}</div>`;
+        }).join('')}
+      </div>`;
+  }
+
+  // ── SHARE SUMMARY ────────────────────────────────────────────────────────────
+  function shareSummary() {
+    const s = window._dashStats || {};
+    const pct = document.getElementById('progress-pct')?.textContent || '0%';
+    const today = normDate(new Date());
+    const text =
+      `🙏 *Ganpati Decoration 2026 – Usha Complex*\n` +
+      `📅 Update: ${today}\n\n` +
+      `💰 Total Collected: *${fmt(s.total||0)}* (${s.collected||0} receipts)\n` +
+      `📊 Progress: *${pct}* rooms visited\n` +
+      `📈 Avg Donation: *${fmt(s.avgAmt||0)}*\n\n` +
+      `💵 Cash: ${fmt(s.cashAmt||0)} (${s.cashCnt||0} entries)\n` +
+      `📲 GPay: ${fmt(s.gpayAmt||0)} (${s.gpayCnt||0} entries)\n\n` +
+      `🕐 Pending: ${s.pending||0} rooms\n` +
+      `🚪 Not Available: ${s.na||0} rooms\n\n` +
+      `🙏 Ganpati Bappa Morya! 🙏`;
+    if (navigator.share) {
+      navigator.share({ text }).catch(() => {});
+    } else {
+      window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank');
+    }
+  }
+
+  // ── EXPORT PDF ───────────────────────────────────────────────────────────────
+  async function exportPDF(btn) {
+    const orig = btn.textContent;
+    btn.textContent = '⏳ Generating…';
+    btn.disabled = true;
+    try {
+      const s      = window._dashStats || {};
+      const wings  = window._wingDataForPDF || {};
+      const pend   = window._pendingByWingForPDF || {};
+      const pct    = document.getElementById('progress-pct')?.textContent || '0%';
+      const allWings = ['A','B','C','D','E','F','G','H','I','J','K','L'];
+      const topDonors = [...(_sheetData || [])]
+        .filter(r => (r.status||'Collected') !== 'Not Available' && Number(r.amount) > 0)
+        .sort((a, b) => Number(b.amount) - Number(a.amount))
+        .slice(0, 10);
+
+      const printEl = document.getElementById('print-summary');
+      printEl.innerHTML = `
+        <div style="text-align:center;margin-bottom:28px;padding-bottom:20px;border-bottom:3px solid #f97316;">
+          <div style="font-size:24px;font-weight:900;color:#f97316;">🙏 Ganpati Decoration 2026</div>
+          <div style="font-size:16px;font-weight:700;color:#1c1917;margin-top:6px;">Usha Complex – Collection Summary Report</div>
+          <div style="font-size:12px;color:#6b7280;margin-top:4px;">Generated: ${normDate(new Date())}</div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:24px;">
+          ${[
+            ['Total Collected', fmt(s.total||0), '#f97316'],
+            ['Total Receipts',  s.collected||0, '#f97316'],
+            ['Overall Progress', pct, '#f97316'],
+            ['Avg Donation', fmt(s.avgAmt||0), '#16a34a'],
+            ['Pending Rooms', s.pending||0, '#d97706'],
+            ['Not Available', s.na||0, '#9ca3af'],
+          ].map(([label, val, color]) => `
+            <div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:10px;padding:14px;text-align:center;">
+              <div style="font-size:10px;font-weight:700;color:#92400e;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;">${label}</div>
+              <div style="font-size:20px;font-weight:900;color:${color};">${val}</div>
+            </div>`).join('')}
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:24px;">
+          <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:16px;text-align:center;">
+            <div style="font-size:11px;font-weight:700;color:#166534;letter-spacing:1px;text-transform:uppercase;">💵 Cash</div>
+            <div style="font-size:22px;font-weight:900;color:#16a34a;margin-top:6px;">${fmt(s.cashAmt||0)}</div>
+            <div style="font-size:12px;color:#6b7280;margin-top:4px;">${s.cashCnt||0} entries</div>
+          </div>
+          <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:16px;text-align:center;">
+            <div style="font-size:11px;font-weight:700;color:#1e40af;letter-spacing:1px;text-transform:uppercase;">📲 GPay</div>
+            <div style="font-size:22px;font-weight:900;color:#2563eb;margin-top:6px;">${fmt(s.gpayAmt||0)}</div>
+            <div style="font-size:12px;color:#6b7280;margin-top:4px;">${s.gpayCnt||0} entries</div>
+          </div>
+        </div>
+
+        <div style="font-size:13px;font-weight:800;color:#c2410c;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;">🏢 Wing-wise Breakdown</div>
+        <table style="width:100%;border-collapse:collapse;margin-bottom:26px;font-size:12px;">
+          <tr style="background:#f97316;color:#fff;">
+            <th style="padding:8px 10px;text-align:left;border-radius:6px 0 0 6px;">Wing</th>
+            <th style="padding:8px 10px;text-align:center;">Collected</th>
+            <th style="padding:8px 10px;text-align:right;">Amount</th>
+            <th style="padding:8px 10px;text-align:center;">NA</th>
+            <th style="padding:8px 10px;text-align:center;border-radius:0 6px 6px 0;">Pending</th>
+          </tr>
+          ${allWings.map((wing, idx) => {
+            const wd = wings[wing] || { count: 0, total: 0, na: 0 };
+            const p  = pend[wing] || 0;
+            if (wd.count === 0 && (wd.na||0) === 0 && p === 0) return '';
+            return `<tr style="background:${idx%2===0?'#fff':'#fff8f0'};">
+              <td style="padding:7px 10px;font-weight:700;">Wing ${wing}</td>
+              <td style="padding:7px 10px;text-align:center;">${wd.count}</td>
+              <td style="padding:7px 10px;text-align:right;font-weight:700;color:#f97316;">${fmt(wd.total)}</td>
+              <td style="padding:7px 10px;text-align:center;color:#9ca3af;">${wd.na||0}</td>
+              <td style="padding:7px 10px;text-align:center;color:#d97706;">${p}</td>
+            </tr>`;
+          }).join('')}
+        </table>
+
+        ${topDonors.length > 0 ? `
+        <div style="font-size:13px;font-weight:800;color:#c2410c;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;">🏆 Top Donors</div>
+        <table style="width:100%;border-collapse:collapse;margin-bottom:26px;font-size:12px;">
+          <tr style="background:#f97316;color:#fff;">
+            <th style="padding:8px 10px;text-align:left;">#</th>
+            <th style="padding:8px 10px;text-align:left;">Name</th>
+            <th style="padding:8px 10px;text-align:left;">Room / Type</th>
+            <th style="padding:8px 10px;text-align:right;">Amount</th>
+          </tr>
+          ${topDonors.map((r, i) => `
+          <tr style="background:${i%2===0?'#fff':'#fff8f0'};">
+            <td style="padding:7px 10px;font-weight:700;">${i+1}</td>
+            <td style="padding:7px 10px;">${r.name||'—'}</td>
+            <td style="padding:7px 10px;color:#6b7280;">${r.type==='Other' ? 'Non-Resident' : (r.roomCode||'—')}</td>
+            <td style="padding:7px 10px;text-align:right;font-weight:700;color:#f97316;">${fmt(r.amount)}</td>
+          </tr>`).join('')}
+        </table>` : ''}
+
+        <div style="text-align:center;margin-top:24px;font-size:12px;color:#9ca3af;border-top:1px solid #fef3e2;padding-top:16px;">
+          🙏 Ganpati Bappa Morya · Usha Complex 2026
+        </div>`;
+
+      const canvas = await html2canvas(printEl, { scale: 2, backgroundColor: '#ffffff', useCORS: true });
+      const imgData = canvas.toDataURL('image/png');
+      const { jsPDF } = window.jspdf;
+      const pdf   = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+      const pdfW  = pdf.internal.pageSize.getWidth();
+      const pdfH  = pdf.internal.pageSize.getHeight();
+      const imgH  = (canvas.height / canvas.width) * pdfW;
+      let y = 0;
+      while (y < imgH) {
+        if (y > 0) pdf.addPage();
+        pdf.addImage(imgData, 'PNG', 0, -y, pdfW, imgH);
+        y += pdfH;
+      }
+      const fname = `Ganpati_Summary_${normDate(new Date()).replace(/\s/g,'_')}.pdf`;
+      pdf.save(fname);
+    } catch(err) {
+      console.error(err);
+      alert('PDF export failed. Please try again.');
+    } finally {
+      btn.textContent = orig;
+      btn.disabled = false;
+    }
   }
 </script>
 
