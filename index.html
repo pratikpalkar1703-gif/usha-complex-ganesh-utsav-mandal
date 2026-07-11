@@ -1678,11 +1678,11 @@
     rows.forEach(r => {
       if (r.roomCode) visitedRooms.add(String(r.roomCode));
       const amt = Number(r.amount) || 0;
+      const isNA = (r.status || '') === 'Not Available';
       total += amt;
       const wing = (r.wing || (r.roomCode || '?').charAt(0)).toString().toUpperCase();
-      if (!wings[wing]) wings[wing] = { total: 0, count: 0 };
-      wings[wing].total += amt;
-      wings[wing].count++;
+      if (!wings[wing]) wings[wing] = { total: 0, count: 0, na: 0 };
+      if (isNA) { wings[wing].na++; } else { wings[wing].total += amt; wings[wing].count++; }
     });
 
     const allRooms     = getAllRooms();
@@ -1728,15 +1728,18 @@
         const d = wings[wing] || { total: 0, count: 0 };
         const pend = pendingByWing[wing] || 0;
         const pct = Math.round((d.total / maxAmt) * 100);
+        const naCount = d.na || 0;
         return `<div style="margin-bottom:14px;">
-          <div style="display:flex;justify-content:space-between;align-items:center;font-size:13px;margin-bottom:4px;">
+          <div style="display:flex;justify-content:space-between;align-items:center;font-size:13px;margin-bottom:5px;">
             <span style="font-weight:800;color:#1c1917;">Wing ${wing}</span>
-            <span style="display:flex;gap:6px;align-items:center;">
-              <span style="color:#78716c;font-size:12px;">${d.count} collected · <strong style="color:#f97316;">${fmt(d.total)}</strong></span>
-              ${pend > 0 ? `<span style="font-size:10px;font-weight:700;color:#d97706;background:#fef3c7;padding:2px 7px;border-radius:6px;">⏳ ${pend} pending</span>` : '<span style="font-size:10px;font-weight:700;color:#16a34a;background:#f0fdf4;padding:2px 7px;border-radius:6px;">✓ Done</span>'}
+            <span style="display:flex;gap:5px;align-items:center;flex-wrap:wrap;justify-content:flex-end;">
+              <span style="font-size:11px;color:#f97316;font-weight:700;">${fmt(d.total)}</span>
+              <span style="font-size:10px;font-weight:700;color:#78716c;background:#f3f4f6;padding:2px 6px;border-radius:5px;">${d.count} ✓</span>
+              ${naCount > 0 ? `<span style="font-size:10px;font-weight:700;color:#6b7280;background:#f3f4f6;padding:2px 6px;border-radius:5px;">${naCount} NA</span>` : ''}
+              ${pend > 0 ? `<span style="font-size:10px;font-weight:700;color:#d97706;background:#fef3c7;padding:2px 6px;border-radius:5px;">${pend} ⏳</span>` : '<span style="font-size:10px;font-weight:700;color:#16a34a;background:#f0fdf4;padding:2px 6px;border-radius:5px;">✓ Done</span>'}
             </span>
           </div>
-          <div style="height:7px;background:#fef3e2;border-radius:4px;overflow:hidden;">
+          <div style="height:6px;background:#fef3e2;border-radius:4px;overflow:hidden;">
             <div style="height:100%;width:${pct}%;background:linear-gradient(90deg,#f97316,#fbbf24);border-radius:4px;transition:width .4s;"></div>
           </div>
         </div>`;
@@ -1789,6 +1792,30 @@
     }
   }
 
+  function regenReceipt(r) {
+    // Populate receipt modal from existing sheet entry (no new sheet write)
+    document.getElementById('rc-logo').src = document.querySelector('.header-icon').src;
+    document.getElementById('receipt-num').textContent  = r.receiptNum || '—';
+    document.getElementById('r-date').textContent       = r.date || '—';
+    document.getElementById('r-name').textContent       = r.name || '—';
+    document.getElementById('r-mobile').textContent     = r.mobile || '—';
+    document.getElementById('r-amount').textContent     = '₹' + Number(r.amount).toLocaleString('en-IN');
+    document.getElementById('rc-amount-label').textContent = 'Donation Amount';
+    const isOther = r.type === 'Other';
+    document.getElementById('rc-row-location').style.display = isOther ? 'none' : '';
+    document.getElementById('rc-row-type').style.display     = isOther ? '' : 'none';
+    if (isOther) {
+      document.getElementById('r-type').textContent = '🌟 Others (Non-Resident)';
+    } else {
+      document.getElementById('r-location').textContent = r.roomCode || '—';
+    }
+    // Payment mode
+    const pmEl = document.getElementById('r-paymode');
+    if (pmEl) pmEl.textContent = r.paymentMode || '—';
+    _currentReceiptNum = r.receiptNum || null;
+    document.getElementById('modal').classList.add('open');
+  }
+
   function togglePendingWing(wing) {
     const el = document.getElementById(`pending-wing-${wing}`);
     const arrow = document.getElementById(`pending-arrow-${wing}`);
@@ -1826,20 +1853,31 @@
     }
     container.innerHTML = filtered.map((r, i) => {
       const payBadge = r.paymentMode === 'GPay'
-        ? '<span style="font-size:10px;font-weight:700;color:#2563eb;background:#eff6ff;padding:2px 6px;border-radius:5px;margin-left:5px;">📲 GPay</span>'
+        ? '<span style="font-size:10px;font-weight:700;color:#2563eb;background:#eff6ff;padding:2px 6px;border-radius:5px;">📲 GPay</span>'
         : r.paymentMode === 'Cash'
-        ? '<span style="font-size:10px;font-weight:700;color:#16a34a;background:#f0fdf4;padding:2px 6px;border-radius:5px;margin-left:5px;">💵 Cash</span>'
+        ? '<span style="font-size:10px;font-weight:700;color:#16a34a;background:#f0fdf4;padding:2px 6px;border-radius:5px;">💵 Cash</span>'
         : '';
       const typeBadge = r.type === 'Other'
-        ? '<span style="font-size:10px;font-weight:700;color:#7c3aed;background:#f5f3ff;padding:2px 6px;border-radius:5px;margin-left:5px;">🌟 Other</span>'
+        ? '<span style="font-size:10px;font-weight:700;color:#7c3aed;background:#f5f3ff;padding:2px 6px;border-radius:5px;">🌟 Other</span>'
         : '';
       const loc = r.type === 'Other' ? 'Others' : (r.roomCode || '—');
-      return `<div style="display:flex;justify-content:space-between;align-items:center;padding:11px 16px;${i < filtered.length-1 ? 'border-bottom:1px solid #fef3e2;' : ''}">
-        <div>
-          <div style="font-size:13px;font-weight:700;color:#1c1917;">${r.name||'—'}${typeBadge}</div>
-          <div style="font-size:11px;color:#a8a29e;margin-top:2px;">${loc} · ${r.date||'—'}${payBadge}</div>
+      const mobile = r.mobile && r.mobile !== '—' ? r.mobile : '';
+      const callBtn = mobile
+        ? `<a href="tel:${mobile}" style="display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;color:#16a34a;background:#f0fdf4;border:1px solid #bbf7d0;padding:4px 9px;border-radius:7px;text-decoration:none;margin-top:5px;">📞 ${mobile}</a>`
+        : '';
+      const idx = JSON.stringify(r).replace(/"/g,'&quot;');
+      return `<div style="padding:11px 16px;${i < filtered.length-1 ? 'border-bottom:1px solid #fef3e2;' : ''}">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:13px;font-weight:700;color:#1c1917;display:flex;align-items:center;gap:5px;flex-wrap:wrap;">${r.name||'—'}${typeBadge}</div>
+            <div style="font-size:11px;color:#a8a29e;margin-top:3px;display:flex;gap:5px;flex-wrap:wrap;align-items:center;">${loc} · ${r.date||'—'} ${payBadge}</div>
+            ${callBtn}
+          </div>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex-shrink:0;">
+            <div style="font-size:15px;font-weight:800;color:#f97316;">${fmt(r.amount)}</div>
+            <button onclick='regenReceipt(${idx})' style="font-size:11px;font-weight:700;color:#fff;background:linear-gradient(135deg,#f97316,#fbbf24);border:none;padding:5px 10px;border-radius:7px;cursor:pointer;white-space:nowrap;">🧾 Receipt</button>
+          </div>
         </div>
-        <div style="font-size:15px;font-weight:800;color:#f97316;">${fmt(r.amount)}</div>
       </div>`;
     }).join('');
   }
