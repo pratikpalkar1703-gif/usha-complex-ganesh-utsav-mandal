@@ -276,6 +276,56 @@
   }
   .btn-new-entry:active { background: #fff7ed; }
 
+  /* ── TYPE CHOOSER CARDS ── */
+  .type-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 28px 16px 22px;
+    background: #fff;
+    border: 2px solid rgba(249,115,22,0.25);
+    border-radius: 20px;
+    cursor: pointer;
+    box-shadow: 0 2px 12px rgba(249,115,22,0.08);
+    transition: border-color 0.2s, box-shadow 0.2s, transform 0.1s;
+    width: 100%;
+  }
+  .type-card:hover {
+    border-color: #f97316;
+    box-shadow: 0 4px 20px rgba(249,115,22,0.2);
+  }
+  .type-card:active { transform: scale(0.97); }
+  .type-card-other { border-color: rgba(99,102,241,0.25); }
+  .type-card-other:hover { border-color: #6366f1; box-shadow: 0 4px 20px rgba(99,102,241,0.18); }
+  .type-card-title {
+    font-size: 16px;
+    font-weight: 800;
+    color: #1c1917;
+    margin-bottom: 4px;
+  }
+  .type-card-sub {
+    font-size: 12px;
+    color: #78716c;
+    text-align: center;
+  }
+
+  /* ── BACK BUTTON ── */
+  .btn-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: none;
+    border: none;
+    color: #f97316;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    padding: 0 0 16px;
+    letter-spacing: 0.2px;
+  }
+  .btn-back:hover { text-decoration: underline; }
+
   /* ── FOOTER ── */
   .footer {
     text-align: center;
@@ -524,127 +574,143 @@
 <!-- CONTENT -->
 <div class="content">
 
-  <!-- LOCATION -->
-  <div class="section">
-    <div class="section-card">
-      <div class="grid-3">
-        <!-- Wing -->
+  <!-- ── TYPE CHOOSER ── -->
+  <div id="type-chooser">
+    <div style="text-align:center;margin-bottom:18px;">
+      <div style="font-size:13px;font-weight:700;color:#c2410c;letter-spacing:1.5px;text-transform:uppercase;">Who is contributing?</div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+
+      <button class="type-card" onclick="selectEntryType('Resident')">
+        <span style="font-size:36px;display:block;margin-bottom:8px;">🏠</span>
+        <div class="type-card-title">Resident</div>
+        <div class="type-card-sub">Lives in Usha Complex</div>
+      </button>
+
+      <button class="type-card type-card-other" onclick="selectEntryType('Other')">
+        <span style="font-size:36px;display:block;margin-bottom:8px;">🌟</span>
+        <div class="type-card-title">Non-Resident</div>
+        <div class="type-card-sub">Outside donor / Guest</div>
+      </button>
+
+    </div>
+  </div>
+
+  <!-- ── MAIN FORM (shown after type selection) ── -->
+  <div id="main-form" style="display:none;">
+
+    <!-- Back button -->
+    <button class="btn-back" onclick="backToChooser()">← Back</button>
+
+    <!-- LOCATION (residents only) -->
+    <div class="section" id="location-section">
+      <div class="section-card">
+        <div class="grid-3">
+          <!-- Wing -->
+          <div class="field">
+            <label>Wing <span class="req">*</span></label>
+            <div class="select-wrap">
+              <select id="wing" onchange="updateFloors()">
+                <option value="">—</option>
+                <option>A</option><option>B</option><option>C</option><option>D</option>
+                <option>E</option><option>F</option><option>G</option><option>H</option>
+                <option>I</option><option>J</option><option>K</option><option>L</option>
+              </select>
+              <span class="chevron">▼</span>
+            </div>
+          </div>
+          <!-- Floor -->
+          <div class="field" id="floor-field">
+            <label>Floor <span class="req">*</span></label>
+            <div class="select-wrap">
+              <select id="floor" onchange="updateRooms()">
+                <option value="">—</option>
+              </select>
+              <span class="chevron">▼</span>
+            </div>
+          </div>
+          <!-- Room -->
+          <div class="field" id="room-field">
+            <label>Room <span class="req">*</span></label>
+            <div class="select-wrap">
+              <select id="room">
+                <option value="">—</option>
+              </select>
+              <span class="chevron">▼</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DONOR DETAILS -->
+    <div class="section" id="resident-section">
+      <div class="section-label" id="resident-section-label">👤 Resident Details</div>
+      <div class="section-card">
         <div class="field">
-          <label>Wing <span class="req">*</span></label>
-          <div class="select-wrap">
-            <select id="wing" onchange="updateFloors()">
-              <option value="">—</option>
-              <option>A</option><option>B</option><option>C</option><option>D</option>
-              <option>E</option><option>F</option><option>G</option><option>H</option>
-              <option>I</option><option>J</option><option>K</option><option>L</option>
-              <option value="Others">🌟 Others</option>
-            </select>
-            <span class="chevron">▼</span>
-          </div>
+          <label>Full Name <span class="req">*</span></label>
+          <input type="text" id="fullname" placeholder="e.g. Rajesh Sharma">
         </div>
-
-        <!-- Floor -->
-        <div class="field" id="floor-field">
-          <label>Floor <span class="req">*</span></label>
-          <div class="select-wrap">
-            <select id="floor" onchange="updateRooms()">
-              <option value="">—</option>
-              <option value="1">1st</option>
-              <option value="2">2nd</option>
-              <option value="3">3rd</option>
-              <option value="4">4th</option>
-              <option value="5">5th</option>
-              <option value="6">6th</option>
-              <option value="7">7th</option>
-              <option value="8">8th</option>
-            </select>
-            <span class="chevron">▼</span>
-          </div>
+        <div class="field">
+          <label>Mobile Number <span class="req">*</span></label>
+          <input type="tel" id="mobile" placeholder="10-digit mobile number" maxlength="10">
+          <span class="field-hint">For Usha Complex donation records only. Not shared with any third party.</span>
         </div>
+      </div>
+    </div>
 
-        <!-- Room -->
-        <div class="field" id="room-field">
-          <label>Room <span class="req">*</span></label>
-          <div class="select-wrap">
-            <select id="room">
-              <option value="">—</option>
-            </select>
-            <span class="chevron">▼</span>
+    <!-- COLLECTION -->
+    <div class="section" id="collection-section">
+      <div class="section-label">💰 Collection</div>
+      <div class="section-card">
+        <div class="field">
+          <label>Amount (₹) <span class="req">*</span></label>
+          <input type="number" id="amount" placeholder="Enter amount in ₹" min="1">
+          <span class="field-hint">Enter donation amount in rupees</span>
+        </div>
+        <div class="field" id="payment-mode-field">
+          <label>Payment Mode <span class="req">*</span></label>
+          <div style="display:flex;gap:10px;margin-top:6px;">
+            <label style="flex:1;display:flex;align-items:center;gap:8px;padding:12px 14px;border:2px solid #fed7aa;border-radius:10px;cursor:pointer;background:#fff;transition:all .2s;" id="lbl-cash">
+              <input type="radio" name="paymode" value="Cash" id="pay-cash" onchange="highlightPayMode()" style="accent-color:#f97316;">
+              <span style="font-size:15px;">💵</span>
+              <span style="font-weight:700;font-size:13px;color:#1c1917;">Cash</span>
+            </label>
+            <label style="flex:1;display:flex;align-items:center;gap:8px;padding:12px 14px;border:2px solid #fed7aa;border-radius:10px;cursor:pointer;background:#fff;transition:all .2s;" id="lbl-gpay">
+              <input type="radio" name="paymode" value="GPay" id="pay-gpay" onchange="highlightPayMode()" style="accent-color:#f97316;">
+              <span style="font-size:15px;">📲</span>
+              <span style="font-weight:700;font-size:13px;color:#1c1917;">GPay</span>
+            </label>
           </div>
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- RESIDENT / DONOR DETAILS -->
-  <div class="section" id="resident-section">
-    <div class="section-label" id="resident-section-label">👤 Resident Details</div>
-    <div id="others-hint" style="display:none;background:#fff7ed;border:1.5px solid #fed7aa;border-radius:10px;padding:10px 14px;margin-bottom:10px;font-size:13px;color:#92400e;">
-      🌟 This entry will be saved as <strong>Non-Resident / Other</strong> in the records and dashboard.
-    </div>
-    <div class="section-card">
-      <div class="field">
-        <label>Full Name <span class="req">*</span></label>
-        <input type="text" id="fullname" placeholder="e.g. Rajesh Sharma">
-      </div>
-      <div class="field">
-        <label>Mobile Number <span class="req">*</span></label>
-        <input type="tel" id="mobile" placeholder="10-digit mobile number" maxlength="10">
-        <span class="field-hint">For Usha Complex donation records only. Not shared with any third party.</span>
-      </div>
-    </div>
-  </div>
-
-  <!-- COLLECTION -->
-  <div class="section" id="collection-section">
-    <div class="section-label">💰 Collection</div>
-    <div class="section-card">
-      <div class="field">
-        <label>Amount (₹) <span class="req">*</span></label>
-        <input type="number" id="amount" placeholder="Enter amount in ₹" min="1">
-        <span class="field-hint">Enter donation amount in rupees</span>
-      </div>
-      <div class="field" id="payment-mode-field">
-        <label>Payment Mode <span class="req">*</span></label>
-        <div style="display:flex;gap:10px;margin-top:6px;">
-          <label style="flex:1;display:flex;align-items:center;gap:8px;padding:12px 14px;border:2px solid #fed7aa;border-radius:10px;cursor:pointer;background:#fff;transition:all .2s;" id="lbl-cash">
-            <input type="radio" name="paymode" value="Cash" id="pay-cash" onchange="highlightPayMode()" style="accent-color:#f97316;">
-            <span style="font-size:15px;">💵</span>
-            <span style="font-weight:700;font-size:13px;color:#1c1917;">Cash</span>
-          </label>
-          <label style="flex:1;display:flex;align-items:center;gap:8px;padding:12px 14px;border:2px solid #fed7aa;border-radius:10px;cursor:pointer;background:#fff;transition:all .2s;" id="lbl-gpay">
-            <input type="radio" name="paymode" value="GPay" id="pay-gpay" onchange="highlightPayMode()" style="accent-color:#f97316;">
-            <span style="font-size:15px;">📲</span>
-            <span style="font-weight:700;font-size:13px;color:#1c1917;">GPay</span>
+    <!-- NOT AVAILABLE TOGGLE (residents only) -->
+    <div class="section" style="margin-bottom:14px;" id="na-section">
+      <div class="section-card" id="na-card">
+        <div class="toggle-row">
+          <div>
+            <div class="toggle-label">🚪 Person Not Available</div>
+            <div class="toggle-hint">Mark if no one answered the door</div>
+          </div>
+          <label class="toggle-sw">
+            <input type="checkbox" id="not-available" onchange="toggleNA()">
+            <span class="slider"></span>
           </label>
         </div>
       </div>
     </div>
-  </div>
 
-  <!-- NOT AVAILABLE TOGGLE -->
-  <div class="section" style="margin-bottom:14px;">
-    <div class="section-card" id="na-card">
-      <div class="toggle-row">
-        <div>
-          <div class="toggle-label">🚪 Person Not Available</div>
-          <div class="toggle-hint">Mark if no one answered the door</div>
-        </div>
-        <label class="toggle-sw">
-          <input type="checkbox" id="not-available" onchange="toggleNA()">
-          <span class="slider"></span>
-        </label>
-      </div>
-    </div>
-  </div>
+    <button class="btn-generate" id="gen-btn" onclick="generateReceipt()">
+      🧾 Generate Receipt
+    </button>
 
-  <button class="btn-generate" id="gen-btn" onclick="generateReceipt()">
-    🧾 Generate Receipt
-  </button>
+    <button class="btn-new-entry" onclick="newEntry()">
+      ＋ New Entry
+    </button>
 
-  <button class="btn-new-entry" onclick="newEntry()">
-    ＋ New Entry
-  </button>
+  </div><!-- /main-form -->
 
   <div class="footer">🙏 Ganpati Bappa Morya</div>
 </div>
@@ -940,25 +1006,7 @@
     floorSel.innerHTML = '<option value="">—</option>';
     document.getElementById('room').innerHTML = '<option value="">—</option>';
 
-    const isOthers = wing === 'Others';
-    // Show/hide floor & room fields
-    document.getElementById('floor-field').style.display = isOthers ? 'none' : '';
-    document.getElementById('room-field').style.display  = isOthers ? 'none' : '';
-    // Show/hide NA toggle (Others always available)
-    document.getElementById('na-card').style.display = isOthers ? 'none' : '';
-
-    // Update section label and hint for Others
-    const resLabel = document.getElementById('resident-section-label');
-    const othersHint = document.getElementById('others-hint');
-    if (isOthers) {
-      resLabel.textContent = '🌟 Donor Details (Non-Resident)';
-      othersHint.style.display = '';
-    } else {
-      resLabel.textContent = '👤 Resident Details';
-      othersHint.style.display = 'none';
-    }
-
-    if (!wing || isOthers) return;
+    if (!wing) return;
 
     const isF    = wing === 'F';
     const isGtoL = ['G','H','I','J','K','L'].includes(wing);
@@ -1016,9 +1064,9 @@
 
   function validate() {
     let ok = true;
-    const isNA     = document.getElementById('not-available').checked;
-    const isOthers = document.getElementById('wing').value === 'Others';
-    const fields   = isNA ? ['wing'] : isOthers ? ['wing','fullname','mobile','amount'] : ['wing','floor','room','fullname','mobile','amount'];
+    const isOthers = _entryType === 'Other';
+    const isNA     = isOthers ? false : document.getElementById('not-available').checked;
+    const fields   = isNA ? ['wing'] : isOthers ? ['fullname','mobile','amount'] : ['wing','floor','room','fullname','mobile','amount'];
     document.querySelectorAll('.input-error').forEach(el => el.classList.remove('input-error'));
     document.querySelectorAll('.error-msg').forEach(el => el.remove());
     fields.forEach(id => {
@@ -1062,6 +1110,9 @@
   // ── GOOGLE SHEETS INTEGRATION ──
   const SHEET_URL = 'https://script.google.com/macros/s/AKfycbxSBb-UfpneLJ0oNU7qr0Ow4SEcmPXxxbHBN48o6ajtpQjYlZ1CZ6yiWphktOc3rVA_jw/exec';
 
+  // Entry type: 'Resident' or 'Other'
+  let _entryType = null;
+
   // Local cache: roomCode → entry (for instant duplicate detection)
   const _roomCache = {};   // e.g. { 'A-201': { name, amount, date, receiptNum } }
   let   _cacheLoaded = false;
@@ -1085,6 +1136,42 @@
   // Pre-load cache as soon as Wing is touched
   document.getElementById('wing').addEventListener('change', () => loadRoomCache(), { once: true });
 
+  // ── TYPE CHOOSER ──
+  function selectEntryType(type) {
+    _entryType = type;
+    document.getElementById('type-chooser').style.display = 'none';
+    document.getElementById('main-form').style.display = '';
+    const isOther = type === 'Other';
+    document.getElementById('location-section').style.display = isOther ? 'none' : '';
+    document.getElementById('na-section').style.display = isOther ? 'none' : '';
+    document.getElementById('resident-section-label').textContent =
+      isOther ? '🌟 Non-Resident Donor Details' : '👤 Resident Details';
+    if (!isOther) loadRoomCache();
+  }
+
+  function backToChooser() {
+    _entryType = null;
+    document.getElementById('type-chooser').style.display = '';
+    document.getElementById('main-form').style.display = 'none';
+    // reset form fields
+    ['fullname','mobile','amount'].forEach(id => {
+      const el = document.getElementById(id);
+      el.value = ''; el.disabled = false; el.style.opacity = ''; el.style.background = ''; el.style.cursor = '';
+    });
+    document.getElementById('wing').value = '';
+    document.getElementById('floor').innerHTML = '<option value="">—</option>';
+    document.getElementById('room').innerHTML  = '<option value="">—</option>';
+    document.getElementById('not-available').checked = false;
+    document.querySelectorAll('input[name="paymode"]').forEach(r => r.checked = false);
+    ['lbl-cash','lbl-gpay'].forEach(id => {
+      const el = document.getElementById(id);
+      el.style.borderColor = '#fed7aa'; el.style.background = '#fff';
+    });
+    document.getElementById('gen-btn').style.opacity = '';
+    document.getElementById('gen-btn').disabled = false;
+    document.getElementById('gen-btn').textContent = '🧾 Generate Receipt';
+  }
+
   function saveToSheet(payload) {
     if (!SHEET_URL) return;
     // Add to local cache immediately so duplicate check works in same session
@@ -1103,11 +1190,11 @@
 
   function generateReceipt() {
     if (!validate()) return;
-    const wing      = document.getElementById('wing').value;
-    const isOthers  = wing === 'Others';
+    const isOthers  = _entryType === 'Other';
+    const wing      = isOthers ? '' : document.getElementById('wing').value;
     const room      = isOthers ? '' : document.getElementById('room').value;
     const roomCode  = isOthers ? '' : `${wing}-${room}`;
-    const isNA      = document.getElementById('not-available').checked;
+    const isNA      = isOthers ? false : document.getElementById('not-available').checked;
 
     // Instant duplicate check (skip for Others)
     if (!isNA && !isOthers && _roomCache[roomCode]) {
@@ -1133,9 +1220,9 @@
   function doGenerate() {
     if (!validate()) return;
     document.getElementById('rc-logo').src = document.querySelector('.header-icon').src;
-    const isNA      = document.getElementById('not-available').checked;
-    const wing      = document.getElementById('wing').value;
-    const isOthers  = wing === 'Others';
+    const isOthers  = _entryType === 'Other';
+    const isNA      = isOthers ? false : document.getElementById('not-available').checked;
+    const wing      = isOthers ? '' : document.getElementById('wing').value;
     const floorEl   = document.getElementById('floor');
     const room      = isOthers ? '' : document.getElementById('room').value;
     const name      = isNA ? '—' : document.getElementById('fullname').value.trim();
@@ -1286,23 +1373,7 @@
   }
 
   function newEntry() {
-    // Reset payment mode
-    document.querySelectorAll('input[name="paymode"]').forEach(r => r.checked = false);
-    highlightPayMode();
-    // Reset all form fields
-    ['wing','floor','room','fullname','mobile','amount'].forEach(id => {
-      document.getElementById(id).value = '';
-    });
-    // Reset room dropdown
-    const roomSel = document.getElementById('room');
-    roomSel.innerHTML = '<option value="">—</option>';
-    // Reset NA toggle
-    document.getElementById('not-available').checked = false;
-    toggleNA();
-    // Clear errors
-    document.querySelectorAll('.input-error').forEach(el => el.classList.remove('input-error'));
-    document.querySelectorAll('.error-msg').forEach(el => el.remove());
-    // Scroll to top
+    backToChooser();
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
