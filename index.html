@@ -1112,6 +1112,8 @@
 
   // Entry type: 'Resident' or 'Other'
   let _entryType = null;
+  // Current open receipt number (used by saveEdits)
+  let _currentReceiptNum = null;
 
   // Local cache: roomCode → entry (for instant duplicate detection)
   const _roomCache = {};   // e.g. { 'A-201': { name, amount, date, receiptNum } }
@@ -1127,6 +1129,11 @@
           _roomCache[String(r.roomCode)] = {
             name: r.name, amount: r.amount, date: r.date, receiptNum: r.receiptNum
           };
+        }
+        // Sync receiptCount so we never duplicate receipt numbers across sessions
+        if (r.receiptNum && String(r.receiptNum).startsWith('Receipt #')) {
+          const n = parseInt(String(r.receiptNum).replace('Receipt #', ''));
+          if (!isNaN(n) && n >= receiptCount) receiptCount = n + 1;
         }
       });
       _cacheLoaded = true;
@@ -1292,6 +1299,7 @@
       showSavedToast(`${wing}-${room} marked as Not Available`);
       newEntry();
     } else {
+      _currentReceiptNum = receiptNum;
       document.getElementById('receipt-num').textContent = receiptNum;
       document.getElementById('modal').classList.add('open');
     }
@@ -1326,18 +1334,19 @@
     const name       = document.getElementById('edit-name').value.trim();
     const mobile     = document.getElementById('edit-mobile').value.trim();
     const amount     = document.getElementById('edit-amount').value.trim();
-    const receiptNum = document.getElementById('receipt-num').textContent.trim();
+    const receiptNum = _currentReceiptNum || document.getElementById('receipt-num').textContent.trim();
     const statusEl   = document.getElementById('edit-status');
 
     if (!name || !mobile || !amount) { statusEl.textContent = 'Please fill all fields.'; statusEl.style.color='#ef4444'; return; }
     if (!/^\d{10}$/.test(mobile))   { statusEl.textContent = 'Enter valid 10-digit mobile.'; statusEl.style.color='#ef4444'; return; }
+    if (!receiptNum) { statusEl.textContent = 'No receipt loaded.'; statusEl.style.color='#ef4444'; return; }
 
     statusEl.textContent = 'Saving…'; statusEl.style.color = '#9ca3af';
     try {
-      // Use GET so we can read the response (POST no-cors is write-only)
       const url = `${SHEET_URL}?action=update&receiptNum=${encodeURIComponent(receiptNum)}&name=${encodeURIComponent(name)}&mobile=${encodeURIComponent(mobile)}&amount=${encodeURIComponent(amount)}`;
       const res  = await fetch(url);
       const json = await res.json();
+      console.log('[saveEdits] receiptNum:', receiptNum, '| response:', json);
 
       if (json.status === 'updated') {
         // Update local cache
@@ -1347,7 +1356,7 @@
             _roomCache[k].amount = amount;
           }
         });
-        // Update receipt card
+        // Update receipt card display
         document.getElementById('r-name').textContent   = name;
         document.getElementById('r-mobile').textContent = mobile;
         document.getElementById('r-amount').textContent = '₹' + Number(amount).toLocaleString('en-IN');
@@ -1357,10 +1366,14 @@
           document.getElementById('edit-toggle-btn').textContent = '✏️ Edit Entry';
         }, 1500);
       } else {
-        statusEl.textContent = 'Row not found in sheet.'; statusEl.style.color = '#ef4444';
+        statusEl.textContent = `Not found in sheet (${receiptNum}). Try refreshing.`;
+        statusEl.style.color = '#ef4444';
+        console.warn('[saveEdits] not_found for receiptNum:', receiptNum);
       }
     } catch(err) {
-      statusEl.textContent = 'Update failed. Check connection.'; statusEl.style.color = '#ef4444';
+      statusEl.textContent = 'Update failed — check connection.';
+      statusEl.style.color = '#ef4444';
+      console.error('[saveEdits] error:', err);
     }
   }
 
