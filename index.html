@@ -969,18 +969,12 @@
           <div id="top-donors"><div style="text-align:center;color:#d4b49a;font-size:13px;padding:16px;">Loading…</div></div>
         </div>
 
-        <!-- Not Available -->
-        <div class="section-label" style="display:flex;align-items:center;gap:7px;font-size:11px;font-weight:700;color:#6b7280;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px;">🚪 Not Available</div>
+        <!-- Not Available + Re-visit -->
+        <div class="section-label" style="display:flex;align-items:center;gap:7px;font-size:11px;font-weight:700;color:#6b7280;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px;">🚪 Not Available · Re-visit</div>
         <div class="section-card" style="padding:0;overflow:hidden;margin-bottom:16px;">
           <div id="na-entries">
             <div style="text-align:center;color:#d4b49a;font-size:13px;padding:20px;">Loading…</div>
           </div>
-        </div>
-
-        <!-- Re-visit List -->
-        <div class="section-label" style="display:flex;align-items:center;gap:7px;font-size:11px;font-weight:700;color:#7c3aed;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px;">🔁 Re-visit List</div>
-        <div class="section-card" style="padding:0;overflow:hidden;margin-bottom:16px;">
-          <div id="revisit-entries"><div style="text-align:center;color:#d4b49a;font-size:13px;padding:16px;">Loading…</div></div>
         </div>
       </div>
 
@@ -1811,21 +1805,30 @@
 
     // New sections
     renderTopDonors(collected);
-    renderRevisit(naList);
     renderDailyTrend(collected);
 
-    // Not Available list
+    // Not Available list (with days-since for re-visit urgency)
     if (naList.length === 0) {
       document.getElementById('na-entries').innerHTML = '<div style="text-align:center;color:#d4b49a;font-size:13px;padding:16px;">None</div>';
     } else {
-      document.getElementById('na-entries').innerHTML = [...naList].reverse().map((r, i) => `
-        <div style="display:flex;justify-content:space-between;align-items:center;padding:11px 16px;${i < naList.length-1 ? 'border-bottom:1px solid #f3f4f6;' : ''}">
+      const todayMs = new Date().setHours(0,0,0,0);
+      const naWithDays = [...naList].map(r => {
+        const d = new Date(r.date || ''); d.setHours(0,0,0,0);
+        const days = isNaN(d.getTime()) ? 0 : Math.floor((todayMs - d.getTime()) / 86400000);
+        return { ...r, days };
+      }).sort((a, b) => b.days - a.days); // most overdue first
+      document.getElementById('na-entries').innerHTML = naWithDays.map((r, i) => {
+        const urgColor = r.days >= 3 ? '#dc2626' : r.days >= 1 ? '#d97706' : '#6b7280';
+        const urgBg    = r.days >= 3 ? '#fef2f2' : r.days >= 1 ? '#fef3c7' : '#f3f4f6';
+        const daysLabel = r.days === 0 ? 'Today' : r.days === 1 ? '1 day ago' : `${r.days}d ago`;
+        return `<div style="display:flex;justify-content:space-between;align-items:center;padding:10px 16px;${i < naWithDays.length-1 ? 'border-bottom:1px solid #f3f4f6;' : ''}">
           <div>
             <div style="font-size:13px;font-weight:700;color:#6b7280;">🚪 ${r.roomCode || '—'}</div>
-            <div style="font-size:11px;color:#a8a29e;margin-top:2px;">Visited ${r.date || '—'}</div>
+            <div style="font-size:11px;color:#a8a29e;margin-top:2px;">${r.date || '—'}</div>
           </div>
-          <div style="font-size:12px;font-weight:700;color:#9ca3af;background:#f3f4f6;padding:4px 10px;border-radius:8px;">Not Available</div>
-        </div>`).join('');
+          <span style="font-size:11px;font-weight:700;color:${urgColor};background:${urgBg};padding:4px 10px;border-radius:8px;white-space:nowrap;">${daysLabel}</span>
+        </div>`;
+      }).join('');
     }
 
     // Pending rooms — collapsible by wing
@@ -1972,35 +1975,6 @@
     }).join('');
   }
 
-  // ── RE-VISIT LIST ────────────────────────────────────────────────────────────
-  function renderRevisit(naList) {
-    const el = document.getElementById('revisit-entries');
-    if (!el) return;
-    if (naList.length === 0) {
-      el.innerHTML = '<div style="text-align:center;color:#16a34a;font-size:13px;padding:16px;font-weight:700;">✓ No pending revisits</div>';
-      return;
-    }
-    const today = new Date(); today.setHours(0,0,0,0);
-    const withDays = naList.map(r => {
-      const d = new Date(r.date || '');
-      d.setHours(0,0,0,0);
-      const days = isNaN(d.getTime()) ? 0 : Math.floor((today - d) / 86400000);
-      return { ...r, days };
-    }).sort((a, b) => b.days - a.days);
-    el.innerHTML = withDays.map((r, i) => {
-      const urgColor = r.days >= 3 ? '#dc2626' : r.days >= 1 ? '#d97706' : '#6b7280';
-      const urgBg    = r.days >= 3 ? '#fef2f2' : r.days >= 1 ? '#fef3c7' : '#f3f4f6';
-      const label    = r.days === 0 ? 'Today' : r.days === 1 ? '1 day ago' : `${r.days} days ago`;
-      return `<div style="display:flex;align-items:center;justify-content:space-between;padding:10px 16px;${i < withDays.length-1 ? 'border-bottom:1px solid #f3f4f6;' : ''}">
-        <div>
-          <div style="font-size:13px;font-weight:700;color:#374151;">🚪 ${r.roomCode || '—'}</div>
-          <div style="font-size:11px;color:#a8a29e;margin-top:2px;">${r.date || '—'}</div>
-        </div>
-        <span style="font-size:11px;font-weight:700;color:${urgColor};background:${urgBg};padding:4px 10px;border-radius:8px;white-space:nowrap;">${label}</span>
-      </div>`;
-    }).join('');
-  }
-
   // ── DAILY TREND CHART ────────────────────────────────────────────────────────
   function renderDailyTrend(collected) {
     const el = document.getElementById('daily-trend');
@@ -2064,100 +2038,75 @@
     }
   }
 
-  // ── EXPORT PDF ───────────────────────────────────────────────────────────────
+  // ── EXPORT PDF (All Entries, wing-sorted) ────────────────────────────────────
   async function exportPDF(btn) {
     const orig = btn.textContent;
     btn.textContent = '⏳ Generating…';
     btn.disabled = true;
     try {
-      const s      = window._dashStats || {};
-      const wings  = window._wingDataForPDF || {};
-      const pend   = window._pendingByWingForPDF || {};
-      const pct    = document.getElementById('progress-pct')?.textContent || '0%';
-      const allWings = ['A','B','C','D','E','F','G','H','I','J','K','L'];
-      const topDonors = [...(_sheetData || [])]
-        .filter(r => (r.status||'Collected') !== 'Not Available' && Number(r.amount) > 0)
-        .sort((a, b) => Number(b.amount) - Number(a.amount))
-        .slice(0, 10);
+      // Sort all collected entries: wing A→L, then room number, Others at end
+      const allEntries = [...(_sheetData || [])]
+        .filter(r => (r.status||'Collected') !== 'Not Available')
+        .sort((a, b) => {
+          const wa = a.type === 'Other' ? 'ZZ' : (a.wing || (a.roomCode||'').charAt(0)).toUpperCase();
+          const wb = b.type === 'Other' ? 'ZZ' : (b.wing || (b.roomCode||'').charAt(0)).toUpperCase();
+          if (wa !== wb) return wa < wb ? -1 : 1;
+          return (a.roomCode||'').localeCompare(b.roomCode||'', undefined, { numeric: true });
+        });
 
       const printEl = document.getElementById('print-summary');
       printEl.innerHTML = `
-        <div style="text-align:center;margin-bottom:28px;padding-bottom:20px;border-bottom:3px solid #f97316;">
-          <div style="font-size:24px;font-weight:900;color:#f97316;">🙏 Ganpati Decoration 2026</div>
-          <div style="font-size:16px;font-weight:700;color:#1c1917;margin-top:6px;">Usha Complex – Collection Summary Report</div>
-          <div style="font-size:12px;color:#6b7280;margin-top:4px;">Generated: ${normDate(new Date())}</div>
+        <div style="text-align:center;margin-bottom:20px;padding-bottom:14px;border-bottom:3px solid #f97316;">
+          <div style="font-size:22px;font-weight:900;color:#f97316;">🙏 Ganpati Decoration 2026 – Usha Complex</div>
+          <div style="font-size:13px;color:#6b7280;margin-top:4px;">All Entries · Generated: ${normDate(new Date())} · ${allEntries.length} receipts</div>
         </div>
 
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:24px;">
-          ${[
-            ['Total Collected', fmt(s.total||0), '#f97316'],
-            ['Total Receipts',  s.collected||0, '#f97316'],
-            ['Overall Progress', pct, '#f97316'],
-            ['Avg Donation', fmt(s.avgAmt||0), '#16a34a'],
-            ['Pending Rooms', s.pending||0, '#d97706'],
-            ['Not Available', s.na||0, '#9ca3af'],
-          ].map(([label, val, color]) => `
-            <div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:10px;padding:14px;text-align:center;">
-              <div style="font-size:10px;font-weight:700;color:#92400e;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;">${label}</div>
-              <div style="font-size:20px;font-weight:900;color:${color};">${val}</div>
-            </div>`).join('')}
-        </div>
-
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:24px;">
-          <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:16px;text-align:center;">
-            <div style="font-size:11px;font-weight:700;color:#166534;letter-spacing:1px;text-transform:uppercase;">💵 Cash</div>
-            <div style="font-size:22px;font-weight:900;color:#16a34a;margin-top:6px;">${fmt(s.cashAmt||0)}</div>
-            <div style="font-size:12px;color:#6b7280;margin-top:4px;">${s.cashCnt||0} entries</div>
-          </div>
-          <div style="background:#eff6ff;border:1px solid #bfdbfe;border-radius:10px;padding:16px;text-align:center;">
-            <div style="font-size:11px;font-weight:700;color:#1e40af;letter-spacing:1px;text-transform:uppercase;">📲 GPay</div>
-            <div style="font-size:22px;font-weight:900;color:#2563eb;margin-top:6px;">${fmt(s.gpayAmt||0)}</div>
-            <div style="font-size:12px;color:#6b7280;margin-top:4px;">${s.gpayCnt||0} entries</div>
-          </div>
-        </div>
-
-        <div style="font-size:13px;font-weight:800;color:#c2410c;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;">🏢 Wing-wise Breakdown</div>
-        <table style="width:100%;border-collapse:collapse;margin-bottom:26px;font-size:12px;">
-          <tr style="background:#f97316;color:#fff;">
-            <th style="padding:8px 10px;text-align:left;border-radius:6px 0 0 6px;">Wing</th>
-            <th style="padding:8px 10px;text-align:center;">Collected</th>
-            <th style="padding:8px 10px;text-align:right;">Amount</th>
-            <th style="padding:8px 10px;text-align:center;">NA</th>
-            <th style="padding:8px 10px;text-align:center;border-radius:0 6px 6px 0;">Pending</th>
-          </tr>
-          ${allWings.map((wing, idx) => {
-            const wd = wings[wing] || { count: 0, total: 0, na: 0 };
-            const p  = pend[wing] || 0;
-            if (wd.count === 0 && (wd.na||0) === 0 && p === 0) return '';
-            return `<tr style="background:${idx%2===0?'#fff':'#fff8f0'};">
-              <td style="padding:7px 10px;font-weight:700;">Wing ${wing}</td>
-              <td style="padding:7px 10px;text-align:center;">${wd.count}</td>
-              <td style="padding:7px 10px;text-align:right;font-weight:700;color:#f97316;">${fmt(wd.total)}</td>
-              <td style="padding:7px 10px;text-align:center;color:#9ca3af;">${wd.na||0}</td>
-              <td style="padding:7px 10px;text-align:center;color:#d97706;">${p}</td>
-            </tr>`;
-          }).join('')}
+        <table style="width:100%;border-collapse:collapse;font-size:11px;">
+          <thead>
+            <tr style="background:#f97316;color:#fff;">
+              <th style="padding:7px 8px;text-align:left;">#</th>
+              <th style="padding:7px 8px;text-align:left;">Receipt</th>
+              <th style="padding:7px 8px;text-align:left;">Room</th>
+              <th style="padding:7px 8px;text-align:left;">Name</th>
+              <th style="padding:7px 8px;text-align:left;">Mobile</th>
+              <th style="padding:7px 8px;text-align:right;">Amount</th>
+              <th style="padding:7px 8px;text-align:center;">Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${(() => {
+              let rows = '';
+              let lastWing = null;
+              allEntries.forEach((r, i) => {
+                const wingKey = r.type === 'Other' ? 'Others' : ((r.wing || (r.roomCode||'').charAt(0)).toUpperCase());
+                if (wingKey !== lastWing) {
+                  lastWing = wingKey;
+                  rows += `<tr><td colspan="7" style="background:#fff7ed;padding:6px 8px;font-size:11px;font-weight:800;color:#c2410c;letter-spacing:1px;text-transform:uppercase;">Wing ${wingKey}</td></tr>`;
+                }
+                const loc = r.type === 'Other' ? 'Non-Resident' : (r.roomCode || '—');
+                rows += `<tr style="background:${i%2===0?'#fff':'#fafaf9'};">
+                  <td style="padding:6px 8px;color:#9ca3af;">${i+1}</td>
+                  <td style="padding:6px 8px;font-weight:700;color:#f97316;">${r.receiptNum||'—'}</td>
+                  <td style="padding:6px 8px;font-weight:700;">${loc}</td>
+                  <td style="padding:6px 8px;">${r.name||'—'}</td>
+                  <td style="padding:6px 8px;color:#6b7280;">${r.mobile||'—'}</td>
+                  <td style="padding:6px 8px;text-align:right;font-weight:700;color:#16a34a;">${fmt(r.amount)}</td>
+                  <td style="padding:6px 8px;text-align:center;color:#6b7280;">${r.date||'—'}</td>
+                </tr>`;
+              });
+              return rows;
+            })()}
+          </tbody>
+          <tfoot>
+            <tr style="background:#f97316;color:#fff;font-weight:800;">
+              <td colspan="5" style="padding:8px 10px;">Total (${allEntries.length} entries)</td>
+              <td style="padding:8px 10px;text-align:right;">${fmt(allEntries.reduce((s,r)=>s+Number(r.amount||0),0))}</td>
+              <td></td>
+            </tr>
+          </tfoot>
         </table>
 
-        ${topDonors.length > 0 ? `
-        <div style="font-size:13px;font-weight:800;color:#c2410c;letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;">🏆 Top Donors</div>
-        <table style="width:100%;border-collapse:collapse;margin-bottom:26px;font-size:12px;">
-          <tr style="background:#f97316;color:#fff;">
-            <th style="padding:8px 10px;text-align:left;">#</th>
-            <th style="padding:8px 10px;text-align:left;">Name</th>
-            <th style="padding:8px 10px;text-align:left;">Room / Type</th>
-            <th style="padding:8px 10px;text-align:right;">Amount</th>
-          </tr>
-          ${topDonors.map((r, i) => `
-          <tr style="background:${i%2===0?'#fff':'#fff8f0'};">
-            <td style="padding:7px 10px;font-weight:700;">${i+1}</td>
-            <td style="padding:7px 10px;">${r.name||'—'}</td>
-            <td style="padding:7px 10px;color:#6b7280;">${r.type==='Other' ? 'Non-Resident' : (r.roomCode||'—')}</td>
-            <td style="padding:7px 10px;text-align:right;font-weight:700;color:#f97316;">${fmt(r.amount)}</td>
-          </tr>`).join('')}
-        </table>` : ''}
-
-        <div style="text-align:center;margin-top:24px;font-size:12px;color:#9ca3af;border-top:1px solid #fef3e2;padding-top:16px;">
+        <div style="text-align:center;margin-top:18px;font-size:11px;color:#9ca3af;border-top:1px solid #fef3e2;padding-top:12px;">
           🙏 Ganpati Bappa Morya · Usha Complex 2026
         </div>`;
 
@@ -2174,7 +2123,7 @@
         pdf.addImage(imgData, 'PNG', 0, -y, pdfW, imgH);
         y += pdfH;
       }
-      const fname = `Ganpati_Summary_${normDate(new Date()).replace(/\s/g,'_')}.pdf`;
+      const fname = `Ganpati_Entries_${normDate(new Date()).replace(/\s/g,'_')}.pdf`;
       pdf.save(fname);
     } catch(err) {
       console.error(err);
