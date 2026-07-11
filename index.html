@@ -576,9 +576,12 @@
     </div>
   </div>
 
-  <!-- RESIDENT DETAILS -->
+  <!-- RESIDENT / DONOR DETAILS -->
   <div class="section" id="resident-section">
-    <div class="section-label">👤 Resident Details</div>
+    <div class="section-label" id="resident-section-label">👤 Resident Details</div>
+    <div id="others-hint" style="display:none;background:#fff7ed;border:1.5px solid #fed7aa;border-radius:10px;padding:10px 14px;margin-bottom:10px;font-size:13px;color:#92400e;">
+      🌟 This entry will be saved as <strong>Non-Resident / Other</strong> in the records and dashboard.
+    </div>
     <div class="section-card">
       <div class="field">
         <label>Full Name <span class="req">*</span></label>
@@ -943,6 +946,17 @@
     document.getElementById('room-field').style.display  = isOthers ? 'none' : '';
     // Show/hide NA toggle (Others always available)
     document.getElementById('na-card').style.display = isOthers ? 'none' : '';
+
+    // Update section label and hint for Others
+    const resLabel = document.getElementById('resident-section-label');
+    const othersHint = document.getElementById('others-hint');
+    if (isOthers) {
+      resLabel.textContent = '🌟 Donor Details (Non-Resident)';
+      othersHint.style.display = '';
+    } else {
+      resLabel.textContent = '👤 Resident Details';
+      othersHint.style.display = 'none';
+    }
 
     if (!wing || isOthers) return;
 
