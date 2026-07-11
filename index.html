@@ -805,9 +805,6 @@
     <!-- Printable / shareable receipt card -->
     <div id="receipt-card" style="width:100%;background:#fffdf5;border-radius:0 0 18px 18px;overflow:hidden;box-shadow:none;margin:0 0 20px 0;font-family:'Plus Jakarta Sans',system-ui,sans-serif;">
 
-      <!-- top stripe -->
-      <div style="height:7px;background:repeating-linear-gradient(90deg,#7f1d1d 0,#7f1d1d 10px,#d97706 10px,#d97706 20px,#9f1239 20px,#9f1239 30px,#fbbf24 30px,#fbbf24 40px);"></div>
-
       <!-- header -->
       <div style="background:#7f1d1d;padding:16px 20px 0;text-align:center;position:relative;">
         <div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:300px;height:300px;border-radius:50%;border:1px solid rgba(255,210,80,0.08);box-shadow:inset 0 0 0 40px rgba(255,210,80,0.04),inset 0 0 0 80px rgba(255,210,80,0.03);pointer-events:none;"></div>
@@ -879,13 +876,7 @@
         <div style="font-size:9px;color:#b0a090;margin-top:4px;">संगणकीय पावती – भौतिक शिक्का आवश्यक नाही · Computer-generated receipt</div>
       </div>
 
-      <!-- bottom stripe -->
-      <div style="height:7px;background:repeating-linear-gradient(90deg,#7f1d1d 0,#7f1d1d 10px,#d97706 10px,#d97706 20px,#9f1239 20px,#9f1239 30px,#fbbf24 30px,#fbbf24 40px);"></div>
-
     </div>
-
-      <!-- bottom stripe -->
-      <div style="height:7px;background:repeating-linear-gradient(90deg,#7f1d1d 0,#7f1d1d 10px,#d97706 10px,#d97706 20px,#9f1239 20px,#9f1239 30px,#fbbf24 30px,#fbbf24 40px);"></div>
 
         <!-- end receipt card -->
 
@@ -1528,12 +1519,12 @@
     } else {
       _currentReceiptNum = receiptNum;
       document.getElementById('receipt-num').textContent = receiptNum;
-      document.getElementById('modal').classList.add('open');
+      document.getElementById('modal').classList.add('open'); document.body.style.overflow='hidden'; document.body.style.position='fixed'; document.body.style.width='100%';
     }
   }
 
   function closeModal() {
-    document.getElementById('modal').classList.remove('open');
+    document.getElementById('modal').classList.remove('open'); document.body.style.overflow=''; document.body.style.position=''; document.body.style.width='';
     document.getElementById('edit-section').style.display = 'none';
     document.getElementById('edit-toggle-btn').textContent = '✏️ Edit Entry';
     document.getElementById('edit-status').textContent = '';
@@ -2047,7 +2038,7 @@
     const pmEl = document.getElementById('r-paymode');
     if (pmEl) pmEl.textContent = r.paymentMode || '—';
     _currentReceiptNum = r.receiptNum || null;
-    document.getElementById('modal').classList.add('open');
+    document.getElementById('modal').classList.add('open'); document.body.style.overflow='hidden'; document.body.style.position='fixed'; document.body.style.width='100%';
   }
 
   function togglePendingWing(wing) {
