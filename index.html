@@ -1153,21 +1153,24 @@
   let _currentReceiptNum = null;
 
   // Local cache: roomCode → entry (for instant duplicate detection)
-  const _roomCache = {};   // e.g. { 'A-201': { name, amount, date, receiptNum } }
+  const _roomCache = {};
   let   _cacheLoaded = false;
+  let   _sheetData   = null;   // full raw data from last fetch (used by dashboard)
 
   async function loadRoomCache() {
     if (_cacheLoaded) return;
     try {
       const res  = await fetch(SHEET_URL + '?action=getData');
       const json = await res.json();
-      (json.data || []).forEach(r => {
+      _sheetData = json.data || [];
+      // Persist to sessionStorage for instant dashboard on next open
+      try { sessionStorage.setItem('ganpati_data', JSON.stringify({ ts: Date.now(), data: _sheetData })); } catch(_){}
+      _sheetData.forEach(r => {
         if (r.status !== 'Not Available' && r.roomCode) {
           _roomCache[String(r.roomCode)] = {
             name: r.name, amount: r.amount, date: r.date, receiptNum: r.receiptNum
           };
         }
-        // Sync receiptCount so we never duplicate receipt numbers across sessions
         if (r.receiptNum && String(r.receiptNum).startsWith('Receipt #')) {
           const n = parseInt(String(r.receiptNum).replace('Receipt #', ''));
           if (!isNaN(n) && n >= receiptCount) receiptCount = n + 1;
@@ -1177,7 +1180,10 @@
     } catch(e) { /* no internet — skip cache */ }
   }
 
-  // Pre-load cache as soon as Wing is touched
+  // Pre-load in background immediately on page load (so dashboard is instant)
+  loadRoomCache();
+
+  // Also pre-load cache as soon as Wing is touched (in case first load failed)
   document.getElementById('wing').addEventListener('change', () => loadRoomCache(), { once: true });
 
   // ── TYPE CHOOSER ──
@@ -1549,16 +1555,37 @@
     window.scrollTo(0, 0);
   }
 
-  async function loadDashboard() {
-    document.getElementById('wing-breakdown').innerHTML = '<div style="text-align:center;color:#d4b49a;font-size:13px;padding:12px 0;">Loading…</div>';
-    document.getElementById('recent-entries').innerHTML = '<div style="text-align:center;color:#d4b49a;font-size:13px;padding:20px;">Loading…</div>';
+  async function loadDashboard(silent = false) {
+    // 1. Show cached data instantly (in-memory first, then sessionStorage)
+    let cachedData = _sheetData;
+    if (!cachedData) {
+      try {
+        const stored = sessionStorage.getItem('ganpati_data');
+        if (stored) { const p = JSON.parse(stored); cachedData = p.data; }
+      } catch(_) {}
+    }
+    if (cachedData) {
+      renderDashboard(cachedData);
+    } else {
+      // No cache at all — show loading
+      ['wing-breakdown','all-entries','na-entries','pending-entries'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.innerHTML = '<div style="text-align:center;color:#d4b49a;font-size:13px;padding:16px;">Loading…</div>';
+      });
+    }
+
+    // 2. Fetch fresh data in background, update silently
     try {
       const res  = await fetch(SHEET_URL + '?action=getData');
       const json = await res.json();
-      renderDashboard(json.data || []);
+      _sheetData = json.data || [];
+      _cacheLoaded = true;
+      try { sessionStorage.setItem('ganpati_data', JSON.stringify({ ts: Date.now(), data: _sheetData })); } catch(_){}
+      renderDashboard(_sheetData);
     } catch(e) {
-      document.getElementById('wing-breakdown').innerHTML = '<div style="text-align:center;color:#ef4444;font-size:13px;padding:12px;">Could not load data. Check connection.</div>';
-      document.getElementById('recent-entries').innerHTML = '';
+      if (!cachedData) {
+        document.getElementById('wing-breakdown').innerHTML = '<div style="text-align:center;color:#ef4444;font-size:13px;padding:12px;">Could not load data. Check connection.</div>';
+      }
     }
   }
 
