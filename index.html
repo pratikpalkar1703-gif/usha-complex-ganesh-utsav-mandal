@@ -691,7 +691,7 @@
       <div class="section-card">
         <div class="field">
           <label>Amount (₹) <span class="req">*</span></label>
-          <input type="number" id="amount" placeholder="Enter amount in ₹" min="1">
+          <input type="number" id="amount" placeholder="Enter amount in ₹" min="1" inputmode="numeric">
           <span class="field-hint">Enter donation amount in rupees</span>
         </div>
         <div class="field" id="payment-mode-field">
@@ -843,7 +843,7 @@
         </div>
         <div class="field" style="margin-bottom:14px;">
           <label>Amount (₹)</label>
-          <input type="number" id="edit-amount" placeholder="Amount" min="1">
+          <input type="number" id="edit-amount" placeholder="Amount" min="1" inputmode="numeric">
         </div>
         <button onclick="saveEdits()" style="width:100%;padding:12px;background:linear-gradient(135deg,#f97316,#fbbf24);border:none;border-radius:10px;color:#fff;font-size:14px;font-weight:700;cursor:pointer;">
           💾 Save &amp; Update Sheet
@@ -1045,11 +1045,12 @@
 <script>
   // ── NOT AVAILABLE TOGGLE ──
   function toggleNA() {
-    const isNA     = document.getElementById('not-available').checked;
-    const collSec  = document.getElementById('collection-section');
-    const resSec   = document.getElementById('resident-section');
-    const btn      = document.getElementById('gen-btn');
-    const fields   = ['fullname','mobile','amount'];
+    const isNA    = document.getElementById('not-available').checked;
+    const collSec = document.getElementById('collection-section');
+    const resSec  = document.getElementById('resident-section');
+    const btn     = document.getElementById('gen-btn');
+    const pmField = document.getElementById('payment-mode-field');
+    const fields  = ['fullname','mobile','amount'];
 
     if (isNA) {
       collSec.classList.add('na-active');
@@ -1057,14 +1058,21 @@
       // Disable & grey out name, mobile, amount
       fields.forEach(id => {
         const el = document.getElementById(id);
-        el.value    = '';
-        el.disabled = true;
+        el.value            = '';
+        el.disabled         = true;
         el.style.opacity    = '0.35';
         el.style.background = '#f3f4f6';
         el.style.cursor     = 'not-allowed';
       });
-      btn.textContent      = '🚪 Save Not Available';
-      btn.style.background = 'linear-gradient(135deg,#6b7280,#9ca3af)';
+      // Clear and hide Cash / GPay
+      document.querySelectorAll('input[name="paymode"]').forEach(r => r.checked = false);
+      ['lbl-cash','lbl-gpay'].forEach(id => {
+        const el = document.getElementById(id);
+        el.style.borderColor = '#fed7aa'; el.style.background = '#fff';
+      });
+      pmField.style.display = 'none';
+      btn.textContent       = '🚪 Save Not Available';
+      btn.style.background  = 'linear-gradient(135deg,#6b7280,#9ca3af)';
     } else {
       collSec.classList.remove('na-active');
       resSec.classList.remove('na-active');
@@ -1076,8 +1084,9 @@
         el.style.background = '';
         el.style.cursor     = '';
       });
-      btn.innerHTML        = '🧾 Generate Receipt';
-      btn.style.background = '';
+      pmField.style.display = '';
+      btn.innerHTML         = '🧾 Generate Receipt';
+      btn.style.background  = '';
     }
   }
 
@@ -1262,9 +1271,11 @@
       const el = document.getElementById(id);
       el.style.borderColor = '#fed7aa'; el.style.background = '#fff';
     });
-    document.getElementById('gen-btn').style.opacity = '';
-    document.getElementById('gen-btn').disabled = false;
-    document.getElementById('gen-btn').textContent = '🧾 Generate Receipt';
+    document.getElementById('gen-btn').style.opacity    = '';
+    document.getElementById('gen-btn').style.background = '';
+    document.getElementById('gen-btn').disabled         = false;
+    document.getElementById('gen-btn').textContent      = '🧾 Generate Receipt';
+    document.getElementById('payment-mode-field').style.display = '';
   }
 
   function saveToSheet(payload) {
@@ -1335,13 +1346,11 @@
     document.getElementById('r-mobile').textContent   = isNA ? '—' : mobile;
 
     // Show/hide room vs type row on receipt
+    document.getElementById('rc-row-type').style.display = 'none'; // never needed on receipt
     if (isOthers) {
       document.getElementById('rc-row-location').style.display = 'none';
-      document.getElementById('rc-row-type').style.display     = '';
-      document.getElementById('r-type').textContent = '🌟 Others (Non-Resident)';
     } else {
       document.getElementById('rc-row-location').style.display = '';
-      document.getElementById('rc-row-type').style.display     = 'none';
       document.getElementById('r-location').textContent = `${wing}-${room}`;
     }
 
@@ -1879,11 +1888,9 @@
     document.getElementById('r-amount').textContent     = '₹' + Number(r.amount).toLocaleString('en-IN');
     document.getElementById('rc-amount-label').textContent = 'Donation Amount';
     const isOther = r.type === 'Other';
+    document.getElementById('rc-row-type').style.display     = 'none'; // never shown on receipt
     document.getElementById('rc-row-location').style.display = isOther ? 'none' : '';
-    document.getElementById('rc-row-type').style.display     = isOther ? '' : 'none';
-    if (isOther) {
-      document.getElementById('r-type').textContent = '🌟 Others (Non-Resident)';
-    } else {
+    if (!isOther) {
       document.getElementById('r-location').textContent = r.roomCode || '—';
     }
     // Payment mode
