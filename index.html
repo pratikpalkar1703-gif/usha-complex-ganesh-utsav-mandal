@@ -1000,7 +1000,14 @@
         </div>
 
         <!-- Daily Trend -->
-        <div class="section-label" style="display:flex;align-items:center;gap:7px;font-size:11px;font-weight:700;color:#0369a1;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px;">📊 Daily Trend</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+          <div class="section-label" style="display:flex;align-items:center;gap:7px;font-size:11px;font-weight:700;color:#0369a1;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:0;">📊 Daily Trend</div>
+          <div style="display:flex;gap:5px;">
+            <button id="tf-weekly"  onclick="setTrendFilter('weekly')"  style="font-size:11px;font-weight:700;padding:4px 10px;border-radius:8px;cursor:pointer;border:1.5px solid #0369a1;background:#0369a1;color:#fff;">Week</button>
+            <button id="tf-monthly" onclick="setTrendFilter('monthly')" style="font-size:11px;font-weight:700;padding:4px 10px;border-radius:8px;cursor:pointer;border:1.5px solid #bfdbfe;background:#fff;color:#0369a1;">Month</button>
+            <button id="tf-yearly"  onclick="setTrendFilter('yearly')"  style="font-size:11px;font-weight:700;padding:4px 10px;border-radius:8px;cursor:pointer;border:1.5px solid #bfdbfe;background:#fff;color:#0369a1;">Year</button>
+          </div>
+        </div>
         <div class="section-card" style="padding:14px 16px;margin-bottom:16px;">
           <div id="daily-trend"><div style="text-align:center;color:#d4b49a;font-size:13px;padding:12px;">Loading…</div></div>
         </div>
@@ -1640,7 +1647,9 @@
   }
 
   let cachedRows = [];
-  let _dashCollected = []; // all collected entries for search/filter
+  let _dashCollected  = []; // all collected entries for search/filter
+  let _trendCollected = []; // collected entries for trend chart
+  let _trendFilter    = 'weekly'; // 'weekly' | 'monthly' | 'yearly'
 
   // Generate every room code in Usha Complex
   function getAllRooms() {
@@ -1805,7 +1814,8 @@
 
     // New sections
     renderTopDonors(collected);
-    renderDailyTrend(collected);
+    _trendCollected = collected;
+    renderDailyTrend(collected, _trendFilter);
 
     // Not Available list (with days-since for re-visit urgency)
     if (naList.length === 0) {
@@ -1976,42 +1986,101 @@
   }
 
   // ── DAILY TREND CHART ────────────────────────────────────────────────────────
-  function renderDailyTrend(collected) {
+  function setTrendFilter(mode) {
+    _trendFilter = mode;
+    ['weekly','monthly','yearly'].forEach(m => {
+      const btn = document.getElementById('tf-' + m);
+      if (!btn) return;
+      const active = m === mode;
+      btn.style.background  = active ? '#0369a1' : '#fff';
+      btn.style.color       = active ? '#fff'    : '#0369a1';
+      btn.style.borderColor = active ? '#0369a1' : '#bfdbfe';
+    });
+    renderDailyTrend(_trendCollected, mode);
+  }
+
+  function renderDailyTrend(collected, mode) {
+    mode = mode || _trendFilter || 'weekly';
     const el = document.getElementById('daily-trend');
     if (!el) return;
-    const byDate = {};
+
+    const today = new Date(); today.setHours(0,0,0,0);
+    const cutoff = new Date(today);
+    if      (mode === 'weekly')  cutoff.setDate(today.getDate() - 6);
+    else if (mode === 'monthly') cutoff.setDate(today.getDate() - 29);
+    // yearly: no cutoff
+
+    const byKey = {};
     collected.forEach(r => {
       if (!r.date) return;
-      if (!byDate[r.date]) byDate[r.date] = { amt: 0, cnt: 0 };
-      byDate[r.date].amt += Number(r.amount) || 0;
-      byDate[r.date].cnt++;
+      const d = new Date(r.date);
+      if (isNaN(d.getTime())) return;
+      if (mode !== 'yearly' && d < cutoff) return;
+
+      let key, sortVal;
+      if (mode === 'yearly') {
+        const parts = r.date.split(' ');
+        key     = (parts[1]||'') + ' ' + (parts[2]||'');
+        // sort by first day of that month
+        sortVal = new Date('1 ' + key).getTime();
+      } else {
+        key     = r.date;
+        sortVal = d.getTime();
+      }
+      if (!byKey[key]) byKey[key] = { amt: 0, cnt: 0, sortVal };
+      byKey[key].amt += Number(r.amount) || 0;
+      byKey[key].cnt++;
     });
-    const entries = Object.entries(byDate)
-      .sort((a, b) => new Date(a[0]) - new Date(b[0]))
-      .slice(-14); // last 14 days
+
+    // Fill every day slot for weekly/monthly so missing days show as empty bars
+    if (mode === 'weekly' || mode === 'monthly') {
+      const days = mode === 'weekly' ? 7 : 30;
+      for (let i = 0; i < days; i++) {
+        const d = new Date(today);
+        d.setDate(today.getDate() - (days - 1 - i));
+        const key = normDate(d);
+        if (!byKey[key]) byKey[key] = { amt: 0, cnt: 0, sortVal: d.getTime() };
+      }
+    }
+
+    const entries = Object.entries(byKey).sort((a, b) => a[1].sortVal - b[1].sortVal);
+
     if (entries.length === 0) {
-      el.innerHTML = '<div style="text-align:center;color:#d4b49a;font-size:13px;padding:12px;">No data yet</div>';
+      el.innerHTML = '<div style="text-align:center;color:#d4b49a;font-size:13px;padding:12px;">No data for this period</div>';
       return;
     }
+
     const maxAmt = Math.max(...entries.map(e => e[1].amt), 1);
-    const chartHeight = 80;
+    const chartH = 90;
+    const gap    = entries.length > 20 ? 2 : 4;
+
+    function xLabel(key) {
+      const parts = key.split(' ');
+      if (mode === 'yearly')  return `<span>${parts[0]}</span>`;
+      if (mode === 'monthly') return `<span>${parts[0]}</span>`;
+      // weekly: day-of-week + date
+      const d   = new Date(key);
+      const day = isNaN(d) ? '' : ['Su','Mo','Tu','We','Th','Fr','Sa'][d.getDay()];
+      return `<span>${day}</span><span>${parts[0]}</span>`;
+    }
+
     el.innerHTML = `
-      <div style="display:flex;align-items:flex-end;gap:3px;height:${chartHeight}px;margin-bottom:4px;">
-        ${entries.map(([date, d]) => {
-          const barH = Math.max(Math.round((d.amt / maxAmt) * chartHeight), 3);
-          const shortDate = date.split(' ').slice(0,2).join(' ');
-          const amtLabel = d.amt >= 1000 ? '₹' + Math.round(d.amt/1000) + 'k' : '₹' + d.amt;
-          return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:0;" title="${date}: ${fmt(d.amt)} (${d.cnt} entries)">
-            <div style="font-size:8px;color:#f97316;font-weight:700;margin-bottom:2px;white-space:nowrap;">${amtLabel}</div>
-            <div style="width:100%;height:${barH}px;background:linear-gradient(180deg,#fbbf24,#f97316);border-radius:3px 3px 0 0;min-height:3px;"></div>
+      <div style="display:flex;align-items:flex-end;gap:${gap}px;height:${chartH}px;margin-bottom:4px;">
+        ${entries.map(([key, d]) => {
+          const barH    = d.amt > 0 ? Math.max(Math.round((d.amt / maxAmt) * chartH), 4) : 0;
+          const amtLbl  = d.amt >= 1000 ? '₹' + Math.round(d.amt/1000) + 'k' : d.amt > 0 ? '₹' + d.amt : '';
+          const barColor = d.amt > 0 ? 'linear-gradient(180deg,#38bdf8,#0369a1)' : '#f1f5f9';
+          return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;" title="${key}: ${fmt(d.amt)} · ${d.cnt} entries">
+            <div style="font-size:8px;color:#0369a1;font-weight:700;margin-bottom:2px;white-space:nowrap;min-height:10px;">${amtLbl}</div>
+            <div style="width:100%;height:${barH}px;background:${barColor};border-radius:3px 3px 0 0;min-height:2px;"></div>
           </div>`;
         }).join('')}
       </div>
-      <div style="display:flex;align-items:flex-start;gap:3px;">
-        ${entries.map(([date]) => {
-          const parts = date.split(' ');
-          return `<div style="flex:1;font-size:8px;color:#a8a29e;text-align:center;line-height:1.3;">${parts[0]}<br>${parts[1]||''}</div>`;
-        }).join('')}
+      <div style="display:flex;align-items:flex-start;gap:${gap}px;">
+        ${entries.map(([key]) => `
+          <div style="flex:1;font-size:7px;color:#a8a29e;text-align:center;line-height:1.4;display:flex;flex-direction:column;align-items:center;">
+            ${xLabel(key)}
+          </div>`).join('')}
       </div>`;
   }
 
