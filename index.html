@@ -2261,7 +2261,7 @@
     btn.textContent = '⏳ Generating…';
     btn.disabled = true;
     try {
-      // All entries (collected + NA) sorted wing-wise then room number
+      // All entries sorted wing-wise then flat number
       const allEntries = [...(_sheetData || [])]
         .sort((a, b) => {
           const wa = a.type === 'Other' ? 'ZZ' : (a.wing || (a.roomCode||'').charAt(0) || 'Z').toUpperCase();
@@ -2272,8 +2272,6 @@
 
       const collected = allEntries.filter(r => (r.status||'Collected') !== 'Not Available');
       const totalAmt  = collected.reduce((s, r) => s + Number(r.amount||0), 0);
-
-      const printEl = document.getElementById('print-summary');
 
       let tableRows = '';
       let lastWing  = null;
@@ -2286,66 +2284,59 @@
           tableRows += `<tr><td colspan="7" style="background:#fff3e0;padding:6px 10px;font-size:12px;font-weight:800;color:#e65100;letter-spacing:1px;border-top:2px solid #fb923c;">Wing ${wingKey}</td></tr>`;
         }
         sno++;
-        const loc   = r.type === 'Other' ? 'Non-Resident' : (r.roomCode || '—');
-        const bgRow = isNA ? '#fef2f2' : (sno % 2 === 0 ? '#fafaf9' : '#fff');
-        const amtCell = isNA
+        const loc    = r.type === 'Other' ? 'Non-Resident' : (r.roomCode || '—');
+        const bgRow  = isNA ? '#fef2f2' : (sno % 2 === 0 ? '#fafaf9' : '#fff');
+        const amtTd  = isNA
           ? `<td style="padding:6px 8px;text-align:right;color:#ef4444;font-weight:700;">N/A</td>`
           : `<td style="padding:6px 8px;text-align:right;font-weight:700;color:#16a34a;">${fmt(r.amount)}</td>`;
-        const statusCell = isNA
-          ? `<td style="padding:6px 8px;text-align:center;"><span style="font-size:9px;font-weight:700;color:#ef4444;background:#fee2e2;padding:2px 6px;border-radius:4px;">Not Available</span></td>`
-          : `<td style="padding:6px 8px;text-align:center;"><span style="font-size:9px;font-weight:700;color:#16a34a;background:#dcfce7;padding:2px 6px;border-radius:4px;">${r.paymentMode||'Collected'}</span></td>`;
+        const statTd = isNA
+          ? `<td style="padding:6px 8px;text-align:center;"><span style="font-size:9px;font-weight:700;color:#ef4444;background:#fee2e2;padding:2px 5px;border-radius:4px;">Not Available</span></td>`
+          : `<td style="padding:6px 8px;text-align:center;"><span style="font-size:9px;font-weight:700;color:#16a34a;background:#dcfce7;padding:2px 5px;border-radius:4px;">${r.paymentMode||'✓'}</span></td>`;
         tableRows += `<tr style="background:${bgRow};">
           <td style="padding:6px 8px;color:#9ca3af;font-size:11px;">${sno}</td>
           <td style="padding:6px 8px;font-weight:700;color:#f97316;font-size:11px;">${r.receiptNum||'—'}</td>
           <td style="padding:6px 8px;font-weight:700;font-size:11px;">${loc}</td>
           <td style="padding:6px 8px;font-size:11px;">${r.name||'—'}</td>
           <td style="padding:6px 8px;color:#6b7280;font-size:11px;">${r.mobile||'—'}</td>
-          ${amtCell}
-          ${statusCell}
+          ${amtTd}${statTd}
         </tr>`;
       });
 
-      printEl.innerHTML = `
+      // Create a fresh temporary div — always works with html2canvas
+      const tmp = document.createElement('div');
+      tmp.style.cssText = 'position:fixed;top:0;left:0;width:750px;background:#fff;padding:32px;font-family:Arial,sans-serif;font-size:13px;line-height:1.4;z-index:-1;';
+      tmp.innerHTML = `
         <div style="text-align:center;margin-bottom:16px;padding-bottom:12px;border-bottom:3px solid #f97316;">
           <div style="font-size:20px;font-weight:900;color:#f97316;">🙏 Ganpati Decoration 2026 – Usha Complex</div>
-          <div style="font-size:12px;color:#6b7280;margin-top:4px;">All Entries · Generated: ${normDate(new Date())} · ${allEntries.length} flats · ${collected.length} collected</div>
-          <div style="font-size:14px;font-weight:800;color:#16a34a;margin-top:6px;">Total Collected: ${fmt(totalAmt)}</div>
+          <div style="font-size:12px;color:#6b7280;margin-top:4px;">Generated: ${normDate(new Date())} &nbsp;·&nbsp; ${allEntries.length} flats &nbsp;·&nbsp; ${collected.length} collected</div>
+          <div style="font-size:15px;font-weight:800;color:#16a34a;margin-top:6px;">Total Collected: ${fmt(totalAmt)}</div>
         </div>
         <table style="width:100%;border-collapse:collapse;font-size:11px;">
-          <thead>
-            <tr style="background:#f97316;color:#fff;">
-              <th style="padding:7px 8px;text-align:left;">#</th>
-              <th style="padding:7px 8px;text-align:left;">Receipt</th>
-              <th style="padding:7px 8px;text-align:left;">Flat</th>
-              <th style="padding:7px 8px;text-align:left;">Name</th>
-              <th style="padding:7px 8px;text-align:left;">Mobile</th>
-              <th style="padding:7px 8px;text-align:right;">Amount</th>
-              <th style="padding:7px 8px;text-align:center;">Status</th>
-            </tr>
-          </thead>
+          <thead><tr style="background:#f97316;color:#fff;">
+            <th style="padding:7px 8px;text-align:left;">#</th>
+            <th style="padding:7px 8px;text-align:left;">Receipt</th>
+            <th style="padding:7px 8px;text-align:left;">Flat</th>
+            <th style="padding:7px 8px;text-align:left;">Name</th>
+            <th style="padding:7px 8px;text-align:left;">Mobile</th>
+            <th style="padding:7px 8px;text-align:right;">Amount</th>
+            <th style="padding:7px 8px;text-align:center;">Status</th>
+          </tr></thead>
           <tbody>${tableRows}</tbody>
-          <tfoot>
-            <tr style="background:#f97316;color:#fff;font-weight:800;">
-              <td colspan="5" style="padding:8px 10px;">Total (${collected.length} collected)</td>
-              <td style="padding:8px 10px;text-align:right;">${fmt(totalAmt)}</td>
-              <td></td>
-            </tr>
-          </tfoot>
+          <tfoot><tr style="background:#f97316;color:#fff;font-weight:800;">
+            <td colspan="5" style="padding:8px 10px;">Total (${collected.length} collected)</td>
+            <td style="padding:8px 10px;text-align:right;">${fmt(totalAmt)}</td>
+            <td></td>
+          </tr></tfoot>
         </table>
-        <div style="text-align:center;margin-top:16px;font-size:11px;color:#9ca3af;border-top:1px solid #fef3e2;padding-top:10px;">
+        <div style="text-align:center;margin-top:14px;font-size:10px;color:#9ca3af;padding-top:10px;border-top:1px solid #eee;">
           🙏 Ganpati Bappa Morya · Usha Complex Sarvajanik Ganesh Utsav Mandal 2026
         </div>`;
 
-      // Temporarily move on-screen so html2canvas can capture it
-      printEl.style.left    = '0';
-      printEl.style.top     = '0';
-      printEl.style.opacity = '1';
-      printEl.style.zIndex  = '-1';
-      await new Promise(r => setTimeout(r, 80));
-      const canvas = await html2canvas(printEl, { scale: 2, backgroundColor: '#ffffff', useCORS: true, scrollX: 0, scrollY: 0 });
-      printEl.style.left    = '-9999px';
-      printEl.style.opacity = '0';
-      printEl.style.zIndex  = '';
+      document.body.appendChild(tmp);
+      await new Promise(r => setTimeout(r, 100));
+
+      const canvas = await html2canvas(tmp, { scale: 2, backgroundColor: '#ffffff', useCORS: true, scrollX: 0, scrollY: 0 });
+      document.body.removeChild(tmp);
 
       const imgData = canvas.toDataURL('image/png');
       const { jsPDF } = window.jspdf;
