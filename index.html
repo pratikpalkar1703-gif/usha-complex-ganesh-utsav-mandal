@@ -2085,16 +2085,18 @@
     const search = (document.getElementById('entries-search')?.value || '').toLowerCase().trim();
     const wingFilter = (document.getElementById('entries-wing-filter')?.value || '');
     const dbgEl = document.getElementById('entries-debug');
-    if (dbgEl) dbgEl.textContent = `Data: ${_dashCollected.length} entries | search="${search}" wing="${wingFilter}"` + (_dashCollected[0] ? ` | sample: ${JSON.stringify({name:_dashCollected[0].name,wing:_dashCollected[0].wing,roomCode:_dashCollected[0].roomCode,type:_dashCollected[0].type})}` : '');
+    if (dbgEl) dbgEl.textContent = `Data: ${_dashCollected.length} | search="${search}" wing="${wingFilter}"` + (_dashCollected[0] ? ` | mobile type: ${typeof _dashCollected[0].mobile} | sample mobile: ${_dashCollected[0].mobile}` : '');
     let filtered = _dashCollected;
     if (search) {
-      filtered = filtered.filter(r =>
-        (r.name||'').toLowerCase().includes(search) ||
-        (r.roomCode||'').toLowerCase().includes(search) ||
-        (r.mobile||'').toLowerCase().includes(search) ||
-        (r.receiptNum||'').toLowerCase().includes(search) ||
-        entryWing(r).toLowerCase().includes(search)
-      );
+      filtered = filtered.filter(r => {
+        try {
+          return String(r.name||'').toLowerCase().includes(search) ||
+            String(r.roomCode||'').toLowerCase().includes(search) ||
+            String(r.mobile||'').toLowerCase().includes(search) ||
+            String(r.receiptNum||'').toLowerCase().includes(search) ||
+            entryWing(r).toLowerCase().includes(search);
+        } catch(e) { return false; }
+      });
     }
     if (wingFilter) {
       if (wingFilter === 'Other') {
