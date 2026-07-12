@@ -1076,8 +1076,7 @@
               <option value="Other">Others</option>
             </select>
           </div>
-          <div id="entries-debug" style="font-size:10px;color:#999;padding:4px 12px;background:#f9f9f9;word-break:break-all;"></div>
-          <div id="all-entries" style="max-height:420px;overflow-y:auto;">
+<div id="all-entries" style="max-height:420px;overflow-y:auto;">
             <div style="text-align:center;color:#d4b49a;font-size:13px;padding:20px;">Loading…</div>
           </div>
         </div>
@@ -2090,12 +2089,7 @@
   function filterEntries() {
     const search = (document.getElementById('entries-search')?.value || '').toLowerCase().trim();
     const wingFilter = (document.getElementById('entries-wing-filter')?.value || '');
-    const dbgEl = document.getElementById('entries-debug');
-    if (dbgEl) {
-      const wingAEntries = _dashCollected.filter(r => String(r.wing||r.roomCode||'').charAt(0).toUpperCase()==='A' || String(r.roomCode||'').startsWith('A'));
-      dbgEl.textContent = `Total:${_dashCollected.length} wingA-raw:${wingAEntries.length} | search="${search}" wing="${wingFilter}" | wingA sample: ${JSON.stringify(wingAEntries.slice(0,2).map(r=>({w:r.wing,rc:r.roomCode,t:r.type,s:r.status})))}`;
-    }
-    let filtered = _dashCollected;
+let filtered = _dashCollected;
     if (search) {
       filtered = filtered.filter(r => {
         try {
