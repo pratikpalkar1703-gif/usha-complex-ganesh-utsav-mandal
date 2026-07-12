@@ -606,9 +606,10 @@
 <body>
 
 <!-- Offline banner -->
-<div id="offline-banner" style="display:none;position:fixed;top:0;left:0;right:0;z-index:9999;background:#1e3a5f;color:#fff;font-size:12px;font-weight:700;text-align:center;padding:7px 12px;letter-spacing:0.3px;">
-  📴 Offline — entries saved locally and will sync automatically when connected
-  <span id="offline-count" style="background:#f97316;border-radius:10px;padding:1px 8px;margin-left:6px;display:none;"></span>
+<div id="offline-banner" style="display:none;position:fixed;top:0;left:0;right:0;z-index:9999;background:#1e3a5f;color:#fff;font-size:12px;font-weight:700;text-align:center;padding:7px 12px;letter-spacing:0.3px;display:flex;align-items:center;justify-content:center;gap:8px;flex-wrap:wrap;">
+  <span>📴 Offline — entries saved locally</span>
+  <span id="offline-count" style="background:#f97316;border-radius:10px;padding:1px 8px;display:none;"></span>
+  <button onclick="flushOfflineQueue()" style="background:#f97316;color:#fff;border:none;border-radius:8px;padding:3px 10px;font-size:11px;font-weight:800;cursor:pointer;">↑ Sync Now</button>
 </div>
 <div id="sync-banner" style="display:none;position:fixed;top:0;left:0;right:0;z-index:9999;background:#15803d;color:#fff;font-size:12px;font-weight:700;text-align:center;padding:7px 12px;">
   ✅ Back online — syncing saved entries…
@@ -1398,29 +1399,33 @@
     saveOfflineQueue(q);
     updateOfflineBanner();
   }
+  let _syncing = false;
+
   function updateOfflineBanner() {
     const ob = document.getElementById('offline-banner');
     const oc = document.getElementById('offline-count');
-    const sb = document.getElementById('sync-banner');
     if (!ob) return;
     const q = getOfflineQueue();
-    if (!navigator.onLine) {
+    // Show banner if offline OR if there are pending entries not yet synced
+    const showBanner = !navigator.onLine || q.length > 0;
+    if (showBanner) {
       ob.style.display = '';
       if (q.length > 0) { oc.textContent = q.length + ' pending'; oc.style.display = ''; }
       else oc.style.display = 'none';
-      // push body down so banner doesn't cover header
       document.getElementById('main-content').style.paddingTop = '32px';
     } else {
       ob.style.display = 'none';
       document.getElementById('main-content').style.paddingTop = '';
-      if (sb) sb.style.display = 'none';
     }
   }
+
   async function flushOfflineQueue() {
+    if (_syncing) return;
     const q = getOfflineQueue();
-    if (q.length === 0) return;
+    if (q.length === 0) { updateOfflineBanner(); return; }
+    _syncing = true;
     const sb = document.getElementById('sync-banner');
-    if (sb) { sb.style.display = ''; setTimeout(() => { sb.style.display = 'none'; }, 4000); }
+    if (sb) { sb.style.display = ''; }
     const remaining = [];
     for (const payload of q) {
       try {
@@ -1429,18 +1434,34 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
         });
-      } catch(_) { remaining.push(payload); }
+        // no-cors fetch doesn't throw on success — reaching here means it was sent
+        console.log('[offline] synced:', payload.receiptNum);
+      } catch(e) {
+        console.warn('[offline] still failed:', payload.receiptNum, e);
+        remaining.push(payload);
+      }
     }
     saveOfflineQueue(remaining);
+    _syncing = false;
     updateOfflineBanner();
-    // Refresh dashboard data after sync
+    if (sb) { setTimeout(() => { sb.style.display = 'none'; }, 3000); }
     if (remaining.length === 0) { _cacheLoaded = false; loadRoomCache(); }
+    else {
+      // Retry after 10s if still some failed
+      setTimeout(flushOfflineQueue, 10000);
+    }
   }
 
-  window.addEventListener('online',  () => { updateOfflineBanner(); flushOfflineQueue(); });
+  // Trigger flush: on online event (with 1.5s delay for network to stabilise)
+  window.addEventListener('online',  () => { updateOfflineBanner(); setTimeout(flushOfflineQueue, 1500); });
   window.addEventListener('offline', () => { updateOfflineBanner(); });
-  // Init banner state on load
-  document.addEventListener('DOMContentLoaded', updateOfflineBanner);
+  // Also flush on page load in case we're back online after an offline session
+  window.addEventListener('load', () => {
+    updateOfflineBanner();
+    if (navigator.onLine && getOfflineQueue().length > 0) {
+      setTimeout(flushOfflineQueue, 2000);
+    }
+  });
 
   function saveToSheet(payload) {
     if (!SHEET_URL) return;
@@ -1451,15 +1472,19 @@
         date: payload.date, receiptNum: payload.receiptNum
       };
     }
-    if (!navigator.onLine) {
-      queueOffline(payload);
-      return;
-    }
+    // Always try to send; only queue if network fails
+    // (navigator.onLine is unreliable — don't use it as the gate)
     fetch(SHEET_URL, {
       method: 'POST', mode: 'no-cors',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
-    }).catch(() => { queueOffline(payload); });
+    }).then(() => {
+      // Sent OK — also flush any other queued entries
+      if (getOfflineQueue().length > 0) setTimeout(flushOfflineQueue, 500);
+    }).catch(() => {
+      queueOffline(payload);
+      showSavedToast('No network — saved locally, will sync when connected');
+    });
   }
 
   function amtToWords(n) {
