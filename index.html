@@ -771,6 +771,23 @@
 </div><!-- /main-content -->
 
 <!-- DUPLICATE WARNING MODAL -->
+
+<!-- CONFIRM DETAILS MODAL -->
+<div class="modal-overlay" id="confirm-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:1000;align-items:center;justify-content:center;padding:16px;">
+  <div class="modal" style="max-width:340px;padding:24px;">
+    <div style="text-align:center;margin-bottom:16px;">
+      <div style="font-size:32px;">🔍</div>
+      <div style="font-size:17px;font-weight:800;color:#c2410c;margin-top:6px;">Confirm Details</div>
+      <div style="font-size:12px;color:#9ca3af;margin-top:3px;">Please verify before generating receipt</div>
+    </div>
+    <div id="confirm-body" style="background:#fff7ed;border-radius:12px;padding:14px;margin-bottom:18px;font-size:13px;line-height:1.8;"></div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+      <button onclick="closeConfirm()" style="padding:12px;border-radius:12px;border:1.5px solid #fed7aa;background:#fff;color:#c2410c;font-size:13px;font-weight:700;cursor:pointer;">✕ Edit</button>
+      <button onclick="confirmAndGenerate()" style="padding:12px;border-radius:12px;border:none;background:linear-gradient(135deg,#f97316,#ea580c);color:#fff;font-size:13px;font-weight:700;cursor:pointer;">✓ Confirm</button>
+    </div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="dup-modal">
   <div class="modal" style="max-width:340px;">
     <div style="text-align:center;margin-bottom:16px;">
