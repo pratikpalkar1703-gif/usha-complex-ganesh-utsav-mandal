@@ -600,6 +600,134 @@
   .rcp-row:last-child{border-bottom:none;}
   .rcp-key{font-size:10px;font-weight:700;color:#92400e;letter-spacing:1px;text-transform:uppercase;}
   .rcp-val{font-size:13px;font-weight:600;color:#1c1917;text-align:right;max-width:55%;word-break:break-word;}
+
+  async function exportPDF(btn) {
+    const orig = btn.textContent;
+    btn.textContent = '⏳ Generating…';
+    btn.disabled = true;
+    try {
+      const allEntries = [...(_sheetData || [])]
+        .sort((a, b) => {
+          const wa = a.type === 'Other' ? 'ZZ' : (a.wing || (a.roomCode||'').charAt(0) || 'Z').toUpperCase();
+          const wb = b.type === 'Other' ? 'ZZ' : (b.wing || (b.roomCode||'').charAt(0) || 'Z').toUpperCase();
+          if (wa !== wb) return wa < wb ? -1 : 1;
+          return (a.roomCode||'').localeCompare(b.roomCode||'', undefined, { numeric: true });
+        });
+
+      const collected   = allEntries.filter(r => (r.status||'Collected') !== 'Not Available');
+      const gpay        = collected.filter(r => r.paymentMode === 'GPay');
+      const cash        = collected.filter(r => r.paymentMode === 'Cash');
+      const resident    = collected.filter(r => r.type !== 'Other');
+      const nonResident = collected.filter(r => r.type === 'Other');
+      const totalAmt    = collected.reduce((s,r) => s + Number(r.amount||0), 0);
+      const gpayAmt     = gpay.reduce((s,r) => s + Number(r.amount||0), 0);
+      const cashAmt     = cash.reduce((s,r) => s + Number(r.amount||0), 0);
+
+      let tableRows = '';
+      let lastWing  = null;
+      let sno       = 0;
+      allEntries.forEach(r => {
+        const isNA    = (r.status||'Collected') === 'Not Available';
+        const wingKey = r.type === 'Other' ? 'Others' : ((r.wing || (r.roomCode||'').charAt(0) || '?').toUpperCase());
+        if (wingKey !== lastWing) {
+          lastWing = wingKey;
+          tableRows += `<tr><td colspan="7" style="background:#fff3e0;padding:6px 10px;font-size:12px;font-weight:800;color:#e65100;letter-spacing:1px;border-top:2px solid #fb923c;">Wing ${wingKey}</td></tr>`;
+        }
+        sno++;
+        const loc    = r.type === 'Other' ? 'Non-Resident' : (r.roomCode || '—');
+        const bgRow  = isNA ? '#fef2f2' : (sno % 2 === 0 ? '#fafaf9' : '#fff');
+        const amtTd  = isNA ? `<td style="padding:6px 8px;text-align:right;color:#ef4444;font-weight:700;">N/A</td>`
+                            : `<td style="padding:6px 8px;text-align:right;font-weight:700;color:#16a34a;">${fmt(r.amount)}</td>`;
+        const statTd = isNA ? `<td style="padding:6px 8px;text-align:center;"><span style="font-size:9px;font-weight:700;color:#ef4444;background:#fee2e2;padding:2px 5px;border-radius:4px;">Not Available</span></td>`
+                            : `<td style="padding:6px 8px;text-align:center;"><span style="font-size:9px;font-weight:700;color:#16a34a;background:#dcfce7;padding:2px 5px;border-radius:4px;">${r.paymentMode||'✓'}</span></td>`;
+        tableRows += `<tr style="background:${bgRow};">
+          <td style="padding:6px 8px;color:#9ca3af;font-size:11px;">${sno}</td>
+          <td style="padding:6px 8px;font-weight:700;color:#f97316;font-size:11px;">${r.receiptNum||'—'}</td>
+          <td style="padding:6px 8px;font-weight:700;font-size:11px;">${loc}</td>
+          <td style="padding:6px 8px;font-size:11px;">${r.name||'—'}</td>
+          <td style="padding:6px 8px;color:#6b7280;font-size:11px;">${r.mobile||'—'}</td>
+          ${amtTd}${statTd}
+        </tr>`;
+      });
+
+      const tmp = document.createElement('div');
+      tmp.style.cssText = 'position:fixed;top:0;left:0;width:750px;background:#fff;padding:32px;font-family:Arial,sans-serif;font-size:13px;line-height:1.4;z-index:-1;';
+      tmp.innerHTML = `
+        <div style="text-align:center;margin-bottom:12px;padding-bottom:10px;border-bottom:3px solid #f97316;">
+          <div style="font-size:20px;font-weight:900;color:#f97316;">🙏 Ganpati Decoration 2026 – Usha Complex</div>
+          <div style="font-size:11px;color:#6b7280;margin-top:3px;">Generated: ${normDate(new Date())} &nbsp;·&nbsp; ${allEntries.length} total entries</div>
+        </div>
+        <div style="display:flex;gap:8px;margin-bottom:16px;">
+          <div style="flex:1;background:#f0fdf4;border:1.5px solid #86efac;border-radius:8px;padding:8px 10px;text-align:center;">
+            <div style="font-size:9px;font-weight:700;color:#166534;text-transform:uppercase;letter-spacing:1px;">Total Collected</div>
+            <div style="font-size:16px;font-weight:900;color:#15803d;">${fmt(totalAmt)}</div>
+            <div style="font-size:9px;color:#4ade80;">${collected.length} entries</div>
+          </div>
+          <div style="flex:1;background:#eff6ff;border:1.5px solid #93c5fd;border-radius:8px;padding:8px 10px;text-align:center;">
+            <div style="font-size:9px;font-weight:700;color:#1d4ed8;text-transform:uppercase;letter-spacing:1px;">GPay</div>
+            <div style="font-size:16px;font-weight:900;color:#2563eb;">${fmt(gpayAmt)}</div>
+            <div style="font-size:9px;color:#60a5fa;">${gpay.length} entries</div>
+          </div>
+          <div style="flex:1;background:#fefce8;border:1.5px solid #fde047;border-radius:8px;padding:8px 10px;text-align:center;">
+            <div style="font-size:9px;font-weight:700;color:#854d0e;text-transform:uppercase;letter-spacing:1px;">Cash</div>
+            <div style="font-size:16px;font-weight:900;color:#ca8a04;">${fmt(cashAmt)}</div>
+            <div style="font-size:9px;color:#facc15;">${cash.length} entries</div>
+          </div>
+          <div style="flex:1;background:#fdf4ff;border:1.5px solid #d8b4fe;border-radius:8px;padding:8px 10px;text-align:center;">
+            <div style="font-size:9px;font-weight:700;color:#6b21a8;text-transform:uppercase;letter-spacing:1px;">Resident</div>
+            <div style="font-size:16px;font-weight:900;color:#7c3aed;">${resident.length}</div>
+            <div style="font-size:9px;color:#c084fc;">Non-Res: ${nonResident.length}</div>
+          </div>
+        </div>
+        <table style="width:100%;border-collapse:collapse;font-size:11px;">
+          <thead><tr style="background:#f97316;color:#fff;">
+            <th style="padding:7px 8px;text-align:left;">#</th>
+            <th style="padding:7px 8px;text-align:left;">Receipt</th>
+            <th style="padding:7px 8px;text-align:left;">Flat</th>
+            <th style="padding:7px 8px;text-align:left;">Name</th>
+            <th style="padding:7px 8px;text-align:left;">Mobile</th>
+            <th style="padding:7px 8px;text-align:right;">Amount</th>
+            <th style="padding:7px 8px;text-align:center;">Status</th>
+          </tr></thead>
+          <tbody>${tableRows}</tbody>
+          <tfoot><tr style="background:#f97316;color:#fff;font-weight:800;">
+            <td colspan="5" style="padding:8px 10px;">Total (${collected.length} collected)</td>
+            <td style="padding:8px 10px;text-align:right;">${fmt(totalAmt)}</td>
+            <td></td>
+          </tr></tfoot>
+        </table>
+        <div style="text-align:center;margin-top:14px;font-size:10px;color:#9ca3af;padding-top:10px;border-top:1px solid #eee;">
+          🙏 Ganpati Bappa Morya · Usha Complex Sarvajanik Ganesh Utsav Mandal 2026
+        </div>`;
+
+      document.body.appendChild(tmp);
+      await new Promise(r => setTimeout(r, 100));
+      const canvas = await html2canvas(tmp, { scale: 2, backgroundColor: '#ffffff', useCORS: true, scrollX: 0, scrollY: 0 });
+      document.body.removeChild(tmp);
+
+      const imgData = canvas.toDataURL('image/png');
+      const { jsPDF } = window.jspdf;
+      const pdf  = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+      const pdfW = pdf.internal.pageSize.getWidth();
+      const pdfH = pdf.internal.pageSize.getHeight();
+      const imgH = (canvas.height / canvas.width) * pdfW;
+      let y = 0;
+      while (y < imgH) {
+        if (y > 0) pdf.addPage();
+        pdf.addImage(imgData, 'PNG', 0, -y, pdfW, imgH);
+        y += pdfH;
+      }
+      pdf.save(`Ganpati_Entries_${normDate(new Date()).replace(/ /g,'_')}.pdf`);
+
+    } catch(e) {
+      console.error(e);
+      alert('Export failed: ' + e.message);
+    } finally {
+      btn.textContent = orig;
+      btn.disabled = false;
+    }
+  }
+
 </style>
 </head>
 <body>
@@ -921,7 +1049,7 @@
 
 <!-- DASHBOARD PIN MODAL -->
 <div class="modal-overlay" id="login-modal">
-  <div class="modal" style="max-width:300px;">
+  <div class="modal" style="max-width:300px;padding:24px;">
     <div style="text-align:center;margin-bottom:20px;">
       <div style="font-size:36px;">📊</div>
       <div style="font-size:17px;font-weight:800;color:#c2410c;margin-top:6px;">Staff Access</div>
@@ -1107,6 +1235,7 @@
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script>
   // ── NOT AVAILABLE TOGGLE ──
   function toggleNA() {
@@ -2234,132 +2363,69 @@
 
   // ── SHARE SUMMARY ────────────────────────────────────────────────────────────
   function shareSummary() {
-    const s = window._dashStats || {};
-    const pct = document.getElementById('progress-pct')?.textContent || '0%';
-    const today = normDate(new Date());
-    const text =
-      `🙏 *Ganpati Decoration 2026 – Usha Complex*\n` +
-      `📅 Update: ${today}\n\n` +
-      `💰 Total Collected: *${fmt(s.total||0)}* (${s.collected||0} receipts)\n` +
-      `📊 Progress: *${pct}* rooms visited\n` +
-      `📈 Avg Donation: *${fmt(s.avgAmt||0)}*\n\n` +
-      `💵 Cash: ${fmt(s.cashAmt||0)} (${s.cashCnt||0} entries)\n` +
-      `📲 GPay: ${fmt(s.gpayAmt||0)} (${s.gpayCnt||0} entries)\n\n` +
-      `🕐 Pending: ${s.pending||0} rooms\n` +
-      `🚪 Not Available: ${s.na||0} rooms\n\n` +
-      `🙏 Ganpati Bappa Morya! 🙏`;
-    if (navigator.share) {
-      navigator.share({ text }).catch(() => {});
-    } else {
-      window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank');
-    }
-  }
-
-  // ── EXPORT PDF (All Entries, wing-sorted) ────────────────────────────────────
-  async function exportPDF(btn) {
-    const orig = btn.textContent;
-    btn.textContent = '⏳ Generating…';
-    btn.disabled = true;
-    try {
-      // All entries sorted wing-wise then flat number
-      const allEntries = [...(_sheetData || [])]
-        .sort((a, b) => {
-          const wa = a.type === 'Other' ? 'ZZ' : (a.wing || (a.roomCode||'').charAt(0) || 'Z').toUpperCase();
-          const wb = b.type === 'Other' ? 'ZZ' : (b.wing || (b.roomCode||'').charAt(0) || 'Z').toUpperCase();
-          if (wa !== wb) return wa < wb ? -1 : 1;
-          return (a.roomCode||'').localeCompare(b.roomCode||'', undefined, { numeric: true });
-        });
-
-      const collected = allEntries.filter(r => (r.status||'Collected') !== 'Not Available');
-      const totalAmt  = collected.reduce((s, r) => s + Number(r.amount||0), 0);
-
-      let tableRows = '';
-      let lastWing  = null;
-      let sno       = 0;
-      allEntries.forEach(r => {
-        const isNA    = (r.status||'Collected') === 'Not Available';
-        const wingKey = r.type === 'Other' ? 'Others' : ((r.wing || (r.roomCode||'').charAt(0) || '?').toUpperCase());
-        if (wingKey !== lastWing) {
-          lastWing = wingKey;
-          tableRows += `<tr><td colspan="7" style="background:#fff3e0;padding:6px 10px;font-size:12px;font-weight:800;color:#e65100;letter-spacing:1px;border-top:2px solid #fb923c;">Wing ${wingKey}</td></tr>`;
-        }
-        sno++;
-        const loc    = r.type === 'Other' ? 'Non-Resident' : (r.roomCode || '—');
-        const bgRow  = isNA ? '#fef2f2' : (sno % 2 === 0 ? '#fafaf9' : '#fff');
-        const amtTd  = isNA
-          ? `<td style="padding:6px 8px;text-align:right;color:#ef4444;font-weight:700;">N/A</td>`
-          : `<td style="padding:6px 8px;text-align:right;font-weight:700;color:#16a34a;">${fmt(r.amount)}</td>`;
-        const statTd = isNA
-          ? `<td style="padding:6px 8px;text-align:center;"><span style="font-size:9px;font-weight:700;color:#ef4444;background:#fee2e2;padding:2px 5px;border-radius:4px;">Not Available</span></td>`
-          : `<td style="padding:6px 8px;text-align:center;"><span style="font-size:9px;font-weight:700;color:#16a34a;background:#dcfce7;padding:2px 5px;border-radius:4px;">${r.paymentMode||'✓'}</span></td>`;
-        tableRows += `<tr style="background:${bgRow};">
-          <td style="padding:6px 8px;color:#9ca3af;font-size:11px;">${sno}</td>
-          <td style="padding:6px 8px;font-weight:700;color:#f97316;font-size:11px;">${r.receiptNum||'—'}</td>
-          <td style="padding:6px 8px;font-weight:700;font-size:11px;">${loc}</td>
-          <td style="padding:6px 8px;font-size:11px;">${r.name||'—'}</td>
-          <td style="padding:6px 8px;color:#6b7280;font-size:11px;">${r.mobile||'—'}</td>
-          ${amtTd}${statTd}
-        </tr>`;
+    const allEntries = [...(_sheetData || [])]
+      .sort((a, b) => {
+        const wa = a.type === 'Other' ? 'ZZ' : (a.wing || (a.roomCode||'').charAt(0) || 'Z').toUpperCase();
+        const wb = b.type === 'Other' ? 'ZZ' : (b.wing || (b.roomCode||'').charAt(0) || 'Z').toUpperCase();
+        if (wa !== wb) return wa < wb ? -1 : 1;
+        return (a.roomCode||'').localeCompare(b.roomCode||'', undefined, { numeric: true });
       });
 
-      // Create a fresh temporary div — always works with html2canvas
-      const tmp = document.createElement('div');
-      tmp.style.cssText = 'position:fixed;top:0;left:0;width:750px;background:#fff;padding:32px;font-family:Arial,sans-serif;font-size:13px;line-height:1.4;z-index:-1;';
-      tmp.innerHTML = `
-        <div style="text-align:center;margin-bottom:16px;padding-bottom:12px;border-bottom:3px solid #f97316;">
-          <div style="font-size:20px;font-weight:900;color:#f97316;">🙏 Ganpati Decoration 2026 – Usha Complex</div>
-          <div style="font-size:12px;color:#6b7280;margin-top:4px;">Generated: ${normDate(new Date())} &nbsp;·&nbsp; ${allEntries.length} flats &nbsp;·&nbsp; ${collected.length} collected</div>
-          <div style="font-size:15px;font-weight:800;color:#16a34a;margin-top:6px;">Total Collected: ${fmt(totalAmt)}</div>
-        </div>
-        <table style="width:100%;border-collapse:collapse;font-size:11px;">
-          <thead><tr style="background:#f97316;color:#fff;">
-            <th style="padding:7px 8px;text-align:left;">#</th>
-            <th style="padding:7px 8px;text-align:left;">Receipt</th>
-            <th style="padding:7px 8px;text-align:left;">Flat</th>
-            <th style="padding:7px 8px;text-align:left;">Name</th>
-            <th style="padding:7px 8px;text-align:left;">Mobile</th>
-            <th style="padding:7px 8px;text-align:right;">Amount</th>
-            <th style="padding:7px 8px;text-align:center;">Status</th>
-          </tr></thead>
-          <tbody>${tableRows}</tbody>
-          <tfoot><tr style="background:#f97316;color:#fff;font-weight:800;">
-            <td colspan="5" style="padding:8px 10px;">Total (${collected.length} collected)</td>
-            <td style="padding:8px 10px;text-align:right;">${fmt(totalAmt)}</td>
-            <td></td>
-          </tr></tfoot>
-        </table>
-        <div style="text-align:center;margin-top:14px;font-size:10px;color:#9ca3af;padding-top:10px;border-top:1px solid #eee;">
-          🙏 Ganpati Bappa Morya · Usha Complex Sarvajanik Ganesh Utsav Mandal 2026
-        </div>`;
+    const collected   = allEntries.filter(r => (r.status||'Collected') !== 'Not Available');
+    const naEntries   = allEntries.filter(r => (r.status||'Collected') === 'Not Available');
+    const gpay        = collected.filter(r => r.paymentMode === 'GPay');
+    const cash        = collected.filter(r => r.paymentMode === 'Cash');
+    const resident    = collected.filter(r => r.type !== 'Other');
+    const nonResident = collected.filter(r => r.type === 'Other');
+    const totalAmt    = collected.reduce((s,r) => s + Number(r.amount||0), 0);
+    const gpayAmt     = gpay.reduce((s,r) => s + Number(r.amount||0), 0);
+    const cashAmt     = cash.reduce((s,r) => s + Number(r.amount||0), 0);
 
-      document.body.appendChild(tmp);
-      await new Promise(r => setTimeout(r, 100));
+    if (!window.XLSX) { alert('Excel library not loaded yet. Try again.'); return; }
 
-      const canvas = await html2canvas(tmp, { scale: 2, backgroundColor: '#ffffff', useCORS: true, scrollX: 0, scrollY: 0 });
-      document.body.removeChild(tmp);
+    const wb = XLSX.utils.book_new();
 
-      const imgData = canvas.toDataURL('image/png');
-      const { jsPDF } = window.jspdf;
-      const pdf  = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-      const pdfW = pdf.internal.pageSize.getWidth();
-      const pdfH = pdf.internal.pageSize.getHeight();
-      const imgH = (canvas.height / canvas.width) * pdfW;
-      let y = 0;
-      while (y < imgH) {
-        if (y > 0) pdf.addPage();
-        pdf.addImage(imgData, 'PNG', 0, -y, pdfW, imgH);
-        y += pdfH;
-      }
-      pdf.save(`Ganpati_Entries_${normDate(new Date()).replace(/ /g,'_')}.pdf`);
+    // ── Sheet 1: Summary ─────────────────────────────────────────────────
+    const summaryData = [
+      ['Ganpati Decoration 2026 – Usha Complex'],
+      ['Generated', normDate(new Date())],
+      [],
+      ['SUMMARY', 'Count', 'Amount'],
+      ['Total Collected', collected.length, totalAmt],
+      ['GPay', gpay.length, gpayAmt],
+      ['Cash', cash.length, cashAmt],
+      ['Resident', resident.length, resident.reduce((s,r)=>s+Number(r.amount||0),0)],
+      ['Non-Resident', nonResident.length, nonResident.reduce((s,r)=>s+Number(r.amount||0),0)],
+      ['Not Available', naEntries.length, '—'],
+    ];
+    const ws1 = XLSX.utils.aoa_to_sheet(summaryData);
+    ws1['!cols'] = [{wch:20},{wch:10},{wch:14}];
+    XLSX.utils.book_append_sheet(wb, ws1, 'Summary');
 
-    } catch(e) {
-      console.error(e);
-      alert('Export failed: ' + e.message);
-    } finally {
-      btn.textContent = orig;
-      btn.disabled = false;
-    }
+    // ── Sheet 2: All Entries ──────────────────────────────────────────────
+    const headers = ['#', 'Wing', 'Flat / Room', 'Name', 'Mobile', 'Payment', 'Amount', 'Status', 'Date', 'Receipt No.'];
+    const rows = allEntries.map((r, i) => {
+      const isNA    = (r.status||'Collected') === 'Not Available';
+      const wingKey = r.type === 'Other' ? 'Others' : ((r.wing || (r.roomCode||'').charAt(0) || '?').toUpperCase());
+      const loc     = r.type === 'Other' ? 'Non-Resident' : (r.roomCode || '—');
+      return [
+        i+1,
+        wingKey,
+        loc,
+        r.name || '—',
+        r.mobile || '—',
+        isNA ? '—' : (r.paymentMode || '—'),
+        isNA ? '—' : Number(r.amount||0),
+        isNA ? 'Not Available' : 'Collected',
+        r.date || '—',
+        r.receiptNum || '—'
+      ];
+    });
+    const ws2 = XLSX.utils.aoa_to_sheet([headers, ...rows]);
+    ws2['!cols'] = [{wch:4},{wch:7},{wch:12},{wch:20},{wch:13},{wch:8},{wch:10},{wch:14},{wch:12},{wch:14}];
+    XLSX.utils.book_append_sheet(wb, ws2, 'All Entries');
+
+    XLSX.writeFile(wb, `Ganpati_Entries_${normDate(new Date()).replace(/ /g,'_')}.xlsx`);
   }
-</script>
-</body>
-</html>
+
+  
