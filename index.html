@@ -665,9 +665,9 @@
             <div class="select-wrap">
               <select id="wing" onchange="updateFloors()">
                 <option value="">—</option>
-                <option>A</option><option>B</option><option>C</option><option>D</option>
-                <option>E</option><option>F</option><option>G</option><option>H</option>
-                <option>I</option><option>J</option><option>K</option><option>L</option>
+                <option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option>
+                <option value="E">E</option><option value="F">F</option><option value="G">G</option><option value="H">H</option>
+                <option value="I">I</option><option value="J">J</option><option value="K">K</option><option value="L">L</option>
               </select>
               <span class="chevron">▼</span>
             </div>
@@ -2085,7 +2085,10 @@
     const search = (document.getElementById('entries-search')?.value || '').toLowerCase().trim();
     const wingFilter = (document.getElementById('entries-wing-filter')?.value || '');
     const dbgEl = document.getElementById('entries-debug');
-    if (dbgEl) dbgEl.textContent = `Data: ${_dashCollected.length} | search="${search}" wing="${wingFilter}"` + (_dashCollected[0] ? ` | mobile type: ${typeof _dashCollected[0].mobile} | sample mobile: ${_dashCollected[0].mobile}` : '');
+    if (dbgEl) {
+      const wingAEntries = _dashCollected.filter(r => String(r.wing||r.roomCode||'').charAt(0).toUpperCase()==='A' || String(r.roomCode||'').startsWith('A'));
+      dbgEl.textContent = `Total:${_dashCollected.length} wingA-raw:${wingAEntries.length} | search="${search}" wing="${wingFilter}" | wingA sample: ${JSON.stringify(wingAEntries.slice(0,2).map(r=>({w:r.wing,rc:r.roomCode,t:r.type,s:r.status})))}`;
+    }
     let filtered = _dashCollected;
     if (search) {
       filtered = filtered.filter(r => {
