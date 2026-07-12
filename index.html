@@ -2048,7 +2048,7 @@
     document.getElementById('r-mobile').textContent     = r.mobile || '—';
     document.getElementById('r-amount').textContent     = '₹' + Number(r.amount).toLocaleString('en-IN');
     document.getElementById('rc-amount-label').textContent = 'Donation Amount';
-    const isOther = r.type === 'Other';
+    const isOther = isOtherEntry(r);
     document.getElementById('rc-row-type').style.display     = 'none'; // never shown on receipt
     document.getElementById('rc-row-location').style.display = isOther ? 'none' : '';
     if (!isOther) {
@@ -2072,13 +2072,19 @@
   }
 
   // Returns true if entry is a non-resident "Others" type
+  // Uses roomCode as primary signal (reliable) — r.type can be wrong in old entries
   function isOtherEntry(r) {
-    return r.type === 'Other' || (!r.roomCode && (r.status||'') !== 'Not Available');
+    const rc = String(r.roomCode || '');
+    // A valid room code like 'A-101' or 'A-702' means resident entry
+    if (rc && rc !== '—' && rc !== '-') return false;
+    return true; // no valid roomCode = Others entry
   }
   // Returns the wing letter for a resident entry ('' for Others)
   function entryWing(r) {
     if (isOtherEntry(r)) return '';
-    return ((r.wing || '') || (r.roomCode||'').charAt(0)).toString().toUpperCase().trim();
+    const rc = String(r.roomCode || '');
+    const w  = String(r.wing || '');
+    return (w || rc.charAt(0)).toUpperCase().trim();
   }
 
   function filterEntries() {
@@ -2160,7 +2166,7 @@
     }
     const medals = ['🥇','🥈','🥉','4️⃣','5️⃣'];
     el.innerHTML = sorted.map((r, i) => {
-      const loc = r.type === 'Other' ? 'Non-Resident' : (r.roomCode || '—');
+      const loc = isOtherEntry(r) ? 'Non-Resident' : (r.roomCode || '—');
       return `<div style="display:flex;align-items:center;gap:10px;padding:11px 16px;${i < sorted.length-1 ? 'border-bottom:1px solid #fef3e2;' : ''}">
         <span style="font-size:20px;line-height:1;">${medals[i]}</span>
         <div style="flex:1;min-width:0;">
@@ -2285,8 +2291,8 @@
     const naEntries   = allEntries.filter(r => (r.status||'Collected') === 'Not Available');
     const gpay        = collected.filter(r => r.paymentMode === 'GPay');
     const cash        = collected.filter(r => r.paymentMode === 'Cash');
-    const resident    = collected.filter(r => r.type !== 'Other');
-    const nonResident = collected.filter(r => r.type === 'Other');
+    const resident    = collected.filter(r => !isOtherEntry(r));
+    const nonResident = collected.filter(r => isOtherEntry(r));
     const totalAmt    = collected.reduce((s,r) => s + Number(r.amount||0), 0);
     const gpayAmt     = gpay.reduce((s,r) => s + Number(r.amount||0), 0);
     const cashAmt     = cash.reduce((s,r) => s + Number(r.amount||0), 0);
@@ -2316,8 +2322,8 @@
     const headers = ['#', 'Wing', 'Flat / Room', 'Name', 'Mobile', 'Payment', 'Amount', 'Status', 'Date', 'Receipt No.'];
     const rows = allEntries.map((r, i) => {
       const isNA    = (r.status||'Collected') === 'Not Available';
-      const wingKey = r.type === 'Other' ? 'Others' : ((r.wing || (r.roomCode||'').charAt(0) || '?').toUpperCase());
-      const loc     = r.type === 'Other' ? 'Non-Resident' : (r.roomCode || '—');
+      const wingKey = isOtherEntry(r) ? 'Others' : ((r.wing || (r.roomCode||'').charAt(0) || '?').toUpperCase());
+      const loc     = isOtherEntry(r) ? 'Non-Resident' : (r.roomCode || '—');
       return [
         i+1,
         wingKey,
@@ -2353,8 +2359,8 @@
       const collected   = allEntries.filter(r => (r.status||'Collected') !== 'Not Available');
       const gpay        = collected.filter(r => r.paymentMode === 'GPay');
       const cash        = collected.filter(r => r.paymentMode === 'Cash');
-      const resident    = collected.filter(r => r.type !== 'Other');
-      const nonResident = collected.filter(r => r.type === 'Other');
+      const resident    = collected.filter(r => !isOtherEntry(r));
+      const nonResident = collected.filter(r => isOtherEntry(r));
       const totalAmt    = collected.reduce((s,r) => s + Number(r.amount||0), 0);
       const gpayAmt     = gpay.reduce((s,r) => s + Number(r.amount||0), 0);
       const cashAmt     = cash.reduce((s,r) => s + Number(r.amount||0), 0);
@@ -2362,13 +2368,13 @@
       let tableRows = '', lastWing = null, sno = 0;
       allEntries.forEach(r => {
         const isNA    = (r.status||'Collected') === 'Not Available';
-        const wingKey = r.type === 'Other' ? 'Others' : ((r.wing || (r.roomCode||'').charAt(0) || '?').toUpperCase());
+        const wingKey = isOtherEntry(r) ? 'Others' : ((r.wing || (r.roomCode||'').charAt(0) || '?').toUpperCase());
         if (wingKey !== lastWing) {
           lastWing = wingKey;
           tableRows += '<tr><td colspan="7" style="background:#fff3e0;padding:6px 10px;font-size:12px;font-weight:800;color:#e65100;border-top:2px solid #fb923c;">Wing ' + wingKey + '</td></tr>';
         }
         sno++;
-        const loc   = r.type === 'Other' ? 'Non-Resident' : (r.roomCode || '—');
+        const loc   = isOtherEntry(r) ? 'Non-Resident' : (r.roomCode || '—');
         const bg    = isNA ? '#fef2f2' : (sno%2===0?'#fafaf9':'#fff');
         const amtTd = isNA
           ? '<td style="padding:6px 8px;text-align:right;color:#ef4444;font-weight:700;">N/A</td>'
