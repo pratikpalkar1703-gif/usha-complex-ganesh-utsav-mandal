@@ -605,6 +605,15 @@
 </head>
 <body>
 
+<!-- Offline banner -->
+<div id="offline-banner" style="display:none;position:fixed;top:0;left:0;right:0;z-index:9999;background:#1e3a5f;color:#fff;font-size:12px;font-weight:700;text-align:center;padding:7px 12px;letter-spacing:0.3px;">
+  📴 Offline — entries saved locally and will sync automatically when connected
+  <span id="offline-count" style="background:#f97316;border-radius:10px;padding:1px 8px;margin-left:6px;display:none;"></span>
+</div>
+<div id="sync-banner" style="display:none;position:fixed;top:0;left:0;right:0;z-index:9999;background:#15803d;color:#fff;font-size:12px;font-weight:700;text-align:center;padding:7px 12px;">
+  ✅ Back online — syncing saved entries…
+</div>
+
 <div id="main-content">
 
 <!-- HEADER -->
@@ -885,6 +894,11 @@
       <div style="display:flex;align-items:center;justify-content:center;gap:8px;padding:7px 20px;background:#f0fdf4;border-top:0.5px solid #bbf7d0;border-bottom:0.5px solid #bbf7d0;font-size:10px;color:#166534;font-weight:600;">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#15803d" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12l2 2 4-4"/><path d="M12 2l3.09 6.26L22 9.27l-5 4.87L18.18 21 12 17.77 5.82 21 7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
         <span id="r-verified-id">डिजिटल पडताळणी केलेली पावती</span>
+      </div>
+
+      <!-- offline note (hidden when online) -->
+      <div id="receipt-offline-note" style="display:none;margin:0 16px 10px;background:#fef3c7;border:1px solid #f59e0b;border-radius:8px;padding:7px 12px;font-size:11px;font-weight:700;color:#92400e;text-align:center;">
+        📴 Saved locally — will auto-sync to sheet when connected
       </div>
 
       <!-- footer -->
@@ -1308,9 +1322,16 @@
             name: r.name, amount: r.amount, date: r.date, receiptNum: r.receiptNum
           };
         }
-        if (r.receiptNum && String(r.receiptNum).startsWith('Receipt #')) {
-          const n = parseInt(String(r.receiptNum).replace('Receipt #', ''));
-          if (!isNaN(n) && n >= receiptCount) receiptCount = n + 1;
+        if (r.receiptNum) {
+          const rn = String(r.receiptNum);
+          if (rn.startsWith('UCNR-')) {
+            const n = parseInt(rn.replace('UCNR-', ''));
+            if (!isNaN(n) && n >= receiptCount) receiptCount = n + 1;
+          } else if (rn.startsWith('Receipt #')) {
+            // legacy format — keep counter consistent
+            const n = parseInt(rn.replace('Receipt #', ''));
+            if (!isNaN(n) && n >= receiptCount) receiptCount = n + 1;
+          }
         }
       });
       _cacheLoaded = true;
@@ -1361,6 +1382,66 @@
     document.getElementById('payment-mode-field').style.display = '';
   }
 
+  // ── OFFLINE QUEUE ──
+  const OFFLINE_KEY = 'ganpati_offline_queue';
+
+  function getOfflineQueue() {
+    try { return JSON.parse(localStorage.getItem(OFFLINE_KEY) || '[]'); } catch(_) { return []; }
+  }
+  function saveOfflineQueue(q) {
+    try { localStorage.setItem(OFFLINE_KEY, JSON.stringify(q)); } catch(_) {}
+  }
+  function queueOffline(payload) {
+    const q = getOfflineQueue();
+    // Avoid duplicate: same receiptNum
+    if (!q.find(p => p.receiptNum === payload.receiptNum)) q.push(payload);
+    saveOfflineQueue(q);
+    updateOfflineBanner();
+  }
+  function updateOfflineBanner() {
+    const ob = document.getElementById('offline-banner');
+    const oc = document.getElementById('offline-count');
+    const sb = document.getElementById('sync-banner');
+    if (!ob) return;
+    const q = getOfflineQueue();
+    if (!navigator.onLine) {
+      ob.style.display = '';
+      if (q.length > 0) { oc.textContent = q.length + ' pending'; oc.style.display = ''; }
+      else oc.style.display = 'none';
+      // push body down so banner doesn't cover header
+      document.getElementById('main-content').style.paddingTop = '32px';
+    } else {
+      ob.style.display = 'none';
+      document.getElementById('main-content').style.paddingTop = '';
+      if (sb) sb.style.display = 'none';
+    }
+  }
+  async function flushOfflineQueue() {
+    const q = getOfflineQueue();
+    if (q.length === 0) return;
+    const sb = document.getElementById('sync-banner');
+    if (sb) { sb.style.display = ''; setTimeout(() => { sb.style.display = 'none'; }, 4000); }
+    const remaining = [];
+    for (const payload of q) {
+      try {
+        await fetch(SHEET_URL, {
+          method: 'POST', mode: 'no-cors',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+      } catch(_) { remaining.push(payload); }
+    }
+    saveOfflineQueue(remaining);
+    updateOfflineBanner();
+    // Refresh dashboard data after sync
+    if (remaining.length === 0) { _cacheLoaded = false; loadRoomCache(); }
+  }
+
+  window.addEventListener('online',  () => { updateOfflineBanner(); flushOfflineQueue(); });
+  window.addEventListener('offline', () => { updateOfflineBanner(); });
+  // Init banner state on load
+  document.addEventListener('DOMContentLoaded', updateOfflineBanner);
+
   function saveToSheet(payload) {
     if (!SHEET_URL) return;
     // Add to local cache immediately so duplicate check works in same session
@@ -1370,11 +1451,15 @@
         date: payload.date, receiptNum: payload.receiptNum
       };
     }
+    if (!navigator.onLine) {
+      queueOffline(payload);
+      return;
+    }
     fetch(SHEET_URL, {
       method: 'POST', mode: 'no-cors',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
-    }).catch(() => {});
+    }).catch(() => { queueOffline(payload); });
   }
 
   function amtToWords(n) {
@@ -1515,9 +1600,17 @@
       navigator.clipboard.writeText(mobile).catch(() => {});
     }
 
-    const receiptNum = isNA ? `NA-${dateStr}-${wing}-${room}` : `Receipt #${pad(receiptCount++)}`;
+    const isOthersEntry = _entryType === 'Other';
+    let receiptNum;
+    if (isNA) {
+      receiptNum = `NA-${wing}-${room}`;
+    } else if (isOthersEntry) {
+      receiptNum = `UCNR-${pad(receiptCount++)}`;
+    } else {
+      receiptNum = `UCR-${roomCode}`;
+    }
     const verEl = document.getElementById('r-verified-id');
-    if (verEl) verEl.textContent = `डिजिटल पडताळणी · ID: UC26-${roomCode||'OTH'}-${pad(receiptCount-1)}`;
+    if (verEl) verEl.textContent = `डिजिटल पडताळणी · ID: ${receiptNum}`;
     saveToSheet({
       receiptNum  : receiptNum,
       date        : dateStr,
@@ -1538,6 +1631,9 @@
     } else {
       _currentReceiptNum = receiptNum;
       document.getElementById('receipt-num').textContent = receiptNum;
+      // Show offline note on receipt if needed
+      const offlineNote = document.getElementById('receipt-offline-note');
+      if (offlineNote) offlineNote.style.display = navigator.onLine ? 'none' : '';
       document.getElementById('modal').classList.add('open'); document.body.style.overflow='hidden'; document.body.style.position='fixed'; document.body.style.width='100%';
     }
   }
@@ -2420,6 +2516,17 @@ let filtered = _dashCollected;
       pdf.save('Ganpati_Entries_' + normDate(new Date()).replace(/ /g,'_') + '.pdf');
     } catch(e) { console.error(e); alert('Export failed: ' + e.message); }
     finally { btn.textContent = orig; btn.disabled = false; }
+  }
+</script>
+
+<script>
+  // ── SERVICE WORKER REGISTRATION ──
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('/ganpati/sw.js')
+        .then(reg => { console.log('[SW] Registered:', reg.scope); })
+        .catch(err => { console.warn('[SW] Registration failed:', err); });
+    });
   }
 </script>
 </body>
