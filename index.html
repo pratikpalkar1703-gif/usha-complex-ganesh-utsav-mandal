@@ -1493,7 +1493,7 @@
 
     // Payment mode on receipt (hidden for NA)
     document.getElementById('rc-row-paymode').style.display = isNA ? 'none' : '';
-    document.getElementById('r-paymode').textContent = payMode === 'GPay' ? '📲 GPay' : '💵 Cash';
+    document.getElementById('r-paymode').textContent = payMode;
 
     // Amount box
     const amtBox   = document.getElementById('rc-amount-box');
@@ -1507,8 +1507,9 @@
     } else {
       amtBox.style.background = ''; amtLabel.style.color = '';
       amtVal.style.color = ''; amtVal.style.fontSize = '';
-      amtVal.textContent = `₹${Number(amount).toLocaleString('en-IN')}`;
-      document.getElementById('r-amount-words').textContent = amtToWords(Number(amount));
+      amtVal.textContent = '₹' + Number(amount).toLocaleString('en-IN');
+      if (amtLabel) amtLabel.textContent = 'Donation Amount';
+      document.getElementById('r-amount-words').textContent = '';
     }
 
     if (!isNA && mobile && navigator.clipboard) {
