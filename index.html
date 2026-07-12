@@ -1076,6 +1076,7 @@
               <option value="Other">Others</option>
             </select>
           </div>
+          <div id="entries-debug" style="font-size:10px;color:#999;padding:4px 12px;background:#f9f9f9;word-break:break-all;"></div>
           <div id="all-entries" style="max-height:420px;overflow-y:auto;">
             <div style="text-align:center;color:#d4b49a;font-size:13px;padding:20px;">Loading…</div>
           </div>
@@ -2083,6 +2084,8 @@
   function filterEntries() {
     const search = (document.getElementById('entries-search')?.value || '').toLowerCase().trim();
     const wingFilter = (document.getElementById('entries-wing-filter')?.value || '');
+    const dbgEl = document.getElementById('entries-debug');
+    if (dbgEl) dbgEl.textContent = `Data: ${_dashCollected.length} entries | search="${search}" wing="${wingFilter}"` + (_dashCollected[0] ? ` | sample: ${JSON.stringify({name:_dashCollected[0].name,wing:_dashCollected[0].wing,roomCode:_dashCollected[0].roomCode,type:_dashCollected[0].type})}` : '');
     let filtered = _dashCollected;
     if (search) {
       filtered = filtered.filter(r =>
