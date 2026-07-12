@@ -1070,9 +1070,9 @@
             <input type="text" id="entries-search" placeholder="Search name, room, mobile…" oninput="filterEntries()" style="flex:1;min-width:120px;background:#fffbf7;border:1.5px solid #fed7aa;border-radius:8px;padding:8px 12px;font-size:13px;color:#1c1917;outline:none;">
             <select id="entries-wing-filter" onchange="filterEntries()" style="background:#fffbf7;border:1.5px solid #fed7aa;border-radius:8px;padding:8px 10px;font-size:13px;color:#1c1917;outline:none;cursor:pointer;">
               <option value="">All Wings</option>
-              <option>A</option><option>B</option><option>C</option><option>D</option>
-              <option>E</option><option>F</option><option>G</option><option>H</option>
-              <option>I</option><option>J</option><option>K</option><option>L</option>
+              <option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option>
+              <option value="E">E</option><option value="F">F</option><option value="G">G</option><option value="H">H</option>
+              <option value="I">I</option><option value="J">J</option><option value="K">K</option><option value="L">L</option>
               <option value="Other">Others</option>
             </select>
           </div>
@@ -2070,6 +2070,16 @@
     if (arrow) arrow.textContent = isOpen ? '▼' : '▲';
   }
 
+  // Returns true if entry is a non-resident "Others" type
+  function isOtherEntry(r) {
+    return r.type === 'Other' || (!r.roomCode && (r.status||'') !== 'Not Available');
+  }
+  // Returns the wing letter for a resident entry ('' for Others)
+  function entryWing(r) {
+    if (isOtherEntry(r)) return '';
+    return ((r.wing || '') || (r.roomCode||'').charAt(0)).toString().toUpperCase().trim();
+  }
+
   function filterEntries() {
     const search = (document.getElementById('entries-search')?.value || '').toLowerCase().trim();
     const wingFilter = (document.getElementById('entries-wing-filter')?.value || '');
@@ -2079,14 +2089,15 @@
         (r.name||'').toLowerCase().includes(search) ||
         (r.roomCode||'').toLowerCase().includes(search) ||
         (r.mobile||'').toLowerCase().includes(search) ||
-        (r.receiptNum||'').toLowerCase().includes(search)
+        (r.receiptNum||'').toLowerCase().includes(search) ||
+        entryWing(r).toLowerCase().includes(search)
       );
     }
     if (wingFilter) {
       if (wingFilter === 'Other') {
-        filtered = filtered.filter(r => r.type === 'Other');
+        filtered = filtered.filter(r => isOtherEntry(r));
       } else {
-        filtered = filtered.filter(r => (r.wing || (r.roomCode||'').charAt(0)).toUpperCase() === wingFilter);
+        filtered = filtered.filter(r => !isOtherEntry(r) && entryWing(r) === wingFilter.toUpperCase());
       }
     }
     const container = document.getElementById('all-entries');
@@ -2101,15 +2112,16 @@
         : r.paymentMode === 'Cash'
         ? '<span style="font-size:10px;font-weight:700;color:#16a34a;background:#f0fdf4;padding:2px 6px;border-radius:5px;">💵 Cash</span>'
         : '';
-      const typeBadge = r.type === 'Other'
+      const isOther = isOtherEntry(r);
+      const typeBadge = isOther
         ? '<span style="font-size:10px;font-weight:700;color:#7c3aed;background:#f5f3ff;padding:2px 6px;border-radius:5px;">🌟 Other</span>'
         : '';
-      const loc = r.type === 'Other' ? 'Others' : (r.roomCode || '—');
+      const loc = isOther ? 'Others' : (r.roomCode || '—');
       const mobile = r.mobile && r.mobile !== '—' ? r.mobile : '';
       const callBtn = mobile
         ? `<a href="tel:${mobile}" style="display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:700;color:#16a34a;background:#f0fdf4;border:1px solid #bbf7d0;padding:4px 9px;border-radius:7px;text-decoration:none;margin-top:5px;">📞 ${mobile}</a>`
         : '';
-      const idx = JSON.stringify(r).replace(/"/g,'&quot;');
+      const idx = JSON.stringify(r).replace(/"/g,'&quot;').replace(/'/g,'&#39;');
       return `<div style="padding:11px 16px;${i < filtered.length-1 ? 'border-bottom:1px solid #fef3e2;' : ''}">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">
           <div style="flex:1;min-width:0;">
