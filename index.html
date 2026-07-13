@@ -1452,16 +1452,18 @@
     }
   }
 
-  // Trigger flush: on online event (with 1.5s delay for network to stabilise)
-  window.addEventListener('online',  () => { updateOfflineBanner(); setTimeout(flushOfflineQueue, 1500); });
+  // Trigger flush: on online event (with 2s delay for network to stabilise)
+  window.addEventListener('online',  () => { updateOfflineBanner(); setTimeout(flushOfflineQueue, 2000); });
   window.addEventListener('offline', () => { updateOfflineBanner(); });
-  // Also flush on page load in case we're back online after an offline session
+  // Flush on page load in case page was reloaded after reconnecting
   window.addEventListener('load', () => {
     updateOfflineBanner();
-    if (navigator.onLine && getOfflineQueue().length > 0) {
-      setTimeout(flushOfflineQueue, 2000);
-    }
+    setTimeout(flushOfflineQueue, 2500); // always try on load; no-op if queue is empty
   });
+  // Polling fallback — every 20s, try to sync if anything is queued
+  setInterval(() => {
+    if (getOfflineQueue().length > 0) flushOfflineQueue();
+  }, 20000);
 
   function saveToSheet(payload) {
     if (!SHEET_URL) return;

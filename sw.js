@@ -1,11 +1,25 @@
-// Ganpati App — Service Worker
+// Ganpati App — Service Worker v2
 // Caches the app shell so it loads offline instantly
 
-const CACHE_NAME = 'ganpati-v1';
+const CACHE_NAME = 'ganpati-v2';
 const APP_SHELL  = [
   '/ganpati/',
   '/ganpati/index.html'
 ];
+
+// Hostnames that must NEVER be cached — always go straight to network
+const PASSTHROUGH_HOSTS = [
+  'script.google.com',
+  'script.googleusercontent.com',
+  'googleapis.com',
+  'accounts.google.com',
+  'fonts.googleapis.com',
+  'fonts.gstatic.com'
+];
+
+function isPassthrough(url) {
+  return PASSTHROUGH_HOSTS.some(h => url.hostname === h || url.hostname.endsWith('.' + h));
+}
 
 // Install: cache the app shell
 self.addEventListener('install', event => {
@@ -25,19 +39,19 @@ self.addEventListener('activate', event => {
   self.clients.claim();
 });
 
-// Fetch: network-first for API calls, cache-first for app shell
+// Fetch handler
 self.addEventListener('fetch', event => {
   const url = new URL(event.request.url);
 
-  // Always go to network for Google Sheets API
-  if (url.hostname.includes('script.google.com')) return;
+  // NEVER cache or intercept Google API calls — let them go straight to network
+  // This is critical: GAS redirects to googleusercontent.com which must not be cached
+  if (isPassthrough(url)) return;
 
   // For navigation (loading the app page) — network first, fall back to cache
   if (event.request.mode === 'navigate') {
     event.respondWith(
       fetch(event.request)
         .then(res => {
-          // Update cache with fresh copy
           const clone = res.clone();
           caches.open(CACHE_NAME).then(c => c.put(event.request, clone));
           return res;
@@ -47,7 +61,8 @@ self.addEventListener('fetch', event => {
     return;
   }
 
-  // For everything else (fonts, CDN scripts) — network first, cache fallback
+  // For CDN assets (html2canvas, jsPDF etc) — network first, cache fallback
+  // Only cache responses with ok status (never cache opaque responses)
   event.respondWith(
     fetch(event.request)
       .then(res => {
