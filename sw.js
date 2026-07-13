@@ -1,20 +1,19 @@
-// Ganpati App — Service Worker v4
-// ONLY caches the app page for offline loading.
-// ALL other requests (API, fonts, CDN) pass through to network untouched.
+// Ganpati App — Service Worker v5
+// Caches the app shell for offline use with correct GitHub Pages path.
 
-const CACHE_NAME = 'ganpati-v4';
+const CACHE_NAME = 'ganpati-v5';
+const APP_PATH   = '/usha-complex-ganesh-utsav-mandal/';
 
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache =>
-      cache.addAll(['/ganpati/', '/ganpati/index.html'])
+      cache.addAll([APP_PATH, APP_PATH + 'index.html'])
     )
   );
   self.skipWaiting();
 });
 
 self.addEventListener('activate', event => {
-  // Delete ALL old caches (removes any bad cached API responses from v1/v2/v3)
   event.waitUntil(
     caches.keys().then(keys =>
       Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))
@@ -24,18 +23,21 @@ self.addEventListener('activate', event => {
 });
 
 self.addEventListener('fetch', event => {
-  // ONLY intercept page navigation requests — serve from cache if offline
-  // Everything else (API calls, CDN, fonts) goes straight to network
+  // Only intercept page navigation — API/CDN/font requests go straight to network
   if (event.request.mode !== 'navigate') return;
 
   event.respondWith(
     fetch(event.request)
       .then(res => {
-        // Update cache with fresh copy on every successful load
+        // Cache a fresh copy on every successful online load
         const clone = res.clone();
         caches.open(CACHE_NAME).then(c => c.put(event.request, clone));
         return res;
       })
-      .catch(() => caches.match('/ganpati/index.html'))
+      .catch(() =>
+        // Offline: serve the cached page
+        caches.match(event.request)
+          .then(cached => cached || caches.match(APP_PATH))
+      )
   );
 });
