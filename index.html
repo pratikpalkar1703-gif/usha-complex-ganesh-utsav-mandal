@@ -1427,8 +1427,9 @@
     const remaining = [];
     for (const payload of q) {
       try {
-        await fetch(SHEET_URL, {
+        await fetch(SHEET_URL + '?_t=' + Date.now(), {
           method: 'POST', mode: 'no-cors',
+          cache: 'no-store',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
         });
@@ -2544,7 +2545,10 @@ let filtered = _dashCollected;
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
       navigator.serviceWorker.register('/ganpati/sw.js')
-        .then(reg => { console.log('[SW] Registered:', reg.scope); })
+        .then(reg => {
+          // Force-check for SW updates on every load so old broken SW is replaced quickly
+          reg.update();
+        })
         .catch(err => { console.warn('[SW] Registration failed:', err); });
     });
   }
