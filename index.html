@@ -614,6 +614,8 @@
 <div id="sync-banner" style="display:none;position:fixed;top:0;left:0;right:0;z-index:9999;background:#15803d;color:#fff;font-size:12px;font-weight:700;text-align:center;padding:7px 12px;">
   ✅ Back online — syncing saved entries…
 </div>
+<!-- Debug bar — shows sync state; remove after testing -->
+<div id="dbg-bar" style="position:fixed;bottom:0;left:0;right:0;z-index:99999;background:#000;color:#0f0;font-size:10px;font-family:monospace;padding:3px 8px;word-break:break-all;pointer-events:none;"></div>
 
 <div id="main-content">
 
@@ -1383,6 +1385,12 @@
     document.getElementById('payment-mode-field').style.display = '';
   }
 
+  // ── DEBUG BAR ──
+  function dbg(msg) {
+    const el = document.getElementById('dbg-bar');
+    if (el) el.textContent = new Date().toLocaleTimeString() + ' | Q=' + getOfflineQueue().length + ' | ' + msg;
+  }
+
   // ── OFFLINE QUEUE ──
   const OFFLINE_KEY = 'ganpati_offline_queue';
 
@@ -1420,10 +1428,11 @@
   }
 
   async function flushOfflineQueue() {
-    if (_syncing) return;
+    if (_syncing) { dbg('flush skipped — already syncing'); return; }
     const q = getOfflineQueue();
-    if (q.length === 0) { updateOfflineBanner(); return; }
+    if (q.length === 0) { updateOfflineBanner(); dbg('flush — queue empty'); return; }
     _syncing = true;
+    dbg('flush START — ' + q.length + ' item(s)');
 
     // Phase 1: fire all POST requests
     const sent = [], remaining = [];
@@ -1435,26 +1444,32 @@
           body: JSON.stringify(payload)
         });
         sent.push(payload);
+        dbg('POST sent: ' + payload.receiptNum);
       } catch(e) {
-        remaining.push(payload); // network down — keep in queue
+        remaining.push(payload);
+        dbg('POST failed (offline?): ' + payload.receiptNum + ' | ' + e.message);
       }
     }
 
     // Phase 2: verify sent entries actually landed in the sheet
-    // (no-cors gives an opaque response — verification via getData confirms real save)
     if (sent.length > 0) {
-      await new Promise(r => setTimeout(r, 3000)); // give GAS time to write
+      dbg('waiting 3s for GAS to write...');
+      await new Promise(r => setTimeout(r, 3000));
       try {
         const vr = await fetch(SHEET_URL + '?action=getData&_t=' + Date.now());
         const vd = await vr.json();
         const inSheet = new Set((vd.data || []).map(r => String(r.receiptNum)));
+        dbg('getData returned ' + (vd.data||[]).length + ' entries');
         for (const p of sent) {
-          if (!inSheet.has(String(p.receiptNum))) {
-            remaining.push(p); // not confirmed — re-queue for retry
+          if (inSheet.has(String(p.receiptNum))) {
+            dbg('CONFIRMED in sheet: ' + p.receiptNum);
+          } else {
+            dbg('NOT in sheet, re-queuing: ' + p.receiptNum);
+            remaining.push(p);
           }
         }
       } catch(e) {
-        // Can't verify (maybe network just came up) — retry everything that was sent
+        dbg('getData failed: ' + e.message + ' — re-queuing all sent');
         remaining.push(...sent);
       }
     }
@@ -1463,6 +1478,7 @@
     saveOfflineQueue(remaining);
     _syncing = false;
     updateOfflineBanner();
+    dbg('flush DONE — synced=' + synced + ' remaining=' + remaining.length);
 
     if (synced > 0) {
       showSavedToast('✅ ' + synced + ' entr' + (synced > 1 ? 'ies' : 'y') + ' synced to sheet!');
@@ -1472,7 +1488,6 @@
     }
     if (remaining.length > 0) {
       if (sent.length === 0) {
-        // All failed at network level — show offline toast once
         showSavedToast('📴 No network — ' + remaining.length + ' entr' + (remaining.length > 1 ? 'ies' : 'y') + ' queued');
       }
       setTimeout(flushOfflineQueue, 15000);
@@ -1502,8 +1517,8 @@
       };
     }
     // QUEUE FIRST — always save to localStorage before attempting network
-    // This guarantees no data loss regardless of network state or SW behaviour
     queueOffline(payload);
+    dbg('queued: ' + payload.receiptNum + ' | online=' + navigator.onLine);
     // Then immediately try to flush the queue
     flushOfflineQueue();
   }
@@ -1825,7 +1840,7 @@
       const card = document.getElementById('receipt-card');
       await new Promise(r => setTimeout(r, 100));
       const canvas = await html2canvas(card, {
-        scale: 2, useCORS: true, allowTaint: true,
+        scale: 2, useCORS: true,
         backgroundColor: '#ffffff', logging: false,
         scrollX: 0, scrollY: -window.scrollY
       });
