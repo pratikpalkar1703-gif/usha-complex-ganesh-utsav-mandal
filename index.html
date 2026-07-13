@@ -1792,45 +1792,44 @@
 
   async function downloadAndShare() {
     const btn = document.getElementById('btn-share');
-    const orig = btn.textContent;
+    const orig = btn.innerHTML;
     btn.textContent = '⏳...';
     btn.disabled = true;
+    let blob = null;
     try {
       const card = document.getElementById('receipt-card');
-      card.scrollIntoView({ behavior: 'instant', block: 'start' });
-      await new Promise(r => setTimeout(r, 80));
-      const canvas = await html2canvas(card, { scale: 3, useCORS: true, backgroundColor: '#ffffff', logging: false, scrollX: 0, scrollY: -window.scrollY });
+      await new Promise(r => setTimeout(r, 100));
+      const canvas = await html2canvas(card, {
+        scale: 2, useCORS: true, allowTaint: true,
+        backgroundColor: '#ffffff', logging: false,
+        scrollX: 0, scrollY: -window.scrollY
+      });
+      blob = await new Promise(res => canvas.toBlob(res, 'image/png'));
+      if (!blob) throw new Error('blob_null');
       const num = document.getElementById('receipt-num').textContent.trim().replace(/\s+/g, '_');
-
-      // ✅ Promise-wrap toBlob so await keeps user-gesture context alive on iOS Safari
-      const blob = await new Promise(res => canvas.toBlob(res, 'image/png'));
       const file = new File([blob], `Ganpati_Receipt_${num}.png`, { type: 'image/png' });
 
       if (navigator.canShare && navigator.canShare({ files: [file] })) {
-        // Native share sheet with image file (WhatsApp, AirDrop, Messages, etc.)
-        await navigator.share({
-          files: [file],
-          title: 'Ganpati Decoration Receipt 2026',
-          text: 'Usha Complex · Collection Receipt'
-        });
+        await navigator.share({ files: [file], title: 'Ganpati Receipt 2026', text: 'Usha Complex · Collection Receipt' });
       } else if (navigator.share) {
-        // Older iOS / Android — share without file
-        await navigator.share({
-          title: 'Ganpati Decoration Receipt 2026',
-          text: `Receipt ${num} · Usha Complex Ganpati Decoration`,
-          url: window.location.href
-        });
+        await navigator.share({ title: 'Ganpati Receipt 2026', text: `Receipt ${num} · Usha Complex`, url: window.location.href });
       } else {
-        // Desktop fallback — download the PNG
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url; a.download = `Ganpati_Receipt_${num}.png`; a.click();
-        URL.revokeObjectURL(url);
+        throw new Error('no_share_api'); // triggers download fallback below
       }
     } catch(e) {
-      if (e.name !== 'AbortError') alert('Could not share receipt. Try again.');
+      if (e.name === 'AbortError') return; // user cancelled share sheet — do nothing
+      // Any other error: fall back to downloading the PNG
+      if (blob) {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        const num = document.getElementById('receipt-num').textContent.trim().replace(/\s+/g,'_');
+        a.href = url; a.download = `Ganpati_Receipt_${num}.png`; a.click();
+        URL.revokeObjectURL(url);
+      } else {
+        alert('Could not generate image. Try again.');
+      }
     } finally {
-      btn.textContent = orig; btn.disabled = false;
+      btn.innerHTML = orig; btn.disabled = false;
     }
   }
 
