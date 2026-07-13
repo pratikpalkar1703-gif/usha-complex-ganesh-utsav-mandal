@@ -1424,43 +1424,68 @@
     const q = getOfflineQueue();
     if (q.length === 0) { updateOfflineBanner(); return; }
     _syncing = true;
-    const remaining = [];
+
+    // Phase 1: fire all POST requests
+    const sent = [], remaining = [];
     for (const payload of q) {
       try {
-        await fetch(SHEET_URL + '?_t=' + Date.now(), {
+        await fetch(SHEET_URL, {
           method: 'POST', mode: 'no-cors',
-          cache: 'no-store',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
         });
-        // no-cors: if we reach here, request was dispatched to network successfully
+        sent.push(payload);
       } catch(e) {
-        remaining.push(payload);
+        remaining.push(payload); // network down — keep in queue
       }
     }
+
+    // Phase 2: verify sent entries actually landed in the sheet
+    // (no-cors gives an opaque response — verification via getData confirms real save)
+    if (sent.length > 0) {
+      await new Promise(r => setTimeout(r, 3000)); // give GAS time to write
+      try {
+        const vr = await fetch(SHEET_URL + '?action=getData&_t=' + Date.now());
+        const vd = await vr.json();
+        const inSheet = new Set((vd.data || []).map(r => String(r.receiptNum)));
+        for (const p of sent) {
+          if (!inSheet.has(String(p.receiptNum))) {
+            remaining.push(p); // not confirmed — re-queue for retry
+          }
+        }
+      } catch(e) {
+        // Can't verify (maybe network just came up) — retry everything that was sent
+        remaining.push(...sent);
+      }
+    }
+
     const synced = q.length - remaining.length;
     saveOfflineQueue(remaining);
     _syncing = false;
     updateOfflineBanner();
-    if (synced > 0 && remaining.length === 0) {
+
+    if (synced > 0) {
+      showSavedToast('✅ ' + synced + ' entr' + (synced > 1 ? 'ies' : 'y') + ' synced to sheet!');
       const sb = document.getElementById('sync-banner');
-      if (sb) { sb.style.display = ''; setTimeout(() => { sb.style.display = 'none'; }, 3000); }
+      if (sb) { sb.style.display = ''; setTimeout(() => sb.style.display = 'none', 3000); }
       _cacheLoaded = false; loadRoomCache();
     }
     if (remaining.length > 0) {
-      // Still offline — show toast only once per batch, retry in 15s
-      if (q.length === remaining.length) showSavedToast('📴 No network — ' + remaining.length + ' entr' + (remaining.length>1?'ies':'y') + ' queued, will sync automatically');
+      if (sent.length === 0) {
+        // All failed at network level — show offline toast once
+        showSavedToast('📴 No network — ' + remaining.length + ' entr' + (remaining.length > 1 ? 'ies' : 'y') + ' queued');
+      }
       setTimeout(flushOfflineQueue, 15000);
     }
   }
 
-  // Trigger flush: on online event (with 2s delay for network to stabilise)
-  window.addEventListener('online',  () => { updateOfflineBanner(); setTimeout(flushOfflineQueue, 2000); });
+  // Trigger flush: on online event (with 3s delay for network to stabilise)
+  window.addEventListener('online',  () => { updateOfflineBanner(); setTimeout(flushOfflineQueue, 3000); });
   window.addEventListener('offline', () => { updateOfflineBanner(); });
   // Flush on page load in case page was reloaded after reconnecting
   window.addEventListener('load', () => {
     updateOfflineBanner();
-    setTimeout(flushOfflineQueue, 2500); // always try on load; no-op if queue is empty
+    setTimeout(flushOfflineQueue, 3000);
   });
   // Polling fallback — every 20s, try to sync if anything is queued
   setInterval(() => {
