@@ -2586,12 +2586,18 @@ let filtered = _dashCollected;
 <script>
   // ── SERVICE WORKER REGISTRATION ──
   if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
+    window.addEventListener('load', async () => {
+      // Unregister any old SW at the wrong scope (e.g. /ganpati/) so Chrome/Firefox
+      // don't keep serving a stale broken cache
+      const regs = await navigator.serviceWorker.getRegistrations();
+      for (const reg of regs) {
+        if (!reg.scope.includes('usha-complex-ganesh-utsav-mandal')) {
+          await reg.unregister();
+        }
+      }
+      // Register correct SW
       navigator.serviceWorker.register('/usha-complex-ganesh-utsav-mandal/sw.js')
-        .then(reg => {
-          // Force-check for SW updates on every load so old broken SW is replaced quickly
-          reg.update();
-        })
+        .then(reg => reg.update())
         .catch(err => { console.warn('[SW] Registration failed:', err); });
     });
   }
