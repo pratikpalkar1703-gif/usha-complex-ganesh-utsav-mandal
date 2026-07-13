@@ -1424,8 +1424,6 @@
     const q = getOfflineQueue();
     if (q.length === 0) { updateOfflineBanner(); return; }
     _syncing = true;
-    const sb = document.getElementById('sync-banner');
-    if (sb) { sb.style.display = ''; }
     const remaining = [];
     for (const payload of q) {
       try {
@@ -1434,21 +1432,24 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
         });
-        // no-cors fetch doesn't throw on success — reaching here means it was sent
-        console.log('[offline] synced:', payload.receiptNum);
+        // no-cors: if we reach here, request was dispatched to network successfully
       } catch(e) {
-        console.warn('[offline] still failed:', payload.receiptNum, e);
         remaining.push(payload);
       }
     }
+    const synced = q.length - remaining.length;
     saveOfflineQueue(remaining);
     _syncing = false;
     updateOfflineBanner();
-    if (sb) { setTimeout(() => { sb.style.display = 'none'; }, 3000); }
-    if (remaining.length === 0) { _cacheLoaded = false; loadRoomCache(); }
-    else {
-      // Retry after 10s if still some failed
-      setTimeout(flushOfflineQueue, 10000);
+    if (synced > 0 && remaining.length === 0) {
+      const sb = document.getElementById('sync-banner');
+      if (sb) { sb.style.display = ''; setTimeout(() => { sb.style.display = 'none'; }, 3000); }
+      _cacheLoaded = false; loadRoomCache();
+    }
+    if (remaining.length > 0) {
+      // Still offline — show toast only once per batch, retry in 15s
+      if (q.length === remaining.length) showSavedToast('📴 No network — ' + remaining.length + ' entr' + (remaining.length>1?'ies':'y') + ' queued, will sync automatically');
+      setTimeout(flushOfflineQueue, 15000);
     }
   }
 
@@ -1467,26 +1468,18 @@
 
   function saveToSheet(payload) {
     if (!SHEET_URL) return;
-    // Add to local cache immediately so duplicate check works in same session
+    // Update local cache immediately
     if (payload.status !== 'Not Available' && payload.roomCode) {
       _roomCache[payload.roomCode] = {
         name: payload.name, amount: payload.amount,
         date: payload.date, receiptNum: payload.receiptNum
       };
     }
-    // Always try to send; only queue if network fails
-    // (navigator.onLine is unreliable — don't use it as the gate)
-    fetch(SHEET_URL, {
-      method: 'POST', mode: 'no-cors',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
-    }).then(() => {
-      // Sent OK — also flush any other queued entries
-      if (getOfflineQueue().length > 0) setTimeout(flushOfflineQueue, 500);
-    }).catch(() => {
-      queueOffline(payload);
-      showSavedToast('No network — saved locally, will sync when connected');
-    });
+    // QUEUE FIRST — always save to localStorage before attempting network
+    // This guarantees no data loss regardless of network state or SW behaviour
+    queueOffline(payload);
+    // Then immediately try to flush the queue
+    flushOfflineQueue();
   }
 
   function amtToWords(n) {
