@@ -1,8 +1,8 @@
-// Ganpati App — Service Worker v3
+// Ganpati App — Service Worker v4
 // ONLY caches the app page for offline loading.
 // ALL other requests (API, fonts, CDN) pass through to network untouched.
 
-const CACHE_NAME = 'ganpati-v3';
+const CACHE_NAME = 'ganpati-v4';
 
 self.addEventListener('install', event => {
   event.waitUntil(
@@ -14,7 +14,7 @@ self.addEventListener('install', event => {
 });
 
 self.addEventListener('activate', event => {
-  // Delete ALL old caches (removes any bad cached API responses from v1)
+  // Delete ALL old caches (removes any bad cached API responses from v1/v2/v3)
   event.waitUntil(
     caches.keys().then(keys =>
       Promise.all(keys.filter(k => k !== CACHE_NAME).map(k => caches.delete(k)))

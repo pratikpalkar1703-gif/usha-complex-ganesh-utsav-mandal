@@ -614,8 +614,8 @@
 <div id="sync-banner" style="display:none;position:fixed;top:0;left:0;right:0;z-index:9999;background:#15803d;color:#fff;font-size:12px;font-weight:700;text-align:center;padding:7px 12px;">
   ✅ Back online — syncing saved entries…
 </div>
-<!-- Debug bar — shows sync state; remove after testing -->
-<div id="dbg-bar" style="position:fixed;bottom:0;left:0;right:0;z-index:99999;background:#000;color:#0f0;font-size:10px;font-family:monospace;padding:3px 8px;word-break:break-all;pointer-events:none;"></div>
+<!-- Debug bar v4 — shows sync state; remove after testing -->
+<div id="dbg-bar" style="position:fixed;bottom:0;left:0;right:0;z-index:99999;background:#000;color:#0f0;font-size:11px;font-family:monospace;padding:5px 8px;word-break:break-all;pointer-events:none;min-height:22px;">🔄 v4 loading…</div>
 
 <div id="main-content">
 
@@ -625,6 +625,7 @@
   <h1>Ganpati Decoration</h1>
   <p class="header-sub">🙏 &nbsp; Collection Receipt System &nbsp; 🙏</p>
   <span class="header-badge">🪔 Usha Complex · 2026 🪔</span>
+  <span style="font-size:9px;color:#aaa;display:block;margin-top:2px;">v4</span>
   <button class="dash-btn" onclick="openLogin()">📊 Dashboard</button>
   <div class="header-gold-stripe"></div>
 </header>
@@ -1388,7 +1389,7 @@
   // ── DEBUG BAR ──
   function dbg(msg) {
     const el = document.getElementById('dbg-bar');
-    if (el) el.textContent = new Date().toLocaleTimeString() + ' | Q=' + getOfflineQueue().length + ' | ' + msg;
+    if (el) el.textContent = '[v4] ' + new Date().toLocaleTimeString() + ' | Q=' + getOfflineQueue().length + ' | ' + msg;
   }
 
   // ── OFFLINE QUEUE ──
