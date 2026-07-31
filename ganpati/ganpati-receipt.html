@@ -1,0 +1,1520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ganpati Decoration – Collection Receipt</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: #fdf5ec;
+    min-height: 100vh;
+  }
+
+  /* ── HEADER ── */
+  .header {
+    background: linear-gradient(135deg, #f97316 0%, #fb923c 40%, #fbbf24 100%);
+    padding: 40px 20px 80px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .header::before {
+    content: '';
+    position: absolute;
+    top: -40px; left: -40px;
+    width: 180px; height: 180px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.12);
+  }
+  .header::after {
+    content: '';
+    position: absolute;
+    top: 20px; right: -60px;
+    width: 220px; height: 220px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.10);
+  }
+
+  .header-icon {
+    width: 80px;
+    height: 80px;
+    object-fit: contain;
+    display: block;
+    margin: 0 auto 10px;
+    position: relative;
+    z-index: 1;
+    filter: drop-shadow(0 2px 8px rgba(0,0,0,0.2));
+  }
+
+  .header h1 {
+    font-size: 28px;
+    font-weight: 800;
+    color: #fff;
+    letter-spacing: 0.5px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .header-sub {
+    font-size: 13px;
+    color: rgba(255,255,255,0.85);
+    margin-top: 4px;
+    letter-spacing: 1px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .header-badge {
+    display: inline-block;
+    margin-top: 14px;
+    background: rgba(255,255,255,0.22);
+    border: 1px solid rgba(255,255,255,0.4);
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 5px 18px;
+    border-radius: 20px;
+    position: relative;
+    z-index: 1;
+  }
+
+  .dash-btn {
+    position: absolute;
+    top: 16px; right: 16px;
+    background: rgba(255,255,255,0.22);
+    border: 1px solid rgba(255,255,255,0.45);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 7px 13px;
+    border-radius: 20px;
+    cursor: pointer;
+    z-index: 2;
+    letter-spacing: 0.3px;
+  }
+
+  /* ── WAVE ── */
+  .wave {
+    display: block;
+    margin-top: -1px;
+    width: 100%;
+    background: linear-gradient(135deg, #f97316 0%, #fb923c 40%, #fbbf24 100%);
+  }
+
+  /* ── CONTENT ── */
+  .content {
+    padding: 0 16px 40px;
+    max-width: 680px;
+    margin: 0 auto;
+  }
+
+  /* ── SECTION ── */
+  .section {
+    margin-bottom: 20px;
+  }
+
+  .section-label {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #c2410c;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    padding-left: 2px;
+  }
+
+  .section-card {
+    background: #fff;
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 2px 12px rgba(249,115,22,0.08);
+    border: 1px solid rgba(249,115,22,0.15);
+  }
+
+  /* ── GRID ── */
+  .grid-3 {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 14px;
+    align-items: end;
+  }
+
+  /* grid-3 always stays 3 columns */
+
+  /* ── FIELD ── */
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .field + .field {
+    margin-top: 16px;
+  }
+
+  label {
+    font-size: 11px;
+    font-weight: 700;
+    color: #92400e;
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+  }
+
+  label .req {
+    color: #ef4444;
+    margin-left: 2px;
+  }
+
+  /* ── SELECT ── */
+  .select-wrap {
+    position: relative;
+  }
+
+  select {
+    width: 100%;
+    appearance: none;
+    -webkit-appearance: none;
+    background: #fffbf7;
+    border: 1.5px solid #fed7aa;
+    border-radius: 10px;
+    padding: 13px 40px 13px 14px;
+    font-size: 15px;
+    color: #1c1917;
+    cursor: pointer;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+
+  select:focus {
+    border-color: #f97316;
+    box-shadow: 0 0 0 3px rgba(249,115,22,0.15);
+  }
+
+  select option[value=""] { color: #9ca3af; }
+
+  .chevron {
+    position: absolute;
+    right: 13px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    color: #f97316;
+    font-size: 13px;
+  }
+
+  /* ── INPUT ── */
+  input[type="text"],
+  input[type="tel"],
+  input[type="number"] {
+    width: 100%;
+    background: #fffbf7;
+    border: 1.5px solid #fed7aa;
+    border-radius: 10px;
+    padding: 13px 14px;
+    font-size: 15px;
+    color: #1c1917;
+    outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s;
+  }
+
+  input::placeholder { color: #d4b49a; }
+
+  input:focus {
+    border-color: #f97316;
+    box-shadow: 0 0 0 3px rgba(249,115,22,0.15);
+  }
+
+  .field-hint {
+    font-size: 11px;
+    color: #b45309;
+    margin-top: 2px;
+  }
+
+  /* ── BUTTON ── */
+  .btn-generate {
+    width: 100%;
+    padding: 18px;
+    background: linear-gradient(135deg, #f97316, #fbbf24);
+    border: none;
+    border-radius: 14px;
+    color: #fff;
+    font-size: 17px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    box-shadow: 0 4px 20px rgba(249,115,22,0.35);
+    transition: opacity 0.2s, transform 0.1s;
+    margin-top: 8px;
+    letter-spacing: 0.3px;
+  }
+
+  .btn-generate:hover { opacity: 0.92; }
+  .btn-generate:active { transform: scale(0.98); }
+
+  .btn-new-entry {
+    width: 100%;
+    padding: 15px;
+    background: #fff;
+    border: 2px solid #f97316;
+    border-radius: 14px;
+    color: #f97316;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: background 0.2s;
+  }
+  .btn-new-entry:active { background: #fff7ed; }
+
+  /* ── FOOTER ── */
+  .footer {
+    text-align: center;
+    font-size: 13px;
+    color: #f97316;
+    margin-top: 24px;
+    padding-bottom: 20px;
+  }
+
+  /* ── RECEIPT MODAL ── */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.55);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    overflow-y: auto;
+  }
+
+  .modal-overlay.open { display: flex; }
+
+  .modal {
+    background: #f5f0eb;
+    border-radius: 20px;
+    padding: 20px;
+    max-width: 400px;
+    width: 100%;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+    animation: slideUp 0.25s ease;
+  }
+
+  @keyframes slideUp {
+    from { transform: translateY(30px); opacity: 0; }
+    to   { transform: translateY(0);    opacity: 1; }
+  }
+
+  /* ── RECEIPT CARD (the printable part) ── */
+  .receipt-card {
+    background: #fff;
+    border-radius: 14px;
+    overflow: hidden;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.10);
+    margin-bottom: 14px;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+  }
+
+  .rc-top {
+    background: linear-gradient(135deg, #f97316, #fbbf24);
+    text-align: center;
+    padding: 22px 16px 18px;
+  }
+
+  .rc-logo {
+    width: 56px;
+    height: 56px;
+    object-fit: contain;
+    display: block;
+    margin: 0 auto 8px;
+    filter: drop-shadow(0 2px 6px rgba(0,0,0,0.2));
+  }
+
+  .rc-title {
+    font-size: 17px;
+    font-weight: 800;
+    color: #fff;
+    letter-spacing: 0.3px;
+  }
+
+  .rc-sub {
+    font-size: 11px;
+    color: rgba(255,255,255,0.85);
+    margin-top: 3px;
+    letter-spacing: 0.5px;
+  }
+
+  .rc-meta {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 16px;
+    background: #fff8f0;
+    border-bottom: 1.5px dashed #fed7aa;
+  }
+
+  .rc-num {
+    font-size: 12px;
+    font-weight: 700;
+    color: #f97316;
+    letter-spacing: 0.5px;
+  }
+
+  .rc-date {
+    font-size: 12px;
+    color: #78716c;
+    font-weight: 500;
+  }
+
+  .rc-divider {
+    height: 1px;
+    background: repeating-linear-gradient(90deg, #fed7aa 0, #fed7aa 8px, transparent 8px, transparent 16px);
+    margin: 0 16px;
+  }
+
+  .rc-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    padding: 9px 16px;
+    border-bottom: 1px solid #fef3e2;
+    gap: 12px;
+  }
+
+  .rc-key {
+    font-size: 12px;
+    color: #a8a29e;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .rc-val {
+    font-size: 13px;
+    font-weight: 600;
+    color: #1c1917;
+    text-align: right;
+  }
+
+  .rc-amount-box {
+    text-align: center;
+    background: linear-gradient(135deg, #fff7ed, #fef9ec);
+    padding: 18px 16px;
+    border-top: 1.5px dashed #fed7aa;
+  }
+
+  .rc-amount-label {
+    font-size: 10px;
+    font-weight: 700;
+    color: #92400e;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+  }
+
+  .rc-amount-val {
+    font-size: 36px;
+    font-weight: 900;
+    color: #f97316;
+    margin-top: 4px;
+    letter-spacing: -1px;
+  }
+
+  .rc-footer-text {
+    text-align: center;
+    font-size: 11px;
+    color: #a8a29e;
+    padding: 10px 16px 14px;
+    background: #fff;
+    border-top: 1px solid #fef3e2;
+  }
+
+  /* ── MODAL ACTIONS ── */
+  .modal-actions {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .btn-close {
+    padding: 12px 8px;
+    border: 1.5px solid #fed7aa;
+    border-radius: 10px;
+    background: #fff;
+    color: #f97316;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .btn-print {
+    padding: 14px 8px;
+    border: none;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #f97316, #fbbf24);
+    color: #fff;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  /* ── NA TOGGLE ── */
+  .toggle-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 4px 0;
+  }
+  .toggle-label { font-size: 14px; font-weight: 700; color: #1c1917; }
+  .toggle-hint  { font-size: 12px; color: #a8a29e; margin-top: 2px; }
+  .toggle-sw    { position: relative; display: inline-block; width: 50px; height: 28px; flex-shrink: 0; }
+  .toggle-sw input { opacity: 0; width: 0; height: 0; }
+  .toggle-sw .slider {
+    position: absolute; cursor: pointer; inset: 0;
+    background: #d1d5db; border-radius: 14px; transition: .25s;
+  }
+  .toggle-sw .slider::before {
+    content: ''; position: absolute;
+    width: 22px; height: 22px; left: 3px; bottom: 3px;
+    background: #fff; border-radius: 50%; transition: .25s;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+  }
+  .toggle-sw input:checked + .slider { background: #f97316; }
+  .toggle-sw input:checked + .slider::before { transform: translateX(22px); }
+
+  .section-card.na-active { opacity: 0.4; pointer-events: none; }
+
+  /* error state */
+  .input-error {
+    border-color: #ef4444 !important;
+  }
+  .error-msg {
+    font-size: 11px;
+    color: #ef4444;
+    margin-top: 2px;
+  }
+</style>
+</head>
+<body>
+
+<div id="main-content">
+
+<!-- HEADER -->
+<header class="header">
+  <img class="header-icon" src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAHgAAAB4CAYAAAA5ZDbSAABMyElEQVR42u29d7jnV1Xv/1p770/5ttPPmd7TSEIgBUFKisKlK6gz6kWvWC5cr2JDihf1zMF2vWIBrlcB/VmuXGVGRaQIAiahlwQCSSZlkkky/czp53zLp+29fn98ziQBQQgiiZj9PPOcmWdmvuXz3mut93qvtdeGR9ej69H16Hp0PboeXQ/Hkv8oX1RBmF7/vjOogD4K/7/zNT2NuXYap4r5Z4DrAasH9lrV/zib/JvHWg9gdfoLQb3tR+jc8cPsvunHhnfd8DyaXwi2mgMH9tpvxmfhvhndsOzDAxx5ebpjaMRfnbTN95SFXhFPReMhtmjn2bPd1+z8RP+OWw8ee/OHPiIiJ2ugMSKER2PwIxRcERSF4y+3zx/ebH8iSuRpSds0yQO0DIwl0I6ABCaeAVN7KJcGq4O5hX9a/OyRN+z6iX+8VlVFRPRRgB8pwCrC/vp7/OkM8bNmkrds3BX9AKWnQPBGvBkUJKORoRFBK4bRSLPVQk3Rxo5cZG3wVEuznLzp1Bt2vOb0zxw4sNfceutB3b8fFfn3Tcb+XQOsB7CyDy8CqnD015oHtj1rZC9rVRWWMynnC9PvIiOdgDQstGNoxtCJCUnM8idmaYW+RhMumKmO0kjdXe9cesO5v5r9NFK7BT2w18q+g/7f6zMy/27BncbIPvwNL2TT/6ekt/9X++xtTx7aS2RLquCMYpMGYjWQDQC7vp2tQCT0T/SJByXJaFNM0rH4yNK01fanbfypm35w86V/d95459rvP29C9h30X0zYHrXgb5DlHv0Z8xPj56W/knkW6ZbNoadv2ugI9O5ck2aqSFHQn/OoQmPcUhBB6kh2tugey4mPLpFsjPAmIvOW1rkN9QyxcmznUTnzKRO1N0VnjjdfvueVn/5//14t2f17A/bwKZzsIz/ys+YXt101/CtMJjRP9Ue1D0Xf49pCsepxAVxQsh4kKeSVIxpzECC7t4+0U/qlwWWBgkAZBKyVYmGVsc7NOzAK42dojIy+9fbpPU3Z99d/dOfrn5Wc+5H3VnIQ/6gF/xuQqbOE5/YX8227v3vig9GORsVCbvrHB7jgxXca0tjZJLtrDb9WYmNBAyBCY1OM73qCQtRxDFbqbEgqT1VB1HbEWxrkZwqM+lCtVtLcnCijTlfvttzxB8ce/y3v55Yv/iyPWvDXK94K4Z6fi148Nsxl5UTyHdH5Q8pCZgDTGHFks56wOKAcciRjEVlWkY46kDrmDk4VZKczRCDZGNPY0oIQwDr6p3KSIUuxWOK7JZqVpjEe1QaQmTB0vpqdP/rEty19b/GB05/57IdF+GudxsjMIz9ntv8OwHUygz/yiuhXdz1/9LcTG54YjaUjZqIhklUSMo/RQGQD5XJFWQjJmKNaKTGAiQzdYzn5qZyhESUeG2Ww1savzBNPtilXS6TwuKGI3myJWx3QGBYksgRjkMQJFk1bI1PNod4Tx3fpvu/f3pmf/NXep3QaN3P9Ixtk80i2Wr0WJzNUN3wnj930pKHXMJlWeRqVq4uVSlAw0DtVsHqsIHhotqBaKgiDQBQLvoL+6YLyTM7wuGAih8sW6Zx/DqU9h8E9C4QguBiqQSAs5TTSgK9g5bSnP1+BUVRiWT50cyhWT5SyoxE2PNb89vWXs0lmqPRa3COZZZtHrEueIcg1VPe+iE2bn9R4TXpBW+lVJFNx1Iy89O/rQ9PRmIiInJKtKmIFp558zeMSYbBQUi4UNNuCbQr9tUCeC/bEJ+hccRVFtZnB0VVsaslXPLFWaIA8OOKxiMaIhdTSv6dLKxYTj6QR/RBGLoqTXd+3/VU3vfxbp+QaKpkhTD9CQX7EkawDe7H7DuJvezFP3nBROiMSnhiPp53mkybUz/bFLxXEkSc7XVANNTFFSSMJlDmYfoEvlHKoQXtIWLonI0ZpjhkkgtXTHjGGTjuHjRdS7HwmvXe9kdELW6wuKI1sgFqD2TWMsUK2VOErJekNiKdi8tISTaYwZDSff4wUs3PL1Wr3+uO3ul98/Btuv+WRGJfNI8xy3b6D+NtfzBO2XDV87eizJ57e3NbolKA4EQR6p3N6J0vSJujxVVLjEQM2FrwKIqBe8QFManFtiwwn0I6RhqP0wHATnbuDuGGxm8+jWhugKogqwVpMZDCxEI9GyHyfOFHWlmCwGkDAuEiK1du03Tk2Mv7k/Du3f2v48Od/eGq3vFaCHnhk8RrzCHPL1bV7aU+cH7++84SRmJLCtJ2G1ULy4wPscERzPMJqoMyURluoCgWpgYWaGGMEpSZKD0iUEaYd4Y2BdgpNA36ANFuoBsTI/f9XpE6t/FpJw3mK0hBNpjRGLCapGbkurQpOlMoXo5foyIZrzvvdq1QdezU8kmrMj4g0aT2vDLf/XHtiy3D/3c1R8y3eGy+9MnYNQ3vK0f3cAn4yweYl6ZBhsBJIrFIWCgLB1/Gm9OCaFjRA0+HLChoOnBCXhqwPNEDiKbxpE1buwwwlWCdUK4LVgHpFIiH0KiQEfORojDuy04H+6ZJ8NmNoCGwkopnElc/91JOu+I53/uOOd358n3zXtx7QrC5KPfy58sNuwUpdDTr6szSm2v13tnem37LU1YrCW++VpbszXNPQaoLr5SSNdeawXgxA62cYSkU0UKolHXGUqxViDaEVUy6VBGMpK0GtRaMI3fw08vs+jVYrVJUjGbYUajGlx+ehzp99qD9gYkEh3ZRgLbSlQCwsHckJqqDOLn363VWncfRZ57zoe962f/9+gWl51EUDTGNlhmBi94rRx3eexPZm0Rw2rndfn2gixgr0TxXErdod6zqFOVtBOgt2KAN5Bm4qRYwgTmhGFVUJy7f3uPdvTnP8nxZZvLXL0Q9HLN+5RHHyFjpbItQILrXIeEqRKaFbghE4a4KmxkorxZ/sETmltwpRx2Lbjt5dKzSLo47uZ8rJocPP/+Hhd/yIyEy4dvoq9yjA+2td121tvJA97UAebGPCEi+ssfzhBZq2wKBoVReCQvWA6YcANjJUfSXvBUIzJt2YsnoiJ+8ra8dyynvXGKx4QgVDmyM6mxzFmVP0bv042noMfX8R2VJG98SAxtYWfrRJNlcQ+h7TdPWGqgIYoep7XFXhSyXakJJsabD0mVWaq12SkRhs0zB6Ojju+W6Aqy+6/lEXzcH6M4Sev1d73uQ91cG8J21BPMhwDpyDqlDMemitrVipghC1DGW2TpLSCF/Wz9SvVoRSCZElahmGNztcaohSw8jOBtYWlEc/jvcBs+MZaBf88QWCGmQophx4ovGYSiwMKgigZcBowKvBdSJcy5EUOXFT6S0rZTdTXVPjq+QIALc+/GTrYQVYQe69lUgEwkL+J3rTItnRnlRZbTE2FnwB1kHwen/m7kvFB8E2LL4IaOyId7ZD55wmulrA7ACbCMQGa6E5bDFOSNqGqGmwsdAYj7FpSjj9WSQ7jH3sd2LMCB1Wicoq+NUSNYJsahHWCkLmEVs32wZrsKmhWilx3oMYqtKTtzaY0HoeIpN/qqpy+InPethTpoc1RggoM2QAkdFtlAHjwXUiINTM2NQWK1BXgiz0eyAKQQxlu6HpxiTYIWP7N3cp7l7DDjmCSJ2QRlKDbYS4YQhA0VdsYpAigB3CL92LkBN2Px+OvItGsmCqtcpnt+XGbmpLGErJTgxId7SoxCBB693pBO8BK7iyRGcLka3DyPCGHSLyaSB/gA3+B1Kypqcxz9+MTT9HsmmjfZUTfbaZbFyetNByEKQ57igXcqoSGm0Y9AXr1oGODGvznsbmFLutHZIJZ6g8q4cGR8K9q7vjYUdVJ7IEBRvVZCkEcKkBgaqohZGgtWcwcQTVGsnWSyniiyv99B+fGNrT2kG3Il/TUHUaJstgaE8TPzvALPbw20Zo7GjSP7RCvNrHjqUMTvU0Hm3Qb56vMvSYT+bLa++Y/e53/G72psv18pfeWD0czfYPiwu57jrYcgX+tc9xrx7fYafjC8Y2u/GIoh9EUkd/viTkStQQChym6fBZIB0yhDxgNrRILxj20YS12fGiO3/T4BWf+pGlH990tXlWksgm7zWYEMT4gK08xgesqdUHEWrrjQ0msUjikNig1vokGjb9fuP91//ObU+f2GoKF/OUZFisXSm8WmPceEI0nlCsVJh+SVmB29QiGwj5Uokda4hXpDG0KGkn39a89Kqn84SRe877oetu3H9gr505eEi/qS1Y19/v9h+h3dmR/ELHVj8a7+mMRucNyeCenjOJwaKUSwXSK+o4O55iVgckTQiFUoy0aZ7XqUjVdQ/1bzz1/pX/ct4bi0MAd/y8ffquc8z7q0o8TqxYAWcQJ+AsYgBrUFlPgazUfzaCNJMgas1dv3vvRRe/Uw6hyuGfc0/edI78eWvC7GHZVz2TuPTiEQCKkwN8HtClHBMJpA43EuGDQdWQjA+q0H6GFkdXT5755Mff4tee+rpz3/De4hstfnxjSdY0VkBbG9xPb7k8+QW3ozWVOxeVq96ZTowo9E9mlMslRQa2rGC2S6MFWgTyoTbNxwxVpLiVz/b+/u3fMXfVeW8sDiGwF+KxjrxIxGg0Fkk6EZOOx6TjEclYRDLiiEcd8YgjGamFjbRjSFtCmoLzBTLyWDb+1+97MaqoIuf+jv/Y595fPnntZPgYI9a1fF5lt65grNDY3YYiIJWnyOu4PlgNSGKR1FD5jhsc+VQUZ5/esftbol81Q5/6zyLotdPfWN7zDWfROo1JRt0WBlr5MpTJkKMcBCQy9I4OMFlFQyqiSCkKcLEQMk+WNmldOFyR4pZu7P7dyN757/pBrQna514an/+W37DXTuy2L3YjTp1blybW+9e1UnwWKNc85ZonZAGttBYwrCDO4hIxcXFDGL+4+4rV61/07o/v27oZlCf/rc69983lM1dPhI8yal2aZ35weI1QKa4oKYIlHnE0zh9CA/RnCyQ2VP1AkmZkq2VBWfo0Xt2i05irv6nTpItQmSEY1Yt9jsMYUyyX4JUQQCKhlQa0GVGWkDYFgjIIEckFo562uLXPdT/++u+d/15Vggj+2KvMD5xzbvjk8A73ZKz1nD1oZqDMlP6Zkt6Zkt5CRbYWyHpKd9HTXwn05yuqfqg3ggiUGE5+zHe2HXnOpa+66lPH3vDM54qIfu/t0r31Y+V39E6Hw3bMWrfUC4MTGSYS0qgufOhKRmdPC0KttoVKKfqKWGO1FCvtscc9HKXEbxjAB/bWra5Hfs69sjNunlog3pSVjfICXwSitmVod5P+QEg3p4xudzTakPUVe85ocJNOsiPZ/D0H5/bNCMWbr8DN7bdv3LrH/t/mRjsMxiNqMfXDXTtdkZ8p8M4hscV2YkxsManBNiw4gxdDlkF3tkSDQiQQNS1zh306dMPmrc8df9fcO79/vwaVJx+UxRN3srdY0SzuiDLb1cxbmqlnZFxJQkX/eMbIeU1MLGjuicYTTCuyeRXC6Gj1gkOvHPshmaE6sPcbR27NQyVJeu2004d4Ek+nMfsO4m/7CXfFxp3uNxlPVWNjim5ASo8EJQw80VRCiCz5mYIyh95iQDa2Sbc3lW5l5j699rLHvZXjGpDnP9v9ycRG85N5kCrvqZaDYKsS8q6ycspjrMB4oxZJgkBeoYMK7VWQV4R+hTV1ci2tmOWjBcVSRdWrKHuxze9bCPnxa/3EOX76xJse+1uqKuf/7/JzS6fCLxIZ26IKGKFvEso1T5YJ6hU75PCDgIgiAvlaRUgjiUaD2zDZe/NNP8CufQfxD7UDRA/stXrgwEM+7vqQ3kRA5ZqZqu72nzYP9X1aQ/o9jSmruabeRYk0tiZkGRhfUQ1q9aq5rYFfygndEpsaknOHPC2xK4f6H9j+itW/0veck7AfSYeIKhWf95R8TaW/FFib9WTzBcnmBsEaxAf8WlkD2i3R3BMG9e/JKvxaiZSe0C2IR2L6PaF7uqS/VFIMIpOtqFZnPuDT4aMOpkUPEL9sf/V7a6f1ZjpikiL3ZscwYesIoRnTHKkfScgqjBOyY33aHcW4VAaaVmObbNzZnDy3luC/+mev09NG9h30sm+ff6gs3Hy1lgtw58tIln//R3954XX7nikzD71aYqBVrAWhO8DEHhcJJjFIt6gLubknGnKYTkRiAmG0STKVSnUy14XPr75GFeHwXcgMYbDC57QINgQVMVoLGsZTlB6XDepq33KBVoGy66ly0EgIIpSlocoUco/vVphBiZtwFCt9sAHrDIQKLQvj48fYwfLjPycyE5i8yhwEvzTHL+FFIvXowoBkU4r1nqghaBag8IBgreJSi40qwmqPIos03rirXT+Nq746cK+ddjIzExZ//wdf1nvLT73t0KufMA7IV2vJX90ump62AJM7f+gnhx9z6czQuXvefeo3nv1t18xcX+mbXhJ9tW7aoLdEEmjYklB4BMHEBjsoqRZzfK6IE0zDkfXBbG55Osb0j+fX7pkZfIrrrrLy0+Snf8n++saN/NpaiEJmmjarmkTDnqS7jfhvr6H/yQgTCsq+EgqlMaY0xgMuF2JjaGwVku0RlbVUax6GDf2/FpI3XE7SHcO1KwZHPdmxSrIzs2HDt+/+49NvfcHPyTXXZ6rT7ud/vXhXdy4cMh2xrGQhO51jvIfI4PsVvlvhhqIHukyKQEsG4jaeK27z+bdOT2O4aOorWqLe8JJIrpmp5n/vu3509Nxz39A874J9mzY87ucB5bpp+/V00QEg6YztxQ8q1xqTsfMf9zfHf/HKS+Wlby6/Esi3UjejFXl9ErCqwMYG7xVRxacRJrEMTmXgBBtBbiLiqRS6FYPj+R+rInLN9dXpX7S/v2GH/ELPxD6LJ02yaQshbbC66ginA/aeQO+kg+CJI2i2ofcJy+xvtpj/9U2svO4cun+4nfLmBq2tMW5DA23H9D9b4I5BdaJi9a4CJCKZ3Crdw8umuO/9uuGZm377zF++4JdFZqq/FvFZT/8UK0TqQ35ygIvqunH/VI5JLVXfI87gKzCJoaoEQ6C3UlQzM4Qbl46Yf0nK1WunnVzx5nL2t57/XcPnXPxmTLOkXPNxZ+g5gHD1fv91AVgVkZmZcOgll2+yzfixiLiSROOJLSOTlz7x/XO/9dyr5aVvLlVVvhT50mnMxTMUH3tx9NiRjWY6R1TGGqYW6gWqgOlExJMxag2h5xEj+HaqZtjZ7Hi+es8/LH1QBD3xGrt/w07z3zGUJZE1vmRkR4u4XRLyhPiK05Q/8QlG9wU0dzQnA0sfjFl48xDR0QmGOltod7aTzl9I9gcX0v9oQnOHQ3LL6Iv6FK+4kfTJffyKJR0PDO9oIWIplnJh5QPV5Lftnjn5p894qaqytJS+u1yhcg7rzwzqDbtaIamrm/VCQKxQ5YpLBR3rSHH6Fh1dvu5179+bbr/ipTeWX0y0VGsSOzNDkGtmqoU3fu9Lxi+45IBpTUgpiVWcjZrJBbe//Gk7RUS/mn7sr/gPrtt/lVWQ8XPOe3I8Mdz0EnkjYqsihHhkw/jIuZe8f/ktP/jqq0Ws7DvoVVWunb7KqSI6jTGvJXz8xfG5F14QPji0IdrKrhGNh53J5su6gNCvkMTiDy3iUkOR1d803pAEEqFcrW781ncye/d0fN7IiPwSIh5jXKI5Ac+ZT97JYN7itKAcQLQlEColVIqqoIXSipp0Ng7jGim21SLeOEI6NgzeEELAZwFFccMF5UrAtaB7XDnzyTsQE0jHE6G/ZqhuCSOXXPi/bn8JE29tv/z2YqB3kiCR0xCqQFEZnAV/xxLGQogcNoLBbEEylZqwfVTHNoQLL72k/OBHX9ia2r9uADo9bXR62onUJPa2nzh/89qfveTPxs6/6E02GTGhUgxqvDgfTYzEU5t3PK3mRV+Z6H5FknT1/p9Qmble14aHnkuziZaigiJiTBWsusaoG94z9Bvv/auf+Z7uqZO/KiJ/B1TMgL7pcvdPV7bNzu0f+9PhLfFkcd5kFTt1/UMrOKP4E31cK8Z7pZl48jM9wrZhyqUB8dZYCUqx4m9UkON59cTmBjHBUwlIq+0xa0us0qSxKRDbmPJ0TrkGVaq0jIAGzHBAFbTyUFVokaN9gy8G2HaJYNAysLqgREGIyGhujMnXAmXPMXKhI92aoJk1ujYXGluvHmpf+NjHzfzMzAd/7rfiz+K4MI4IRV+NTjncPYskDWXQq3DjKT5tYs90GRzp0rpkxOSNyXLczJ+zLcv/j8zoXtX9IjITgPCZH944ec63PPfHksmxn40npiYp8JWJjcjZaG6UNCHqdL5D4M/1oov0XwVwPfdin7/tR87vxM3Oc/CKKrZ+O0WMk0qsSlWEdMPWy9Ohsbdnf7rlk73T9/zxmTv/7t3y0htP3v6TPGXjpHlyvnmiSkZj1//cIqZfUmUVth0RhlLsygBJLW6QUwSlFEsjNZAHyrXqNhTsG4bIJVetAlpCUMU2Ejp7mhjn0UGCjMW0ej0WThUUTWgOC6apqAS0LNF+t84H8j7F2hyNpETEka3WqVNzk6NMm9gkptkpCRIjZaB3aAXTL8H3UPM2rWbvRBVZ+A1uQ0FCoFSDKQO2KDENg+nlBAOmFVFNdTDHVxkc6dO4ZDQq+m0/Mbf03R95mewW4e7jr7zoyUObLt2XTm3+vmjT+AaCoSqtFxvZL8iKVC1lIG51nnHnyx4/Kfv2zX2lk47/IsDXTV9lmbm+mjj38d8Wj49sCFXwxjj7QFlTEUGwia0qH4xNSbZvfmIyMfbExuiGlbnzFz9QZjePDuSU2k5kqHIkH1D1K+xIik8cbpCTJAHWSYgUnuAsYo1hEAhZdVwEve9X82ckFzhZW0rFmwQb9SmbDZKx7ZjuEdbmHOnUCIRjdDqeEFvUV9i2oiagQdFBD60KgnUU3TM0Gx4NEc57GmmANMKNbqB35AxDlziCbmbwyZuwIw0K0yZ2g9Cyh5ym488QOf3B2dfqCbzBEPBisGWFWZc90yiQD0pCt4Kmo3KKG/TQoo13LRNckz3bzv2Lpd/Z3B6amLzYbJyqe7Er49XERoyxX1w+FhHxIfh4YnRodOdFz4Sb/oL90xZmqq8J4KuvvhpmricdHfsO0kS1VMXKg6qM+oCpG2uCaRB8GVySamPn7uFGsfO7WT6ftZU5qpvmpBxewGcxyegC3hU02orxAn0LVPe/liKIFaFU1rrh6OzP85TxdvWDOXFYW82ty1cY2jKMFiXZZ+/Gag5aYWwLmxoKVdY9dG3BtlqXaQJaFmhe4CXDtITgqZv6ghI1LSUeopLBUoLvHsdtGSba1KF/eJF8oC7aPqQbn/udr5x9avyW8gP/59g6jZH7xQIAFUSEdCjggWwpEPkORb4R/8kt0J8QSSbZuGHoSQwlYEUxsa/EWESs6NkXM1/oTxEkqBI7Tdqjzwf+gq/gpv8lgEWueW11w+VENmlehQaxvjCq5YOgFURM/dbGAhEqiSl9jpiGmmYIxlnpNNrG93ZSLfUQXaas5sCepopOYTmNJQMxKAZ1BtEKYwCvVGumCsPxf6MtWmRRaOzYauToYdJiHnUbsdsSJICRMSTUrl9QBmueRizE41AlBf3FLo2Jev5Z70wP3VoRjRs0V7KB0o4MZa9E0kCyYwpjVrFRA9tokmwpiGbbmGSMrDrpO4ObXbiv+mFW/bshquvMpUddjKpBpEIVfH+Mym8l5JtANxLLGLbqYEcSTDNAK/beRBLK0mi+7IxtYcUiVKgvvtCI1qVECWowiURx+tSP7aUh+/YN1ksl+pAA1ulpkZkZ3fKd15wXSWcXS6oqGEIB+HWL8yh+vRHOU5b3Ug7uIfhViDoStx9r47HLcO0etmGwxRDaH8YXm/DVLsrFRUo7izX3EIW7qJICjODncgKCMYak6p3jRoafFPbslvwjn7XRaIlrCpmPiJdP4ctxwnCbwclFdMMmnFiqNMYNWUKV4Zow+WN9Zt8E2fEMBcJkxqZXCmKF4BU3FFF2K1wcUQxSfD5Pc9cYhgyb9MnuqYirCr+4SpEa48e7iJTXVC17EwRUDD4HGkJpPbYYpyzOJ4TtiE6QRCM418QkFhoeXA4ilFlps/mPUfZvgSrDmCausZMkvRgbd9bbR6P1xhtbE0JjjPZUYzu0eefjnn0RB//hhoN79xoOfun5Ie4rpFAhaW+9wk00Db6sCOJQBz5CwgN7JgQYDP6efOWTmDTGKJBV9Lp3Uy18inTk2biGBeuQdoytUmw+hiuHqcoJfNhKXp1HaB7DzN5By3QJpWISIZ1Mn9ror24uP3+IzuZENGpQ5RVVo0NFSZStoHMrRMFQHFkjb9RnkBJfYUyda6ePqdjy2h7dT5dIInS+DcxI7TGMExotIZcGvVWLWb2TqFVALyNgyI8ZhAiGG6RtTzx3WrTRZOTJ37578Z7/+QRUCKi0znVU3QbBXo0vtyJmjDgaxkZNJFaIMoLNwRdooZS9LtnS31PpKrFUEFuCHZAtH8O3l2i19mFdUhuTAayCBTEBsZWnk7rmwobLgRv2XnihPHQXfTUwAy5uXUrTQpaBjVEbg3okBPAVElKyxY9QrH6KaGqMJA3Qy6BrsF7JypPIysewshdYRa0iro80CkyaEBfDhKJNVbaQwTiGbZThJhgMxI02iRL7gsiH1DYqfCtl+VQf6ytGfEXVHqWa3E5oNdATSzQ4QzJc58A+MhQDh4sUsQ4zooy9sAJnqbwDG+Erxfc88bAj2eAwcUq2OEFlRilZxlQ58SawrZKlz/cYFJ7hkVii4T6+k4y6zujz8fNUPhE99RjcYBfBt7DxGC4eWge2BC3RKkAWQ0iBNsXqn1JJj4aAdYp0QBsx5UiL4vjNZI2NtEeejRqPGle3l4oFXyBlBrHFRs3HPxirhyZ0XL0/AEiUPKZOJJFgG6hEqEkJroGmw5SJoezfgB1tkEw5bEeRSLGtQGxzIhGK8h5CcRLrRjG+DYNhtNtEM4NqLenFyQTObSTIJHH72wmHL6ecj2hNhYs0iMn6FUUWaJ27BW1OUFYe25sn3H4U/czdDPvTNFolfuBRH2GA5liBbQpVKUQtBxojEhO1HNWqJzIVzUmPoISB4MuK1u6C4d0DVHZiIjDRGsXxLhRDNLeMU7iE/okzSCiT1mTzMfnaFCZ5oUSDCwl+iCjZQhQPg9RdI9qzaK+BlC1EEkzapqrupPRHiVRxUYFNIKwZbAviMYObGqZc+zyF8Wg0hJoElRjFEkyyPrRRMVF8/oOxekgWLGICINZG2wiBcP+5yrOBP4AklN2bqfpzpJtHMZ1A8Y4W+o5tFJedoP3ty0TdigpPYe7Gje+CYrBu/boexgW8B4lw8SimSiiKY0RsIty8Ab/iNZg7Jbr48fQ+eSstWaDViQhM0gtg4iWGxnJ6yynBXoEbfgw26RCqAUX3Hqz9FOl4j2zJkI6BipIvVTSmlMGZFmH1Ily8DXEN/Gyf7O7TRHvmGLpgmdWbt1MeuQXbatGeUnRhmUE/0IpSshNHCdETNGqMCs5Q5QlJuhURByYgrqxDpzsbQtfbd6OYsnsvqiWRVYiUlQMTNG/bSf6MWeIf62PH2pRzc1Rrt+DGnwJaPZC5iFAPWAyIi7ZMgzmL1ZdqwHZfVn8W1Y98B21j3DhBMRpEywy165Nr1h1AGJxAXIUZifDHc3jP+TQ37yR/n9LfuUZjh0f6Dl+cJNgmpOb++oWoh+ARFfL5zyBFmzg+j4RdZPkREgetzn+SftWivPMorfGaYa8cXaPVKJHCMjRZ0Z0fwk78Z5pbLqy7JAmIQlruoVh6LIOFg7Q2nKK3mGAcNDcEuvduJk6eQ7JrKxolqNSFD/p9ercfoq/30bmgSf/oJYTVz7B2JmK04WkMx/gNT4PDJU3dLN71qLImSboNiQz54DN4t0xj6ukoAUxNkGpgApAQilkMik09vdss5saNpE+9jOyGe6mu+Qx2t0UiJWRnkODBlwjrp+1CBRqEEDDGjj1/72hn5uDSiuqDYPlqteituy9oizGt2loV8X1MtoT05qF7GpbvQ/vziHFIA8IJix3agN81hosSipMGiRSRAEUfWTqKdOeQbA2pKsChtkFIxumvfIzS34GMGiQpSJLd5H1BXEZr4mnYwUa0KtCkID1vO10/QZIU5AOLmfp+GjsfRzB1o5YiBA0ELYlHRkhGXkT39CZa433SsYzVO8eJwtNINmzAGyWEupUriCW02rT3PA5/x0Z8VmE7Y/Rnt5KmKaFaxu56Km5pgkbZIdCnHDRIGtuRxgAZs5ThBPnq59FoBMQhlUeyVWRtFlk+BvOH0bxfP0+nVAsG6yx+rIFpD6PzBmJALNpfQJeOwdos9OYhW0b8YL2ZUBExzcmdO1sPPQ/ePy0wozo8nKiamIEQKlO71WDWi4cR0ERCSvABMpCNgbA8S3J7YLC2SrIhoGXtmgiGMOgDg/tbCMQ4iBKIhog6OzDxLrCKDHnswBOHHeS9u0jbOfHUNQxO9YmaJ4gbfYLv4ZpKbi6lseXxePWQtB/ICMsBVBmUOVG7ifAiBgufBElIow1ouYBfbCETu9AoAZesH1n0eOtojO8hO7xC8xJId15AVH4EWk/EL28hOb2KNBz5mpA0tmE6BSQCvsSNXYRUYzB/B/g+WpXrR5gNiEGkjUijPvJaCMnOQK+3ROeGuymYx+z0aN9CCAhDkE0AfRQBUdTUDsFYgwYThWYcPxizh6RkGSKD1ipNHYLN/UoNGhAsttqBGXwMv1QR71TKpx9m8cAx9JrTtM8P5CsR6hQjW7CyG9U16jyqqtllWUL3NPHjX45ZOUE4fRvSGEEaBc6k+PlNlNlJ4oYjHr8SVv+GqHeMYB0hCGbsMogcmOj++MK6OzO+rJ9GXuLiBs49c/2L5VQrpygXTxC3JyBu8cDB4/o72tEpOD5MKLsk41MkI3soly/BHsmxzYS818dFO7AjCi5HS4/2ZnFbL8WOvRC54e8hGa2tGAdq6v4vaWPZTGnuoOxbWjtLir2nWfhURfs/V9gpyOdKRAXX3IVpeXRdcH6QVFY/QwGpVB6yBe9f59xmUBSgFY3gTAioS7/gLISKEnXOJ1ubxC+uEpI28bPXMI8/wzAe3wdvHKgQDe2EuI+UFQSDhmid1VokdKA1iXYHMGiiBNR6JPbEY0Nk8yv4aEDcGCHLn0DR+ydspASGsO1t6we0H/zBPFL0wFcQLFSm7oPWrLZuA25oGxo8fuk4tjWKmsaDGSbECdaMEnrLiMnx5irC4dPELsZXBRqGiccbqPbRrkJwSDaG2lE0bSNhI1pawCMmgPW1d4q6RPZ88tMfw1ul6paMXlnin30GaaeEtQZ+fgWTbMVNXUCwgDYfYE+qmHKwbiShlKLMa9Bm9EulSl8yBu/fX7/e0todPTT0UUOQiGCbBNN44JdESDJJPPUU/EKPYq7Ar9UKVNWD0ie1GNE4H7f58eiIoBMpOuGQCZCxgHRyaAe02YS0g/gW5MPQ66ArKXjFJVOUmUekIGqdQ15NYq0nmFFM2vliSR6KPibvEXrdGtzCoN6i8w5dsvXvB56ovRmqgPSXwJcP2iSCimBcm9BVbLsgO7yE7denFct+RZRM1vtlpQlZB6oWSASNJtpqwqgiox6ZNOhkhI6n6GgT34mwUxcQDT8BrwMKTSnXhLBmCV1DdnJAWK1Dkok6KK5Okc7+MileaqPB0zt18r7uQ4/B9bEA/ubQytqrLvPLIGN1meSf30YjYUA8+jR8/xjl7KcIqcVQx2wvBS7dQ7r9PyNWUU3rF3dnX0UR9TUzT1LoxMh4vSEpBUqDZuBci3LQoBysETXGUbcLYQ41w2ATAmDOghNKTJkRestoiFHjCP0CUoM5EqEN0KECckVchImHIO8jyQC10bp792io82M/EMQMqI6cptXZRNFbRnUM61K0KpFEIa4QF0ALaCcQpYSxEaQsarLEF3oYEU+67bvRkFGufboeIDAoCL0MQkS08bnEI5ehYfAlsx8xoqgRH6rlf3jrYl0D/TK3ELgv1x6rGkREqld8XzWH2N0mZBrUo2Lv3wD1WyvWCc1t/4WitZty+SZCtYY0U5LGOSRTT8dFghY9pG75h1AhwdcXLFQVdCZR41CbosXZUeuCylkfE4jSKYr+HC4NRElcpwSmjXMWKKhKkCitU4pyQDXoYxvDda5dBMLCbcjxx0LLEzq3YCYuQUvF2EbNJ8oMjVt10aPIcLYi9BYJLYPYChc10VBRZgVpe3J9XpPUKWow9Wclqr+DsTAYwOopcFFNYsy6EmUcGIuzjtbW7yFf2Inv34GGAS4exQ1fRjx8IaIZ+iCPsj5xBkKFCZXWaUt1egaCTgcjMxIemlR58GBdz6mqY2CfSChU+gus33tRkxkNde6o9WiD1O0mHtqA+gwwmKgNy/fig67ncesUEIdqXX2SArQ1Wu8q10Dz4Tp2yvrZIqMoHmMbqEaEqkCkrrRY16S7NM/p+VnO2bmJyliMBrQYoEERtahtwMKdyNo96MlLoK3I+GFwUzC0CzRHzHqbrAakynChz923HWY8XyYes4itkMQQigIkRkyCWv/Ac/emjvWueT9PUTOJrK5C7FCqmlRKAfQBT8AjEkjsJrQ5WQtHxmEqg87dsm5I68RWZF2qNPWfnVNcCy2Lo+tB1ZxtjPzqAZ68VQCCZocpIBQOqgL1Vb17NaCqX2T3A8TEGGkCBq1ApEl91t6s17vWSYypj26KKdGR0fo1YwejAcnW6p2vDi1l3ap5INnXCh8giptce+ge/seff5DnXbaHX/nx51EVHuuregRS1CAcO4z5zNvg215E2T8DkSHeehFc/yf45n/HbRgDMlBFqwLHgJ/63//Ax28/wuueey5P2d7BB+ALDEQhCBIFiBVMBT5HG8M1o/cBHR1CllPUJnUuHLQeUbD+zFSpmXtZracpAa0Cqp46EQ73E9n6uQliTD0GykaYGKqQ3/mVtOgvD/B19Q9fZoeoKkzs0KRRV5HW50d9QblSHvSH9Xgg91shtYuypo635gGgdNBF266WL8XUowQzAYnRytSvaWs3rfi67ryu2gz6Jc96/GX8px1DvOyvPszB993I3udcQbWg6yMglPCpv8GmTcztHyW/aAtGMsyRFdQK4VPvQL/jJYhm6/tBeNNffpKkYfnk9PdT5kq/dwstYtSvvze+1s+tRUsDmdRuVwOh0UCNQTSgDUuwC9AYRWyMmqgGKQTw68WaYEDj+71vvYG/6Ni2cL9hqDUgigmZkBdURf9QfaD+uq+p4B8AysH8Lb7Xw07ENsTxOmp6tvXin8uf97sTeeADB1+XycoBZIP6Z1XWnQ/eoKZZ69HGgtkA5QBpCCRl/XqFwxcFIvVDVmLKHJwLrBjlcyu7+bWrlnjTLUc5fewMG5K4rlR3lwmrS0jSh9tmSZ56ITIAbrwO6YBfdNg8wzQFGxvuvu0eeqVn/9Ofwif8hVzUuh23WBHkcVDehcQRIh4NBUITGhUYD8FBL4J4snahVYXaDnRB+7Mo63O3XIxETYibNV9wMZizJCysb3p94Pl+weGF9VldqpiitGW3G/Lu8VtqA746wPUPEeCZWhU5dvSzdw5NPfa0pblRQ1AxTh54Q3kA0LMidlh3V+UALfpo0Ycqry0AC5LUbltG693rEkiGwBf1Fx61yNoqmAaaRVAZxBlCGNQDzozBuGEGywnDExuJ5m7lLTf0OHHdR/mLH30c2doSsnkK9SWuZcgmH4ve9UlMq41e+SJYW0Q+/U/4uYLq4ktIGxFogWLxEth38R6u3P9Wrtz3XC59zDJaJfTvOEGkDrG2nrnoB4i0CYP1+JiUSLOLDpt1vbiEpI1EW2ombTyEHM0HaLYKOkdAEWshSr8QdBuDcfUUgrNg6wOAi/qAWFPl2dGPHrr+CMj9WD20ahKoHjhgZd++fu9x2Q1gnychC5iWRQzCOiOu1i2zqC1TyxpMdL1QblJEhjE2Bdz93BsHuAAtQZ1AmaPBEyTBrCVgm0jkIa0b8kI1wBiDakXU2EjRuhK1Ca3U8iO7Kz6064cwF4yyc/E6qiXqbo1skfZ/eiH9C55CceXzkCdfU/P+9jju0x+ks2sTogU4g5YV522d4Eh+Ds/84RYv3BZojDr6p3vo5+eIxragKMbUn0WDIMk6k84baA5qmmiZIb5CI4tMCPQCeAeFIL4JMrFOUwtUMzQboINVlAUwde2aKKnBjhuIWwf97LihahDQVKoi++S+gxR64G1W9u3zX1tf9K010crz5X9sltufZ22lWiyhvkLLHMqi7jdWAXWINEFGMSauJTox64erPdgAka+JVBTVhLo3hzYSTCtBQkBNhIxMIo0Y0rzOg/sGsaBaIKKoKjZuEMVtqHLC2EV820UNHjd3N1W2iSw4dPkkYiJ8voKJFmmfs51i6R78n8xCBG6kS7RnG0j2gOQnECpHW+Z41SWB4aEOQUYwC6dw2sHEaU0qVWuXK4r2LZIGpJ1DYpBGB+tc/XeAp8T4ebSzATEJ4gMUFVL62jP5DujwupFqLd36sjaafgGS1/zFWSSKERchzgmll2qw+A8PxuhrbXwPAGsLh9/THt3+21Gn7ZQMvENCVAMYr5fCZD3ZllA/NFPUNVBnwUVgHRo8mvfQtTXIc4yJ6d88R+/tf4ubaKLeo/01xp/gML0ULSzSLGtvoREhlGiZ1wTnbMwKAT91PuPjO2D5BP3lotZt1YMoVf8M6pUoaxN1W3Wt1haoBYn0gQuzEKqV00yNboCpLVQmxmYrmKRVE8GqrD2MLxCbIhZoVWgvQkqLN33O/MZBJGlgbEQ512fonJjOZQk6ewyNLaQtJOkgzVbNnH1Zp4RVwAQgCGgCmqJnNSUN6246oF4Vn9hicam3MvvZ961LlP7LMeivCLDMzARVNSJyd/f3n/ChaGrs24zkHjUWY9YrHA+ahSE1+63JklsXAgrI1urYU2QQLEIbdATTblAtnWDw+bvrsqkKGIvfdSFm2CHtLuAIfYiHJsmWT1Nlq3VRXWtmbqoM7ysqk2AmzsGuLhFWz+A6o1TdJdRn+PwM6gfIFltvyu4KWvRx6eS6+GCo+muQtPCdTXU+7AukyjFpG5jFZz00FARp0hyZJAy0Hkvc6ULRIiwn0BsQ1roEKetNlm7GJONQDEGRofkaKsuoM5C2kXQY4jaSrm/YUNUbc91TCFprB6pIUETUo5Er89X37HrdodN64IAV2ef/VUdXrtt/tQHCoHf8ja3Bpm+naQhRY13W44uI1rrllAPIFtF8DYocQoRIC5ERxMYQCZJ4MGsMPy2ifcUOyJtQJZjIImmJRgvgU+gnkBS41BFnF1D0byNK1tMwG9UWUPaRpFN/js4kkndxkzsxSQvfXcRnA6o8Q04trP8/IRrfDFFUM3yEUJWYsQ33q36S92rVKErrnB5P5SPS1oWYGNRmaD9FkwDxItF4i837LkTLALaApIc4j8oyZjRFywZSNKHyqM/QbhftHgMLmjSRdAjiNtjG/aN0lQfyZkKFLQcmLHfpL937hnU16iueLvyKAF8zc32lqnJwn7zreZ3ttzR2b7vIWxdMzbTq3eXLmmjl3bqYXXlEo7r2aSYRZyEyaOrQxCDFKiFbRUuPhBbOj0BkkZaidhUNfShGoGggjRzijNBrESUjqO6hHNwJoMbFouUAo55gHJhWLYPaqK66tEYxjSHsYI2Q1W5WXITtjCNJsxZX5EFab/C1S8y7mKJbK0cuQqyhzEuSzsXYKK0HhbcHSFvRfhOCReMlsD3EjEKeoGsRageoXQO3hjSGYGgUfIwMHJI3wCsaSnTQR/vzYM8gUQxJC4mb4JJa0QLUiMc2zGDpng9v+KV3fUSn1cg+8f9qgNfLS3bfQaqFb5n//Uax+Q+sDoIoaFXW7Lcs1w8mRHUDuovr+GsVYoGkPhqqeRddXqqJhrbrMqEaSIBogPeLUDqkmgS1SDtHZRXJh6E00MxI0gnKYhajCyI2qll7f6VuMa1ydPUMNkoeAExsDXRrlPsVEl3v9f2i/N0UPaSrSDmoiwRlhgRPCF7VjWs8PGw0ZNCNIGuhySLSAfoNNJuEaIkgpzDNYSS00ayJlE0IA7RYRrvLSHMImiPQTpGyQHJFqmHwIxB8/X2KAjUDxBkkXidXxkDmJFs784avJE9+DQDPeJ1Ruen4zr9qjW75lWTD6Hgo+ipeBVLEtKFhECOoVXACLkKtrZP+/iLaXwYvCMOItuv6T6KQlGi1TCgGGEahGqq133aBLxYx1TCaRxB7tFGoaCSmPXZfPncqtCh3hrhFtXhakAiTxlTdJZLN565bp3lQHskDTdxfonnJGIfvLhCdHQReZZQrp0M8vlF8WX4iHRvrEOnFIkXAW6OZRcwwwcxjh4BBjGZjiGsR/By4VczQGFQJOkiRsKkuIKwuE9YWaw/SGoN286xkiFQgvomE5nr3jK9PTHgN4lIzOHP63ptv+6t3qaog8lUdAP+qABZBdXq/u3TmvuXl35v7k2Ry4ytMXFYaJU6NWRfX16slYhBf1e56sITmAySkGJlESGvan4LEJaFaI/RXEW1i2IIEA80caYBfm0MYQvMmmBIzFAi+DMRibWzuLPq96wj9XzOMVm543PnZHoPqBG6ste5+K77kpEbjap7wBblCwKZN+vNHYbAMJiHkXWxnQomd6S3N/mFzy4U/QMTFYVCqacf1PKw8RtJRfHce25lAEod2HaJbCeUyvpzFJClmeKQulfYTpNyAaoUO1giDkxAZpDGENIbRtLUucPj1Qk7thUyRBSrjBr0zv3/Nn5Hpzv1O7j/M9XWbsjMTVFVWz9z6+mJ+rofEEiyqNkJtjKggeQ9ZPoHO3UNYnINBgmELxm1A0hRGbV38jvtU3ZOEXobRTRidquupE4I0DX55tpYCiyGQEhnV+p6FsoRICIPgTt118//pzS0skC8722gFn3aRpiOd2nl/Ke9Lru7pL91G6hy2OUE5F+G7A0xrKLhNO202O3f4479641/5fohxgvqS4GIYAYlKyJqIHaVamUWdwlQMjQLDMEa3oZmjWj1N8IvomIHJCOlEmHgUa7diqlFYzdC54+jCfUhvHqkK0LPdUiEQGiabPT17z+xH3qKqwv6Zr/r2068aYJkhcPCg2f7rnzjRWz32PykTK2tZZYsVTG8RlmZhaRH6gmEcm27CtIdhJEYnY3Q0ItAlLN5HWF7B+CmsbK4J2HCJTrQILqZaPIGYFhTjteWOVPXOVqmPcXiH71XFpX+2sry4vPxjg6VZzRdPUGWizcnH1F7kS53DEgGfw51/X/98sJsWgRCIR8cJrS62FRFN7iafP8HC3bf8+D4oQq/sUbo67AUlxG1kKCBxAdkQxo3jl44TKo+OjdRVsTRgzDhGt8CaJ8wdJQzm0CboRIKOR8hwC9OaxERTSNWE1QyWFzG9RWy+gl2rPAVmde2+V1/xm0dWOLjPPJRRSg9t0t2+fUEP7LUH/+LPf7N36vCHjBmNwlpUUoFETaQ9gYyOomNNdDRGhxOItG7/nDsGi11MOYa1m5AkhmGPjsWE9ihaVujsHRjbgXICcTlmJBCSFmpiKHqgVjWzKMVJvfYqlw61b816Pcq5BdNs7EYHDbR/tj6+Pvt/vV6NiWCwCGfuhdUTYJMH/X0tmBgX4UYnUDGEwZrJT9xFI5HTOo0L5MfIrRKcUvbAuBrkEZA0g3wI4zag83eh3RVCY4Qwst660xJMPIHRjbAGeuYUunIKQoY2HToco6MNZGwIGRnDNFoQHKHbLLHtaOXE7X++4eff9qdfyyXVD3kQGnsPhpfcoNWRm//+Bd2Tt37UBB/pIC1FHNowaFLHZCn6sDIHi/PIasCEcUw6iXQSGAUdTQiNNmqbsDaHzt2JcRNIOVY/sFGLjzt1mY06naBMRaqKkPf+Qa65vqrODM4ZaUTS33mVH2w+V6j6dYHCC0QNiJoQpTXZChUsHK7D29I9UPXXr549W9WpC+rJ8CbKAnrHb/VDnSZFJbtlhqpSfQdlLlI1RH1ZK0vG4KMOjCRIJ0fKJibaii4fhcWjiDhC0iEMNdExgwxbTGsE46aQQQpLa7A0h/RXkVCiRsEKoXAauq4yfiVavu/GPx/56bf8sB7Ya9l38CHPuvya5kWfvaPv759H88qnf8f/G57c8Z3FYMjbRkdsSw2S14etgqtJTRyjMeuzmdc7/RGkytDVU2jew9hNSEigE9BmghLV18gV/VppWpnTyE9Ivro4f3L1A69pb538Vln81BOl84ILku/9I6wWUr7rTxhanUdHLLLwcegtw/huGN0Nd11Xy6inb4ORLWBi2HMNZIswdwj6y7Dl8dC5jHz2DFV2SG0SWDn9vruND59YWgrv2fa4V/1aY2h8Vymz6oYmBA2EuL3+GCtMkcPKei06nK5boYc3Q9K+vwcNfK1JV4rkxbrQ4mvly0eUXe/Vr9o4WmLhzH2/NfHz//hKnZ42zMzo1zIx/msaijlzParTmAv+SIr/+d47/url12xqNdrVU7XMpOhKZcKQGBeLNARpCJrWpxIVu65sVpj+Irp6GoLFujoW66hFk2Sd3NcXXZksq0uJWSmUQ7rqb4kmL9MXdLZkjzf5fZPd3U+V5uQzpZFaBibCHTuM0R5y+/+FscfB3BE0XyLLbqUf4OceHzPb73NxsUyxdopoYRbfmkTmDteevXkJQQL99qiw9EFpjSyMDe9uXZKa4ru7K13XGLoiEl0zYutaNtF6zDe15ElzfQydDtUuL5tHfFmLL+ttNxiDsSCmrMvARYTvuVB0532SLroqLPRWls78+MTL3/u/9MABy0/+pH6t1wF8zcOpZYZQM7ppkZfNvHLud5/3sc6If306VG3P19YIfSpErUlSiZpD2DSp21lQNFtBixwTT9TtKbGHJEJyj8SgWtXtLc6gmYEkwzAE5aw0N3wmjqKuMptpdt+AaqI0eQg0VIi3nUMepbQiSzV1CVn0eczOMcq5Uww/cxflhz5OPruLMomIrpyi//5PUk09FiY/g8TQKDYjgy5yzmOILnka4U9eT7nlwpDuyKW1IRFz5HDHlEfQeANoDx0k0KivDFDW+d2ggtQhUYHkbZQmWnYx/VWI23VKXlS1fDpYIVR5QEXT1Nh0uDJZr3f93PHZl23/5Q/cXMfcfZ5/xfpXTR+v2dyMrgf/vzv0gxd8eOuTH/eLSTN9aWOo3SDz5INFny0uIySmbuGAKNmIa45AMgCTo5WFOQ9pXQGSboBhi/Y8WgiSGkRaLCx94LCuHN5WHm3G5XJRabIxLo+fpnf+MiPNIdJmi+ULnkD6uXdRtSqiywWdvwMXCcufmcQUTf6otYzfeTmrh45Do000dR8kEXruMNWnB6A9qp2XIws3USznMN8yobGrL34uKv2h0Fv79K0TG777MiSvU+21CtoBWVJo1u1MesZDByStEAzSm6RYXKLMb0cQxNogpgo2MjYdSg1GKVZW7+7Prv3m6E/93VvOTpd9qITq6+ai/5nLPnhI9cBeO/VLH+r9xrtvfd9/u6z115YYRHYnw5121IyMM5UEzTyhp3n3DBCJiSPIEuhFaKV1TbsrSKp1a8yyRa2qaSWSz63O5aOf/0g6HM5ZuHH5dX7nk5LJq87bFvU/ExbC4yWdPJ9ECuKtuznjHZz4R3R1jmK2gU2E4oQnsgP8J4bQqXMpRydh9k58PEp5t+AHEdo2aONGZu1lDG5+K8PcFNrVgpz+6F3XxVv3nGhvY2t+w81/0Wg/abOMNcdC7lUGRoyrwAm6Ytcb0gUpIkIeCFVGtjyrZf/eELddsImVpB0Z12kYG1SytbXPrM3P/8oNf3ngvz/mD2//hKrKfjDyk//n6zI8/Ot2f0A95Q7h4F4j+w7eAR972d0/dfGvjp+z5wVRlOyzxnxrMjzUIB4i7Xfpd+/T8rh4iIxLpkzSmELzdV5vlLCy3r3vVJFYVmc/e0vj6qGntzfmne49+Us7F9kxF27U4XDarH361RxvbGB40zmIX6J78kM0JtcIc2A6w/hqhbRziurOFo23b4G5Ae4Xm2AzJFbCxg4Bh68OE7ylfXg/Kp7O084zLJ9hIl97hpcln4w4e8tm9wsr0U28oPsUNFKRAsJahDR8bS6lQYxh0L0PX8x5QUlbsXUbxy3WoaurDOaX7go+vLffX/vrqVd94ENnE3c9sNdKLUF+3S7u+De5dUWnpw0XHZIHu5j7Xn3F7qHR4att2vpPcaP9rUnstmMDWpSs9Qqfth9vXNyQ+5v51vVj0/J4Mb779vfZQf7ZQ+4Z/X/0/c4PT+yR4bAwYOW+AjacRzXcIrfjJN3jNOwyUpXI8DBJ0sefXiI/UxcJ7B+fR/ysYfIfmaL60D/R2prB+Bj5oINKTFg5Q9wOdE/Fmlx8maaNkxJ1j8mZz80fjlV/9V1ZfO+Wocu//+lbnv/ffOxVevbsFLqaOyiUZT+Ug1ulM9QUgGzg14L3N5Z595/yXveDN370wzc+573kZ+Pctb98pbt65nr/b3Gv0r/ptTqqyHX7r7JXc3WQmZn7Xc77nkHr0iufdnnaHnq+jdO9zXayoxhE5FXwIpFtDp33wKC1WAhZ4c/cePBHF99x9/suvq9/+shvNn56tMH/Wj0++LhOXbK4+Rm7XhitfsLPf3LeNHZulmy+i22NkaZr+LkFyjUh71viVkWcxdjHtMnbeyhvuwfTnyMeBxnbROlj8JXash/MmQUztzz0t60Lt12a5Kc3rJwuX7r9l9beCoq+5nv3+PMec5eNGxqqIGDQUNFfvVURH9ppZNGSfpZfm2X9/zuYO/X+bf/r5uNfaARXOS6a0q9HnP2GuOgvT8Kur+B66smoV5n1L9Xj/R/+EPChT7xo7FfOv/xJP5qmyas6w60NvdVFHfROaLOz0wSfq6kiqaq1It819o6L77t5WYBdnStu5gUTcfKed1/RbaR5xC2w1LWxScmWJ0lGtkF5D+W9Hg2T6MZNbLg0Yu3Ap8ibA8LRUSaeNA67D7F84wZMP0F1C9FERvCFtPc0rUzl9G4Nz5588nlNbrmPu+7uflJ12hzcNyOfKW4aXFju6dmo3VL1aqyT/uoRn8aFjRqpHayufbrbXZueevU//cMXeDWuMwcPTenegweDzFxf8Q1YD8vVdgpycO9es/fCM3L2i977Py7fNLph0/5mo/USI4bSXlBFcdMYJyZfWzh9y6d/44LL38Tqe39vw447h+KP/dAm09G7504n461zYjtg/ubusWrjOdXolit3ubmtKuN9cVWF3vLXVBsmmR07TnakZOe3X0p18yE+ELfZ0M95Qm9zLTRc9mKtTp+S2ZMfuL15Yasz3Dq2pXvbKXSy9ZH4KBctvad97KPPPvKkfS+XwU0/oK3zr3r14bQzsSmU+CJfJDVHbFZUS73V7mt//JXvfeNB8Do9ba7jOnP1/uv9w3Ub+MNy+6iA7jt40MvM9ZWC6PRVbuev33hq+Kff9dL52TPfnuf9zybc7YLPwUQ+qO+98yMMRESlW/gzefX+d//2fY+79wP9Jywd6/9Zng0Vpp0cjTdMrTbH71LjGho1NiCNBnLeVcSjV/KapM0rdo3C0bsp+iv81rjhgE2QPc8gnPN0KFbUNiy6dOcSi0eOdw8v91e6+nsj33Pmaafe1roaX75/d7su0b39L8iD+h4m8fgVm4S7ba/XPXjf4aOXT7zyvb/31yJeD+y1MjMTrpm5vno4r3p/RFxDfjZerzNw/55nnZM85Rm7fsHGQ69ubXlSki8s3pf+19/YVXdLfeGz+shvNjY/5fuedZTDH7bZyQg3aginfpB4aggSrdWzUzfzoew2/PIprrzvFPKUH+W++ZvodE8zcfEPoOkwYqCYW6TsHaS191J4+7tzfqycQLUnIl84TxCV7I9efTQZbW9dO/qJY2UxeMX4qz74trOx9Rvlfh+xFvzl4rXsO+j1wF77nPfelQ+//P37V+bvfHLv+Mc/3u+d+nQdxn7ZKMhV117lbnjJ5ZGC7Pjoju/N/+gTdvGu/v9eOr3yl93jy6uF6QV8pKhHDv0NfO6vuDJLuSbdiU0Es3iIXQv3MDFYgZOfQuZvBxP7qK0sLC79Uf9dH3zzdc3x5FdeN/WjIqJvetPlkV5VX0Ci079sAO2u3ve2lfs++qd3Hbnh8vFXffBtemCvnZ7GPJLAfURZ8BfHaA7U1vxFB2Qf+Dd791o5eNCffM6un63OlOPbbzj+iwfAfudbt/9wPPqMPwhrj8Xkn3KcuR3WThKGtsDi3ZhsBUolbH0sMlhCmhOw8fHKposp5k8vX/v/vfmcZ/3j6uIvvHHT/mZRHvull8//8d4D2IP7+LJs9+ulOv2HAfjBzNO89rVBv9Qhty9a73n9Oclzfvru/PVvHn3Z05pb33Cp/Jeg7m4jy8egewqGd8DSETh2E6QRnPNsWDsFmy4lDO9QE1spFuZP3vxbrzv38hvIRfBfTa7P3oPh4YyxD2ua9K/efQ/Knf8FazeA7Nt0V6UgMyEK75tb/LNLh1afJdt2b6C1QbGpYCxseULdOHDm7vrnxftAPaYq6vt8RIt33kh1heCn61tCw8yXuW/wq/lsj1rwv+Fa/YOfek9nz45nUfVCPeTR1+OSFu+Gj74Jtj8WLnkRlDmIBBqpyeZO3dn4vt99TF041of3bvb/CBb8tawDB/bGB8Hn98z/Zafc8uz7e6+Mq09cjO6BDTtg6b71Vh5zvywqSgGE+4ePfBMs880G8N69B8uD+w7644c++s5ifmEeF9lw/6yJ9XmRj/luyFZh7ra6rUfXJxaIaV4Lbl0Ol0cBfiTGHEF1etpd+mf3LfdXTv8lzmDONomf7awc2gIXvRAO/Q0UXbCJUBYY5zZveeVjN4Kyf/pRgB/JKwDSPXbHG8tTRwucM/dPjBFTg7r9abDzKvjMH4HPBJv6aLidjm254El1TXb6m+LZuG9GdGVmJqznpocXf2fD/xsdG34xplWh3j0A8hrsfgako3DrgRrwbRfTmNjy30Tkr/WGN4lSV3y49Yxw9dX//I3mDin7DgZ5BJOxb1oWrdMY9qse2X/Fts1bzj+UbtyZYptmnR2v/6NQM+v+Ipz6DESNwOQus3jPkR8f/5m/+8Ov9hHq9C+bR2ra9E0L8IMVpjO/+ayfndy5/XeCGy1NYyi6f7LsWZBNVM/B6M0p1ZqqqumtZX9U5P0PqIp3VhJM1LbGtlWkYQzBBr84yNYOvfQn//ajB8E/UtWsb2qAHwzy8utf8O7hzRuf47VV2tZodPZs8/1yiSrYaJ2WBGi4esyiaj0Cab3ddX34V33+KR+QrS5/du3woZ+ees37PvxIBPmbH2BF2D8tR7J3daa27/qn9uT4ZZWPS9cadbhEvvB4qd7fMSRIVbdACuuze+sm9VASNGDE1Jcgt5umWlkoFw7f/L0bX/73b3+kgfxND/DZeCwzhEM/ccH49gsvOtCaGPs2XxhI25VN2hYXyZd+FPUZXa0KtBgQigGhKgIaAgjiYrGNjprhCVv2l8v52z/9lM2v+sANqtNm/UbRRwH+RoO8F+ybf+/5M8320M/HnXaipRBsXBHFImb9ahRUamBLtMw1VLnW9xaIjRMn2PWD5V7J80ptYyi4Tdvt4NSx2296+99e9q17v7V4pLDr/zAAn3XXxoiqKkdfe+VjR8cnXh5FyXcl7WYHY6GqcfQh6PoSIyKRsxAbfC8jz7PPVWXx4RDCgnXJlZ3hzjWlR21rtDIbN0VLN9/4U2M/8VdvvOXA3vjifQeLRwF+GIkXwN3Tl28fH930HOfSZxhrHodxmyNrGs7WZ46ysgoawpGqyP6h3137y43/44Mff/Brzb/uuf9jbGrq17y6ym3YaYq1peMf+9+ve9w117M8PY35ctWoRwH+N3fZ/7x3+02XEz33BVdsjN3whJOopYQQfL547VuvP7LvEMUDee+Vjs1d4SXP8yIzYfWNe2/uTI5e7JN2Zcc3uGzu+KfO3PfZ79/+sx++h/375eHMkf/DAnx2TU9j9j/Qzvvluzamr3IHD03pvgfd8qkH9lr2Hghrf/Bd7+ikW55TLkyoJKlz24YYnLnjxHVvf/2eZ/+DFvXk3YcnHv+HB/iLOLMwjcA0XHSofja3Xqhf5myugOj0tJqfH/2+O9u9q/aERSh91nVqznjp3xT37/lBefOb+//S/b6PAvyI3hD1xRK9V//0+xrlObM+LP5hVIZ7mDg0LzMPP8F6dH3dgL7WfckY/+j6JgJ57wGre/daVRV91DN+E8buR9ej69H16Hp0PboeXY+uB63/HzNtrJeyzUk8AAAAAElFTkSuQmCC" alt="Ganesh">
+  <h1>Ganpati Decoration</h1>
+  <p class="header-sub">Collection Receipt System</p>
+  <span class="header-badge">Usha Complex · 2026</span>
+  <button class="dash-btn" onclick="openLogin()">📊 Dashboard</button>
+</header>
+
+<!-- SVG Wave -->
+<svg class="wave" viewBox="0 0 1440 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+  <path d="M0,0 C360,60 1080,60 1440,0 L1440,0 L0,0 Z" fill="#fdf5ec"/>
+</svg>
+
+<!-- CONTENT -->
+<div class="content">
+
+  <!-- LOCATION -->
+  <div class="section">
+    <div class="section-card">
+      <div class="grid-3">
+        <!-- Wing -->
+        <div class="field">
+          <label>Wing <span class="req">*</span></label>
+          <div class="select-wrap">
+            <select id="wing" onchange="updateFloors()">
+              <option value="">—</option>
+              <option>A</option><option>B</option><option>C</option><option>D</option>
+              <option>E</option><option>F</option><option>G</option><option>H</option>
+              <option>I</option><option>J</option><option>K</option><option>L</option>
+            </select>
+            <span class="chevron">▼</span>
+          </div>
+        </div>
+
+        <!-- Floor -->
+        <div class="field">
+          <label>Floor <span class="req">*</span></label>
+          <div class="select-wrap">
+            <select id="floor" onchange="updateRooms()">
+              <option value="">—</option>
+              <option value="1">1st</option>
+              <option value="2">2nd</option>
+              <option value="3">3rd</option>
+              <option value="4">4th</option>
+              <option value="5">5th</option>
+              <option value="6">6th</option>
+              <option value="7">7th</option>
+              <option value="8">8th</option>
+            </select>
+            <span class="chevron">▼</span>
+          </div>
+        </div>
+
+        <!-- Room -->
+        <div class="field">
+          <label>Room <span class="req">*</span></label>
+          <div class="select-wrap">
+            <select id="room">
+              <option value="">—</option>
+            </select>
+            <span class="chevron">▼</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RESIDENT DETAILS -->
+  <div class="section" id="resident-section">
+    <div class="section-label">👤 Resident Details</div>
+    <div class="section-card">
+      <div class="field">
+        <label>Full Name <span class="req">*</span></label>
+        <input type="text" id="fullname" placeholder="e.g. Rajesh Sharma">
+      </div>
+      <div class="field">
+        <label>Mobile Number <span class="req">*</span></label>
+        <input type="tel" id="mobile" placeholder="10-digit mobile number" maxlength="10">
+        <span class="field-hint">For Usha Complex donation records only. Not shared with any third party.</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- COLLECTION -->
+  <div class="section" id="collection-section">
+    <div class="section-label">💰 Collection</div>
+    <div class="section-card">
+      <div class="field">
+        <label>Amount (₹) <span class="req">*</span></label>
+        <input type="number" id="amount" placeholder="Enter amount in ₹" min="1">
+        <span class="field-hint">Enter donation amount in rupees</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- NOT AVAILABLE TOGGLE -->
+  <div class="section" style="margin-bottom:14px;">
+    <div class="section-card" id="na-card">
+      <div class="toggle-row">
+        <div>
+          <div class="toggle-label">🚪 Person Not Available</div>
+          <div class="toggle-hint">Mark if no one answered the door</div>
+        </div>
+        <label class="toggle-sw">
+          <input type="checkbox" id="not-available" onchange="toggleNA()">
+          <span class="slider"></span>
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <button class="btn-generate" id="gen-btn" onclick="generateReceipt()">
+    🧾 Generate Receipt
+  </button>
+
+  <button class="btn-new-entry" onclick="newEntry()">
+    ＋ New Entry
+  </button>
+
+  <div class="footer">🙏 Ganpati Bappa Morya</div>
+</div>
+
+</div><!-- /main-content -->
+
+<!-- DUPLICATE WARNING MODAL -->
+<div class="modal-overlay" id="dup-modal">
+  <div class="modal" style="max-width:340px;">
+    <div style="text-align:center;margin-bottom:16px;">
+      <div style="font-size:36px;">⚠️</div>
+      <div style="font-size:17px;font-weight:800;color:#c2410c;margin-top:6px;">Entry Already Exists</div>
+      <div style="font-size:12px;color:#9ca3af;margin-top:3px;">This room has already been collected</div>
+    </div>
+    <div style="background:#fff7ed;border-radius:12px;padding:14px;margin-bottom:18px;">
+      <div style="display:flex;justify-content:space-between;padding:5px 0;font-size:13px;">
+        <span style="color:#78716c;">Room</span><span id="dup-room" style="font-weight:700;color:#1c1917;"></span>
+      </div>
+      <div style="display:flex;justify-content:space-between;padding:5px 0;font-size:13px;border-top:1px solid #fef3e2;">
+        <span style="color:#78716c;">Name</span><span id="dup-name" style="font-weight:700;color:#1c1917;"></span>
+      </div>
+      <div style="display:flex;justify-content:space-between;padding:5px 0;font-size:13px;border-top:1px solid #fef3e2;">
+        <span style="color:#78716c;">Amount</span><span id="dup-amount" style="font-weight:700;color:#f97316;"></span>
+      </div>
+      <div style="display:flex;justify-content:space-between;padding:5px 0;font-size:13px;border-top:1px solid #fef3e2;">
+        <span style="color:#78716c;">Date</span><span id="dup-date" style="font-weight:700;color:#1c1917;"></span>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+      <button class="btn-close" onclick="closeDupModal()">✕ Cancel</button>
+      <button class="btn-print" onclick="proceedAnyway()">Continue →</button>
+    </div>
+  </div>
+</div>
+
+<!-- RECEIPT MODAL -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+
+    <!-- Printable / shareable receipt card -->
+    <div class="receipt-card" id="receipt-card">
+      <div class="rc-top">
+        <img class="rc-logo" id="rc-logo" src="" alt="Ganesh">
+        <div class="rc-title">Ganpati Decoration 2026</div>
+        <div class="rc-sub">Usha Complex · Collection Receipt</div>
+      </div>
+
+      <div class="rc-meta">
+        <span id="receipt-num" class="rc-num">Receipt #001</span>
+        <span id="r-date" class="rc-date">—</span>
+      </div>
+
+      <div class="rc-divider"></div>
+
+      <div class="rc-row">
+        <span class="rc-key">👤 Name</span>
+        <span class="rc-val" id="r-name">—</span>
+      </div>
+      <div class="rc-row">
+        <span class="rc-key">📱 Mobile</span>
+        <span class="rc-val" id="r-mobile">—</span>
+      </div>
+      <div class="rc-row">
+        <span class="rc-key">🏠 Room No.</span>
+        <span class="rc-val" id="r-location">—</span>
+      </div>
+
+      <div class="rc-amount-box" id="rc-amount-box">
+        <div class="rc-amount-label" id="rc-amount-label">Donation Amount</div>
+        <div class="rc-amount-val" id="r-amount">₹0</div>
+      </div>
+
+      <div class="rc-footer-text">🙏 Thank you for your generous contribution · Ganpati Bappa Morya 🙏</div>
+    </div>
+    <!-- end receipt card -->
+
+    <div class="modal-actions">
+      <button class="btn-close" onclick="closeModal()">✕ Close</button>
+      <button class="btn-print" onclick="downloadAndShare()">📤 Download & Share</button>
+    </div>
+
+    <!-- EDIT SECTION -->
+    <div style="margin-top:10px;">
+      <button id="edit-toggle-btn" onclick="toggleEditSection()" style="width:100%;padding:11px;background:#fff7ed;border:1.5px solid #fed7aa;border-radius:10px;color:#f97316;font-size:13px;font-weight:700;cursor:pointer;">
+        ✏️ Edit Entry
+      </button>
+      <div id="edit-section" style="display:none;background:#fff;border:1.5px solid #fed7aa;border-radius:12px;padding:16px;margin-top:8px;">
+        <div class="field" style="margin-bottom:12px;">
+          <label>Full Name</label>
+          <input type="text" id="edit-name" placeholder="Full Name">
+        </div>
+        <div class="field" style="margin-bottom:12px;">
+          <label>Mobile Number</label>
+          <input type="tel" id="edit-mobile" placeholder="Mobile" maxlength="10">
+        </div>
+        <div class="field" style="margin-bottom:14px;">
+          <label>Amount (₹)</label>
+          <input type="number" id="edit-amount" placeholder="Amount" min="1">
+        </div>
+        <button onclick="saveEdits()" style="width:100%;padding:12px;background:linear-gradient(135deg,#f97316,#fbbf24);border:none;border-radius:10px;color:#fff;font-size:14px;font-weight:700;cursor:pointer;">
+          💾 Save &amp; Update Sheet
+        </button>
+        <div id="edit-status" style="text-align:center;font-size:12px;margin-top:8px;color:#9ca3af;"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- DASHBOARD PIN MODAL -->
+<div class="modal-overlay" id="login-modal">
+  <div class="modal" style="max-width:300px;">
+    <div style="text-align:center;margin-bottom:20px;">
+      <div style="font-size:36px;">📊</div>
+      <div style="font-size:17px;font-weight:800;color:#c2410c;margin-top:6px;">Staff Access</div>
+      <div style="font-size:12px;color:#9ca3af;margin-top:3px;">Enter PIN to view dashboard</div>
+    </div>
+    <div class="field" style="margin-bottom:20px;">
+      <label>4-Digit PIN</label>
+      <input type="password" id="login-pass" placeholder="••••" maxlength="4" inputmode="numeric" pattern="[0-9]*"
+        style="text-align:center;font-size:28px;letter-spacing:10px;">
+      <span id="login-err" style="font-size:12px;color:#ef4444;margin-top:4px;display:none;">Incorrect PIN. Try again.</span>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+      <button class="btn-close" onclick="closeLogin()">✕ Cancel</button>
+      <button class="btn-print" onclick="doLogin()">Enter →</button>
+    </div>
+  </div>
+</div>
+
+<!-- DASHBOARD VIEW -->
+<div id="dashboard" style="display:none;background:#fdf5ec;min-height:100vh;">
+
+  <!-- Dashboard Header -->
+  <div class="header" style="padding:28px 20px 70px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;position:relative;z-index:2;">
+      <button onclick="closeDashboard()" style="background:rgba(255,255,255,0.22);border:1px solid rgba(255,255,255,0.4);color:#fff;padding:7px 13px;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer;">← Back</button>
+      <button onclick="logOut()" style="background:rgba(255,255,255,0.15);border:1px solid rgba(255,255,255,0.35);color:#fff;padding:7px 13px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;">Logout</button>
+    </div>
+    <div style="text-align:center;position:relative;z-index:1;margin-top:10px;">
+      <div style="font-size:24px;font-weight:800;color:#fff;">📊 Collection Dashboard</div>
+      <div style="font-size:12px;color:rgba(255,255,255,0.85);margin-top:3px;letter-spacing:1px;">Usha Complex · Ganpati 2026</div>
+    </div>
+  </div>
+  <svg viewBox="0 0 1440 60" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg" style="display:block;margin-top:-1px;width:100%;background:linear-gradient(135deg,#f97316,#fb923c 40%,#fbbf24);">
+    <path d="M0,0 C360,60 1080,60 1440,0 L1440,0 L0,0 Z" fill="#fdf5ec"/>
+  </svg>
+
+  <div style="padding:0 16px 40px;max-width:680px;margin:0 auto;">
+
+    <!-- Date filter chips -->
+    <div style="margin-bottom:14px;">
+      <div style="font-size:11px;font-weight:700;color:#c2410c;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:8px;">📅 Filter by Date</div>
+      <div id="date-chips" style="display:flex;gap:8px;flex-wrap:wrap;">
+        <div style="color:#d4b49a;font-size:13px;">Loading…</div>
+      </div>
+    </div>
+
+    <!-- Stat cards -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px;">
+      <div class="section-card" style="text-align:center;padding:18px 12px;">
+        <div id="label-total" style="font-size:11px;font-weight:700;color:#92400e;letter-spacing:1px;text-transform:uppercase;">Total Collected</div>
+        <div id="stat-total" style="font-size:26px;font-weight:900;color:#f97316;margin-top:6px;">₹0</div>
+      </div>
+      <div class="section-card" style="text-align:center;padding:18px 12px;">
+        <div id="label-count" style="font-size:11px;font-weight:700;color:#92400e;letter-spacing:1px;text-transform:uppercase;">Total Receipts</div>
+        <div id="stat-count" style="font-size:26px;font-weight:900;color:#f97316;margin-top:6px;">0</div>
+      </div>
+      <div class="section-card" style="text-align:center;padding:18px 12px;">
+        <div style="font-size:11px;font-weight:700;color:#92400e;letter-spacing:1px;text-transform:uppercase;">Today's Collection</div>
+        <div id="stat-today" style="font-size:26px;font-weight:900;color:#f97316;margin-top:6px;">₹0</div>
+      </div>
+      <div class="section-card" style="text-align:center;padding:18px 12px;">
+        <div style="font-size:11px;font-weight:700;color:#92400e;letter-spacing:1px;text-transform:uppercase;">Today's Receipts</div>
+        <div id="stat-today-count" style="font-size:26px;font-weight:900;color:#f97316;margin-top:6px;">0</div>
+      </div>
+      <div class="section-card" style="text-align:center;padding:18px 12px;border:2px solid #fde68a;">
+        <div style="font-size:11px;font-weight:700;color:#92400e;letter-spacing:1px;text-transform:uppercase;">🕐 Pending</div>
+        <div id="stat-pending" style="font-size:26px;font-weight:900;color:#d97706;margin-top:6px;">0</div>
+        <div style="font-size:10px;color:#a8a29e;margin-top:2px;">rooms not yet visited</div>
+      </div>
+      <div class="section-card" style="text-align:center;padding:18px 12px;border:2px solid #e5e7eb;">
+        <div style="font-size:11px;font-weight:700;color:#6b7280;letter-spacing:1px;text-transform:uppercase;">🚪 Not Available</div>
+        <div id="stat-na" style="font-size:26px;font-weight:900;color:#9ca3af;margin-top:6px;">0</div>
+        <div style="font-size:10px;color:#a8a29e;margin-top:2px;">visited, nobody home</div>
+      </div>
+    </div>
+
+    <!-- Wing breakdown -->
+    <div class="section-label" style="display:flex;align-items:center;gap:7px;font-size:11px;font-weight:700;color:#c2410c;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px;">🏢 Wing-wise Breakdown</div>
+    <div class="section-card" style="margin-bottom:16px;padding:14px 16px;">
+      <div id="wing-breakdown">
+        <div style="text-align:center;color:#d4b49a;font-size:13px;padding:12px 0;">Loading…</div>
+      </div>
+    </div>
+
+    <!-- Recent entries -->
+    <div class="section-label" style="display:flex;align-items:center;gap:7px;font-size:11px;font-weight:700;color:#c2410c;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px;">🧾 Recent Entries</div>
+    <div class="section-card" style="padding:0;overflow:hidden;">
+      <div id="recent-entries">
+        <div style="text-align:center;color:#d4b49a;font-size:13px;padding:20px;">Loading…</div>
+      </div>
+    </div>
+
+    <!-- Not Available -->
+    <div class="section-label" style="display:flex;align-items:center;gap:7px;font-size:11px;font-weight:700;color:#6b7280;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px;margin-top:16px;">🚪 Not Available</div>
+    <div class="section-card" style="padding:0;overflow:hidden;margin-bottom:16px;">
+      <div id="na-entries">
+        <div style="text-align:center;color:#d4b49a;font-size:13px;padding:20px;">Loading…</div>
+      </div>
+    </div>
+
+    <!-- Pending Rooms -->
+    <div class="section-label" style="display:flex;align-items:center;justify-content:space-between;font-size:11px;font-weight:700;color:#92400e;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:10px;">
+      <span>🕐 Pending Rooms</span>
+      <span id="pending-label" style="font-size:10px;font-weight:600;color:#d97706;background:#fef3c7;padding:3px 8px;border-radius:8px;"></span>
+    </div>
+    <div class="section-card" style="padding:0;overflow:hidden;">
+      <div id="pending-entries">
+        <div style="text-align:center;color:#d4b49a;font-size:13px;padding:20px;">Loading…</div>
+      </div>
+    </div>
+
+    <div style="text-align:center;margin-top:20px;">
+      <button onclick="loadDashboard()" style="background:#fff;border:1.5px solid #fed7aa;color:#f97316;padding:10px 24px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer;">🔄 Refresh</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+  // ── NOT AVAILABLE TOGGLE ──
+  function toggleNA() {
+    const isNA     = document.getElementById('not-available').checked;
+    const collSec  = document.getElementById('collection-section');
+    const resSec   = document.getElementById('resident-section');
+    const btn      = document.getElementById('gen-btn');
+    const fields   = ['fullname','mobile','amount'];
+
+    if (isNA) {
+      collSec.classList.add('na-active');
+      resSec.classList.add('na-active');
+      // Disable & grey out name, mobile, amount
+      fields.forEach(id => {
+        const el = document.getElementById(id);
+        el.value    = '';
+        el.disabled = true;
+        el.style.opacity    = '0.35';
+        el.style.background = '#f3f4f6';
+        el.style.cursor     = 'not-allowed';
+      });
+      btn.textContent      = '🚪 Save Not Available';
+      btn.style.background = 'linear-gradient(135deg,#6b7280,#9ca3af)';
+    } else {
+      collSec.classList.remove('na-active');
+      resSec.classList.remove('na-active');
+      // Re-enable fields
+      fields.forEach(id => {
+        const el = document.getElementById(id);
+        el.disabled         = false;
+        el.style.opacity    = '';
+        el.style.background = '';
+        el.style.cursor     = '';
+      });
+      btn.innerHTML        = '🧾 Generate Receipt';
+      btn.style.background = '';
+    }
+  }
+
+  // Dynamic floor options based on wing
+  function updateFloors() {
+    const wing = document.getElementById('wing').value;
+    const floorSel = document.getElementById('floor');
+    floorSel.innerHTML = '<option value="">—</option>';
+    document.getElementById('room').innerHTML = '<option value="">—</option>';
+    if (!wing) return;
+
+    const isF    = wing === 'F';
+    const isGtoL = ['G','H','I','J','K','L'].includes(wing);
+    const maxFloor = isGtoL ? 8 : 7;
+    const suffix   = ['st','nd','rd','th','th','th','th','th'];
+
+    if (isF) {
+      const g = document.createElement('option');
+      g.value = 'Ground'; g.textContent = 'Ground Floor';
+      floorSel.appendChild(g);
+    }
+    for (let i = 1; i <= maxFloor; i++) {
+      const opt = document.createElement('option');
+      opt.value = String(i);
+      opt.textContent = `${i}${suffix[i-1]} Floor`;
+      floorSel.appendChild(opt);
+    }
+  }
+
+  // Dynamic room numbers based on floor
+  function updateRooms() {
+    const floor = document.getElementById('floor').value;
+    const roomSel = document.getElementById('room');
+    roomSel.innerHTML = '<option value="">—</option>';
+    if (!floor) return;
+
+    if (floor === 'Ground') {
+      ['001','002','003','004'].forEach(r => {
+        const opt = document.createElement('option');
+        opt.value = r; opt.textContent = r;
+        roomSel.appendChild(opt);
+      });
+    } else {
+      const f = parseInt(floor);
+      for (let i = 1; i <= 4; i++) {
+        const room = `${f}${String(i).padStart(2,'0')}`;
+        const opt = document.createElement('option');
+        opt.value = room; opt.textContent = room;
+        roomSel.appendChild(opt);
+      }
+    }
+  }
+
+  let receiptCount = 1;
+  function pad(n) { return String(n).padStart(3, '0'); }
+
+  function validate() {
+    let ok = true;
+    const isNA = document.getElementById('not-available').checked;
+    const fields = isNA ? ['wing','floor','room'] : ['wing','floor','room','fullname','mobile','amount'];
+    document.querySelectorAll('.input-error').forEach(el => el.classList.remove('input-error'));
+    document.querySelectorAll('.error-msg').forEach(el => el.remove());
+    fields.forEach(id => {
+      const el = document.getElementById(id);
+      if (!el.value || !el.value.trim()) {
+        el.classList.add('input-error');
+        const msg = document.createElement('span');
+        msg.className = 'error-msg';
+        msg.textContent = 'This field is required';
+        el.closest('.field').appendChild(msg);
+        ok = false;
+      }
+    });
+    const mobile = document.getElementById('mobile').value;
+    if (mobile && !/^\d{10}$/.test(mobile)) {
+      const el = document.getElementById('mobile');
+      el.classList.add('input-error');
+      if (!el.closest('.field').querySelector('.error-msg')) {
+        const msg = document.createElement('span');
+        msg.className = 'error-msg';
+        msg.textContent = 'Enter a valid 10-digit number';
+        el.closest('.field').appendChild(msg);
+      }
+      ok = false;
+    }
+    return ok;
+  }
+
+  // ── GOOGLE SHEETS INTEGRATION ──
+  const SHEET_URL = 'https://script.google.com/macros/s/AKfycbxSBb-UfpneLJ0oNU7qr0Ow4SEcmPXxxbHBN48o6ajtpQjYlZ1CZ6yiWphktOc3rVA_jw/exec';
+
+  // Local cache: roomCode → entry (for instant duplicate detection)
+  const _roomCache = {};   // e.g. { 'A-201': { name, amount, date, receiptNum } }
+  let   _cacheLoaded = false;
+
+  async function loadRoomCache() {
+    if (_cacheLoaded) return;
+    try {
+      const res  = await fetch(SHEET_URL + '?action=getData');
+      const json = await res.json();
+      (json.data || []).forEach(r => {
+        if (r.status !== 'Not Available' && r.roomCode) {
+          _roomCache[String(r.roomCode)] = {
+            name: r.name, amount: r.amount, date: r.date, receiptNum: r.receiptNum
+          };
+        }
+      });
+      _cacheLoaded = true;
+    } catch(e) { /* no internet — skip cache */ }
+  }
+
+  // Pre-load cache as soon as Wing is touched
+  document.getElementById('wing').addEventListener('change', () => loadRoomCache(), { once: true });
+
+  function saveToSheet(payload) {
+    if (!SHEET_URL) return;
+    // Add to local cache immediately so duplicate check works in same session
+    if (payload.status !== 'Not Available' && payload.roomCode) {
+      _roomCache[payload.roomCode] = {
+        name: payload.name, amount: payload.amount,
+        date: payload.date, receiptNum: payload.receiptNum
+      };
+    }
+    fetch(SHEET_URL, {
+      method: 'POST', mode: 'no-cors',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    }).catch(() => {});
+  }
+
+  function generateReceipt() {
+    if (!validate()) return;
+    const wing     = document.getElementById('wing').value;
+    const room     = document.getElementById('room').value;
+    const roomCode = `${wing}-${room}`;
+    const isNA     = document.getElementById('not-available').checked;
+
+    // Instant duplicate check against local cache
+    if (!isNA && _roomCache[roomCode]) {
+      const m = _roomCache[roomCode];
+      document.getElementById('dup-room').textContent   = roomCode;
+      document.getElementById('dup-name').textContent   = m.name   || '—';
+      document.getElementById('dup-amount').textContent = '₹' + Number(m.amount).toLocaleString('en-IN');
+      document.getElementById('dup-date').textContent   = m.date   || '—';
+      document.getElementById('dup-modal').classList.add('open');
+      return;
+    }
+    doGenerate();
+  }
+
+  function closeDupModal() {
+    document.getElementById('dup-modal').classList.remove('open');
+  }
+  function proceedAnyway() {
+    closeDupModal();
+    doGenerate();
+  }
+
+  function doGenerate() {
+    if (!validate()) return;
+    // Sync Ganesh logo to receipt card on demand
+    document.getElementById('rc-logo').src = document.querySelector('.header-icon').src;
+    const isNA     = document.getElementById('not-available').checked;
+    const wing     = document.getElementById('wing').value;
+    const floorEl  = document.getElementById('floor');
+    const room     = document.getElementById('room').value;
+    const name     = isNA ? '—' : document.getElementById('fullname').value.trim();
+    const mobile   = isNA ? '—' : document.getElementById('mobile').value.trim();
+    const amount   = isNA ? '0' : document.getElementById('amount').value;
+    const floorTxt = floorEl.options[floorEl.selectedIndex].text;
+    const now      = new Date();
+    const dateStr  = now.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+
+    // receipt number set below after NA check
+    document.getElementById('r-date').textContent       = dateStr;
+    document.getElementById('r-name').textContent       = isNA ? 'Not Available' : name;
+    document.getElementById('r-mobile').textContent     = isNA ? '—' : mobile;
+    document.getElementById('r-location').textContent   = `${wing}-${room}`;
+
+    // Amount box — style differently for NA
+    const amtBox   = document.getElementById('rc-amount-box');
+    const amtLabel = document.getElementById('rc-amount-label');
+    const amtVal   = document.getElementById('r-amount');
+    if (isNA) {
+      amtBox.style.background   = 'linear-gradient(135deg,#f3f4f6,#e5e7eb)';
+      amtLabel.style.color      = '#6b7280';
+      amtVal.style.color        = '#6b7280';
+      amtVal.style.fontSize     = '22px';
+      amtVal.textContent        = '🚪 Person Not Available';
+    } else {
+      amtBox.style.background   = '';
+      amtLabel.style.color      = '';
+      amtVal.style.color        = '';
+      amtVal.style.fontSize     = '';
+      amtVal.textContent        = `₹${Number(amount).toLocaleString('en-IN')}`;
+    }
+
+    // Copy mobile to clipboard (only when collected)
+    if (!isNA && mobile && navigator.clipboard) {
+      navigator.clipboard.writeText(mobile).catch(() => {});
+    }
+
+    // Save to Google Sheet
+    const receiptNum = isNA ? `NA-${dateStr}-${wing}-${room}` : `Receipt #${pad(receiptCount++)}`;
+    saveToSheet({
+      receiptNum : receiptNum,
+      date       : dateStr,
+      wing       : wing,
+      floor      : floorTxt,
+      roomCode   : `${wing}-${room}`,
+      name       : name,
+      mobile     : mobile,
+      amount     : isNA ? 0 : amount,
+      status     : isNA ? 'Not Available' : 'Collected'
+    });
+
+    if (isNA) {
+      // No receipt for NA — just show success toast and reset
+      showSavedToast(`${wing}-${room} marked as Not Available`);
+      newEntry();
+    } else {
+      document.getElementById('receipt-num').textContent = receiptNum;
+      document.getElementById('modal').classList.add('open');
+    }
+  }
+
+  function closeModal() {
+    document.getElementById('modal').classList.remove('open');
+    document.getElementById('edit-section').style.display = 'none';
+    document.getElementById('edit-toggle-btn').textContent = '✏️ Edit Entry';
+    document.getElementById('edit-status').textContent = '';
+  }
+
+  // ── EDIT RECEIPT ──
+  function toggleEditSection() {
+    const sec = document.getElementById('edit-section');
+    const btn = document.getElementById('edit-toggle-btn');
+    if (sec.style.display === 'none') {
+      // Pre-fill from current receipt
+      document.getElementById('edit-name').value   = document.getElementById('r-name').textContent.trim();
+      document.getElementById('edit-mobile').value = document.getElementById('r-mobile').textContent.trim();
+      const amtTxt = document.getElementById('r-amount').textContent.replace(/[₹,]/g,'').trim();
+      document.getElementById('edit-amount').value = isNaN(Number(amtTxt)) ? '' : amtTxt;
+      sec.style.display = 'block';
+      btn.textContent   = '▲ Close Edit';
+    } else {
+      sec.style.display = 'none';
+      btn.textContent   = '✏️ Edit Entry';
+    }
+  }
+
+  async function saveEdits() {
+    const name       = document.getElementById('edit-name').value.trim();
+    const mobile     = document.getElementById('edit-mobile').value.trim();
+    const amount     = document.getElementById('edit-amount').value.trim();
+    const receiptNum = document.getElementById('receipt-num').textContent.trim();
+    const statusEl   = document.getElementById('edit-status');
+
+    if (!name || !mobile || !amount) { statusEl.textContent = 'Please fill all fields.'; statusEl.style.color='#ef4444'; return; }
+    if (!/^\d{10}$/.test(mobile))   { statusEl.textContent = 'Enter valid 10-digit mobile.'; statusEl.style.color='#ef4444'; return; }
+
+    statusEl.textContent = 'Saving…'; statusEl.style.color = '#9ca3af';
+    try {
+      // Use GET so we can read the response (POST no-cors is write-only)
+      const url = `${SHEET_URL}?action=update&receiptNum=${encodeURIComponent(receiptNum)}&name=${encodeURIComponent(name)}&mobile=${encodeURIComponent(mobile)}&amount=${encodeURIComponent(amount)}`;
+      const res  = await fetch(url);
+      const json = await res.json();
+
+      if (json.status === 'updated') {
+        // Update local cache
+        Object.keys(_roomCache).forEach(k => {
+          if (_roomCache[k].receiptNum === receiptNum) {
+            _roomCache[k].name   = name;
+            _roomCache[k].amount = amount;
+          }
+        });
+        // Update receipt card
+        document.getElementById('r-name').textContent   = name;
+        document.getElementById('r-mobile').textContent = mobile;
+        document.getElementById('r-amount').textContent = '₹' + Number(amount).toLocaleString('en-IN');
+        statusEl.textContent = '✓ Updated in sheet!'; statusEl.style.color = '#16a34a';
+        setTimeout(() => {
+          document.getElementById('edit-section').style.display = 'none';
+          document.getElementById('edit-toggle-btn').textContent = '✏️ Edit Entry';
+        }, 1500);
+      } else {
+        statusEl.textContent = 'Row not found in sheet.'; statusEl.style.color = '#ef4444';
+      }
+    } catch(err) {
+      statusEl.textContent = 'Update failed. Check connection.'; statusEl.style.color = '#ef4444';
+    }
+  }
+
+  function showSavedToast(msg) {
+    const t = document.createElement('div');
+    t.innerHTML = `✓ &nbsp;${msg}`;
+    t.style.cssText = 'position:fixed;top:24px;left:50%;transform:translateX(-50%);background:#1c1917;color:#fff;padding:12px 22px;border-radius:12px;font-size:14px;font-weight:700;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,0.3);white-space:nowrap;';
+    document.body.appendChild(t);
+    setTimeout(() => t.remove(), 3000);
+  }
+
+  function newEntry() {
+    // Reset all form fields
+    ['wing','floor','room','fullname','mobile','amount'].forEach(id => {
+      document.getElementById(id).value = '';
+    });
+    // Reset room dropdown
+    const roomSel = document.getElementById('room');
+    roomSel.innerHTML = '<option value="">—</option>';
+    // Reset NA toggle
+    document.getElementById('not-available').checked = false;
+    toggleNA();
+    // Clear errors
+    document.querySelectorAll('.input-error').forEach(el => el.classList.remove('input-error'));
+    document.querySelectorAll('.error-msg').forEach(el => el.remove());
+    // Scroll to top
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // Capture receipt card as canvas → PDF blob
+  async function getReceiptPDFBlob() {
+    const card = document.getElementById('receipt-card');
+    const canvas = await html2canvas(card, { scale: 3, useCORS: true, backgroundColor: '#ffffff' });
+    const imgData = canvas.toDataURL('image/png');
+    const { jsPDF } = window.jspdf;
+    const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a5' });
+    const pdfW = pdf.internal.pageSize.getWidth();
+    const pdfH = (canvas.height / canvas.width) * pdfW;
+    pdf.addImage(imgData, 'PNG', 0, 0, pdfW, pdfH);
+    return pdf.output('blob');
+  }
+
+  async function downloadAndShare() {
+    const btn = document.querySelector('.btn-print');
+    const orig = btn.textContent;
+    btn.textContent = '⏳ Processing...';
+    btn.disabled = true;
+    try {
+      const card = document.getElementById('receipt-card');
+      const canvas = await html2canvas(card, { scale: 2, useCORS: true, backgroundColor: '#ffffff', logging: false });
+      const num = document.getElementById('receipt-num').textContent.trim().replace(/\s+/g, '_');
+
+      canvas.toBlob(async (blob) => {
+        const file = new File([blob], `Ganpati_${num}.png`, { type: 'image/png' });
+        // Try native share sheet (opens phone's share menu where user can pick WhatsApp)
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          try {
+            await navigator.share({ files: [file], title: 'Ganpati Decoration Receipt 2026' });
+            btn.textContent = orig; btn.disabled = false;
+            return;
+          } catch(e) {
+            if (e.name === 'AbortError') { btn.textContent = orig; btn.disabled = false; return; }
+          }
+        }
+        // Fallback: download image
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url; a.download = `Ganpati_${num}.png`; a.click();
+        URL.revokeObjectURL(url);
+        btn.textContent = orig; btn.disabled = false;
+      }, 'image/png');
+    } catch(e) {
+      btn.textContent = orig; btn.disabled = false;
+      alert('Could not process receipt image.');
+    }
+  }
+
+
+
+  document.getElementById('modal').addEventListener('click', function(e) {
+    if (e.target === this) closeModal();
+  });
+
+  document.getElementById('mobile').addEventListener('input', function() {
+    this.value = this.value.replace(/\D/g, '').slice(0, 10);
+  });
+
+  // ── STAFF PIN ──
+  const STAFF_PIN = '2026';
+
+  function openLogin() {
+    document.getElementById('login-pass').value = '';
+    document.getElementById('login-err').style.display = 'none';
+    document.getElementById('login-modal').classList.add('open');
+    setTimeout(() => document.getElementById('login-pass').focus(), 100);
+  }
+  function closeLogin() {
+    document.getElementById('login-modal').classList.remove('open');
+  }
+  function doLogin() {
+    const p = document.getElementById('login-pass').value.trim();
+    if (p === STAFF_PIN) {
+      sessionStorage.setItem('dash_auth', '1');
+      closeLogin();
+      showDashboard();
+    } else {
+      document.getElementById('login-err').style.display = 'block';
+      document.getElementById('login-pass').value = '';
+    }
+  }
+  document.getElementById('login-pass').addEventListener('keydown', e => { if (e.key === 'Enter') doLogin(); });
+
+  function logOut() {
+    sessionStorage.removeItem('dash_auth');
+    closeDashboard();
+  }
+
+  // ── DASHBOARD ──
+  function showDashboard() {
+    document.getElementById('main-content').style.display = 'none';
+    document.getElementById('dashboard').style.display = 'block';
+    window.scrollTo(0, 0);
+    loadDashboard();
+  }
+  function closeDashboard() {
+    document.getElementById('dashboard').style.display = 'none';
+    document.getElementById('main-content').style.display = 'block';
+    window.scrollTo(0, 0);
+  }
+
+  async function loadDashboard() {
+    document.getElementById('wing-breakdown').innerHTML = '<div style="text-align:center;color:#d4b49a;font-size:13px;padding:12px 0;">Loading…</div>';
+    document.getElementById('recent-entries').innerHTML = '<div style="text-align:center;color:#d4b49a;font-size:13px;padding:20px;">Loading…</div>';
+    try {
+      const res  = await fetch(SHEET_URL + '?action=getData');
+      const json = await res.json();
+      renderDashboard(json.data || []);
+    } catch(e) {
+      document.getElementById('wing-breakdown').innerHTML = '<div style="text-align:center;color:#ef4444;font-size:13px;padding:12px;">Could not load data. Check connection.</div>';
+      document.getElementById('recent-entries').innerHTML = '';
+    }
+  }
+
+  function fmt(n) { return '₹' + Number(n).toLocaleString('en-IN'); }
+
+  // Normalize dates — Sheets can return Date objects serialized as ISO strings or formatted strings
+  function normDate(d) {
+    if (!d) return '';
+    const parsed = new Date(d);
+    if (!isNaN(parsed.getTime())) {
+      return parsed.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+    }
+    return String(d).trim();
+  }
+
+  let cachedRows = [];
+
+  // Generate every room code in Usha Complex
+  function getAllRooms() {
+    const rooms = new Set();
+    const wings = ['A','B','C','D','E','F','G','H','I','J','K','L'];
+    wings.forEach(wing => {
+      const maxFloor = ['G','H','I','J','K','L'].includes(wing) ? 8 : 7;
+      if (wing === 'F') {
+        ['001','002','003','004'].forEach(r => rooms.add(`F-${r}`));
+      }
+      for (let f = 1; f <= maxFloor; f++) {
+        for (let r = 1; r <= 4; r++) {
+          rooms.add(`${wing}-${f}${String(r).padStart(2,'0')}`);
+        }
+      }
+    });
+    return rooms; // 364 total
+  }
+  let activeDate = null; // null = all dates
+
+  function renderDashboard(rows) {
+    // Normalize all dates once
+    cachedRows = rows.map(r => ({ ...r, date: normDate(r.date) }));
+
+    // Today in same format
+    const today = normDate(new Date());
+
+    // Build unique date chips (sorted newest first)
+    const uniqueDates = [...new Set(cachedRows.map(r => r.date).filter(Boolean))];
+    uniqueDates.sort((a, b) => new Date(b) - new Date(a));
+
+    const chipsEl = document.getElementById('date-chips');
+    if (uniqueDates.length === 0) {
+      chipsEl.innerHTML = '<div style="color:#d4b49a;font-size:13px;">No entries yet</div>';
+    } else {
+      chipsEl.innerHTML = [
+        `<button onclick="selectDate(null)" id="chip-all" style="${chipStyle(true)}">All</button>`,
+        ...uniqueDates.map(d =>
+          `<button onclick="selectDate('${d}')" id="chip-${d.replace(/\s/g,'_')}" style="${chipStyle(false)}">${d}</button>`)
+      ].join('');
+    }
+
+    activeDate = null;
+    renderStats(cachedRows, today);
+  }
+
+  function chipStyle(active) {
+    return active
+      ? 'background:linear-gradient(135deg,#f97316,#fbbf24);color:#fff;border:none;padding:7px 14px;border-radius:20px;font-size:12px;font-weight:700;cursor:pointer;'
+      : 'background:#fff;color:#f97316;border:1.5px solid #fed7aa;padding:7px 14px;border-radius:20px;font-size:12px;font-weight:600;cursor:pointer;';
+  }
+
+  function selectDate(date) {
+    activeDate = date;
+    // Update chip styles
+    document.querySelectorAll('#date-chips button').forEach(btn => {
+      btn.style.cssText = chipStyle(false);
+    });
+    const activeId = date ? 'chip-' + date.replace(/\s/g,'_') : 'chip-all';
+    const activeEl = document.getElementById(activeId);
+    if (activeEl) activeEl.style.cssText = chipStyle(true);
+
+    const today = normDate(new Date());
+    const filtered = date ? cachedRows.filter(r => r.date === date) : cachedRows;
+    renderStats(filtered, today, date);
+  }
+
+  function renderStats(rows, today, selectedDate) {
+    let total = 0, todayAmt = 0, todayCount = 0;
+    const wings = {};
+    const visitedRooms = new Set(); // rooms that have ANY entry (collected or NA)
+
+    rows.forEach(r => {
+      if (r.roomCode) visitedRooms.add(String(r.roomCode));
+      const amt = Number(r.amount) || 0;
+      total += amt;
+      const wing = (r.wing || (r.roomCode || '?').charAt(0)).toString().toUpperCase();
+      if (!wings[wing]) wings[wing] = { total: 0, count: 0 };
+      wings[wing].total += amt;
+      wings[wing].count++;
+      if (r.date === today) { todayAmt += amt; todayCount++; }
+    });
+
+    // Pending = all rooms not yet visited at all
+    const allRooms    = getAllRooms();
+    const pendingRooms = [...allRooms].filter(rc => !visitedRooms.has(rc));
+    const naList2      = rows.filter(r => (r.status || '') === 'Not Available');
+
+    document.getElementById('stat-total').textContent       = fmt(total);
+    document.getElementById('stat-count').textContent       = rows.filter(r => (r.status||'Collected') !== 'Not Available').length;
+    document.getElementById('stat-today').textContent       = fmt(todayAmt);
+    document.getElementById('stat-today-count').textContent = todayCount;
+    document.getElementById('stat-pending').textContent     = pendingRooms.length;
+    document.getElementById('stat-na').textContent          = naList2.length;
+    document.getElementById('pending-label').textContent    = `${pendingRooms.length} of ${allRooms.size} rooms`;
+
+    // Wing breakdown
+    const sortedWings = Object.entries(wings).sort((a,b) => b[1].total - a[1].total);
+    if (sortedWings.length === 0) {
+      document.getElementById('wing-breakdown').innerHTML = '<div style="text-align:center;color:#d4b49a;font-size:13px;padding:12px;">No data</div>';
+    } else {
+      const maxAmt = sortedWings[0][1].total;
+      document.getElementById('wing-breakdown').innerHTML = sortedWings.map(([wing, d]) => {
+        const pct = maxAmt > 0 ? Math.round((d.total / maxAmt) * 100) : 0;
+        return `<div style="margin-bottom:12px;">
+          <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:4px;">
+            <span style="font-weight:700;color:#1c1917;">Wing ${wing}</span>
+            <span style="color:#78716c;">${d.count} entr${d.count===1?'y':'ies'} · <strong style="color:#f97316;">${fmt(d.total)}</strong></span>
+          </div>
+          <div style="height:8px;background:#fef3e2;border-radius:4px;overflow:hidden;">
+            <div style="height:100%;width:${pct}%;background:linear-gradient(90deg,#f97316,#fbbf24);border-radius:4px;"></div>
+          </div>
+        </div>`;
+      }).join('');
+    }
+
+    // Split collected vs NA
+    const collected = rows.filter(r => (r.status || 'Collected') !== 'Not Available');
+    const naList    = rows.filter(r => (r.status || '') === 'Not Available');
+
+    // Override stats to use only collected rows
+    let cTotal = 0; const cWings = {};
+    collected.forEach(r => {
+      const amt = Number(r.amount) || 0; cTotal += amt;
+    });
+
+    // Recent collected entries (latest 20)
+    const recent = [...collected].reverse().slice(0, 20);
+    if (recent.length === 0) {
+      document.getElementById('recent-entries').innerHTML = '<div style="text-align:center;color:#d4b49a;font-size:13px;padding:20px;">No entries</div>';
+    } else {
+      document.getElementById('recent-entries').innerHTML = recent.map((r, i) => `
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:11px 16px;${i < recent.length-1 ? 'border-bottom:1px solid #fef3e2;' : ''}">
+          <div>
+            <div style="font-size:13px;font-weight:700;color:#1c1917;">${r.name || '—'}</div>
+            <div style="font-size:11px;color:#a8a29e;margin-top:2px;">${r.roomCode || '—'} · ${r.date || '—'}</div>
+          </div>
+          <div style="font-size:15px;font-weight:800;color:#f97316;">${fmt(r.amount)}</div>
+        </div>`).join('');
+    }
+
+    // Not Available list
+    if (naList.length === 0) {
+      document.getElementById('na-entries').innerHTML = '<div style="text-align:center;color:#d4b49a;font-size:13px;padding:16px;">None</div>';
+    } else {
+      document.getElementById('na-entries').innerHTML = [...naList].reverse().map((r, i) => `
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:11px 16px;${i < naList.length-1 ? 'border-bottom:1px solid #f3f4f6;' : ''}">
+          <div>
+            <div style="font-size:13px;font-weight:700;color:#6b7280;">🚪 ${r.roomCode || '—'}</div>
+            <div style="font-size:11px;color:#a8a29e;margin-top:2px;">Visited ${r.date || '—'}</div>
+          </div>
+          <div style="font-size:12px;font-weight:700;color:#9ca3af;background:#f3f4f6;padding:4px 10px;border-radius:8px;">Not Available</div>
+        </div>`).join('');
+    }
+
+    // Pending rooms (not visited at all) — grouped by wing
+    if (pendingRooms.length === 0) {
+      document.getElementById('pending-entries').innerHTML = '<div style="text-align:center;color:#16a34a;font-size:13px;padding:16px;font-weight:700;">🎉 All rooms visited!</div>';
+    } else {
+      // Group by wing
+      const byWing = {};
+      pendingRooms.forEach(rc => {
+        const w = rc.charAt(0);
+        if (!byWing[w]) byWing[w] = [];
+        byWing[w].push(rc);
+      });
+      document.getElementById('pending-entries').innerHTML = Object.entries(byWing).sort().map(([wing, rooms]) => `
+        <div style="border-bottom:1px solid #fef3e2;">
+          <div style="padding:8px 16px 4px;font-size:11px;font-weight:800;color:#92400e;letter-spacing:1px;text-transform:uppercase;background:#fff8f0;">Wing ${wing} · ${rooms.length} pending</div>
+          <div style="padding:8px 16px;display:flex;flex-wrap:wrap;gap:6px;">
+            ${rooms.map(rc => `<span style="font-size:12px;font-weight:700;color:#d97706;background:#fef3c7;padding:3px 8px;border-radius:6px;">${rc}</span>`).join('')}
+          </div>
+        </div>`).join('');
+    }
+  }
+</script>
+
+
+</body>
+</html>

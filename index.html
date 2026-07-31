@@ -1285,6 +1285,8 @@
   let _entryType = null;
   // Current open receipt number (used by saveEdits)
   let _currentReceiptNum = null;
+  // Drive link for currently open receipt (set from sheet data — skips re-upload)
+  let _currentDriveLink = null;
 
   // Local cache: roomCode → entry (for instant duplicate detection)
   const _roomCache = {};
@@ -1534,6 +1536,7 @@
       newEntry();
     } else {
       _currentReceiptNum = receiptNum;
+      _currentDriveLink  = null; // new receipt — no Drive link yet
       document.getElementById('receipt-num').textContent = receiptNum;
       document.getElementById('modal').classList.add('open'); document.body.style.overflow='hidden'; document.body.style.position='fixed'; document.body.style.width='100%';
     }
@@ -1673,23 +1676,9 @@
   async function shareWhatsApp() {
     const btn = document.getElementById('btn-share');
     const origHTML = btn.innerHTML;
-    btn.innerHTML = '⏳ Uploading…'; btn.disabled = true;
+    btn.innerHTML = '⏳ Preparing…'; btn.disabled = true;
     try {
-      const card = document.getElementById('receipt-card');
-      card.scrollIntoView({ behavior: 'instant', block: 'start' });
-      await new Promise(r => setTimeout(r, 80));
-
-      // Generate PDF from receipt card
-      const canvas  = await html2canvas(card, { scale: 3, useCORS: true, backgroundColor: '#ffffff', logging: false, scrollX: 0, scrollY: -window.scrollY });
-      const imgData = canvas.toDataURL('image/png');
-      const { jsPDF } = window.jspdf;
-      const mmW = 90;
-      const mmH = (canvas.height / canvas.width) * mmW;
-      const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: [mmW, mmH] });
-      pdf.addImage(imgData, 'PNG', 0, 0, mmW, mmH);
-      const b64 = pdf.output('datauristring').split(',')[1];
-
-      // Get receipt data from DOM
+      // Get receipt data from DOM first
       const receiptNum = document.getElementById('receipt-num').textContent.trim();
       const name       = document.getElementById('r-name').textContent.trim();
       const mobile     = document.getElementById('r-mobile').textContent.trim().replace(/\D/g, '');
@@ -1699,16 +1688,38 @@
       const roomCode   = isResident ? (document.getElementById('r-location').textContent.trim()) : '';
       const date       = document.getElementById('r-date').textContent.trim();
 
-      // Upload to Drive
-      const resp = await fetch(SHEET_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'text/plain' },
-        body: JSON.stringify({ action: 'uploadPDF', pdf: b64, data: { receiptNum, name, mobile, roomCode } })
-      });
-      const result = await resp.json();
-      if (result.status !== 'ok') throw new Error(result.message || 'Upload failed');
+      // Use sheet-stored link → localStorage cache → upload as last resort
+      let driveLink = _currentDriveLink || localStorage.getItem('driveLink_' + receiptNum);
 
-      const driveLink = result.link;
+      if (!driveLink) {
+        btn.innerHTML = '⏳ Uploading…';
+        const card = document.getElementById('receipt-card');
+        card.scrollIntoView({ behavior: 'instant', block: 'start' });
+        await new Promise(r => setTimeout(r, 80));
+
+        // Generate PDF from receipt card
+        const canvas  = await html2canvas(card, { scale: 3, useCORS: true, backgroundColor: '#ffffff', logging: false, scrollX: 0, scrollY: -window.scrollY });
+        const imgData = canvas.toDataURL('image/png');
+        const { jsPDF } = window.jspdf;
+        const mmW = 90;
+        const mmH = (canvas.height / canvas.width) * mmW;
+        const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: [mmW, mmH] });
+        pdf.addImage(imgData, 'PNG', 0, 0, mmW, mmH);
+        const b64 = pdf.output('datauristring').split(',')[1];
+
+        // Upload to Drive
+        const resp = await fetch(SHEET_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'text/plain' },
+          body: JSON.stringify({ action: 'uploadPDF', pdf: b64, data: { receiptNum, name, mobile, roomCode } })
+        });
+        const result = await resp.json();
+        if (result.status !== 'ok') throw new Error(result.message || 'Upload failed');
+
+        driveLink = result.link;
+        _currentDriveLink = driveLink;
+        localStorage.setItem('driveLink_' + receiptNum, driveLink);
+      }
       const msg = encodeURIComponent(
 `नमस्कार ${name} जी! 🙏
 
@@ -2081,6 +2092,7 @@ ${driveLink}
     const pmEl = document.getElementById('r-paymode');
     if (pmEl) pmEl.textContent = r.paymentMode || '—';
     _currentReceiptNum = r.receiptNum || null;
+    _currentDriveLink  = r.driveLink  || null;
     document.getElementById('modal').classList.add('open'); document.body.style.overflow='hidden'; document.body.style.position='fixed'; document.body.style.width='100%';
   }
 

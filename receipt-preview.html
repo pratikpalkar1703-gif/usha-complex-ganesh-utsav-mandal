@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="mr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Receipt Preview</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;600;700;800&family=Libre+Baskerville:wght@400;700&display=swap" rel="stylesheet">
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  background: #1a1a1a;
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center; min-height: 100vh; padding: 40px 20px;
+  font-family: 'Noto Sans Devanagari', sans-serif;
+}
+.page {
+  width: 900px; background: #FFFDF5;
+  border: 1px solid #C9A84C;
+  position: relative; overflow: hidden;
+}
+
+/* ── MAROON TOP BAND ── */
+.top-band {
+  background: #7B1D1D;
+  padding: 10px 0;
+  text-align: center;
+  color: #FFE599;
+  font-size: 15px;
+  letter-spacing: 2px;
+  font-family: 'Noto Sans Devanagari', sans-serif;
+  font-weight: 600;
+}
+
+/* ── HEADER ── */
+.header {
+  background: linear-gradient(135deg, #7B1D1D 0%, #9B2626 50%, #7B1D1D 100%);
+  padding: 28px 40px 24px;
+  text-align: center;
+  position: relative;
+}
+.header::before, .header::after {
+  content: '';
+  position: absolute; top: 50%; transform: translateY(-50%);
+  width: 60px; height: 60px;
+  border: 2px solid rgba(212,175,55,0.4);
+  border-radius: 50%;
+}
+.header::before { left: 30px; }
+.header::after  { right: 30px; }
+
+.org-name {
+  font-family: 'Noto Sans Devanagari', sans-serif;
+  font-size: 42px; font-weight: 800;
+  color: #FFE599;
+  line-height: 1.1;
+  letter-spacing: 1px;
+}
+.org-sub {
+  font-family: 'Noto Sans Devanagari', sans-serif;
+  font-size: 22px; font-weight: 600;
+  color: #F5D78E;
+  margin-top: 4px;
+}
+.org-addr {
+  font-family: 'Noto Sans Devanagari', sans-serif;
+  font-size: 13px; color: rgba(255,229,153,0.75);
+  margin-top: 8px; letter-spacing: 0.5px;
+}
+.gold-line {
+  border: none; border-top: 1px solid rgba(212,175,55,0.5);
+  margin: 12px auto 0; width: 60%;
+}
+
+/* ── RECEIPT META BAR ── */
+.meta-bar {
+  background: #FBF6E8;
+  border-top: 3px solid #C9A84C;
+  border-bottom: 3px solid #C9A84C;
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 14px 40px;
+}
+.meta-item { text-align: center; }
+.meta-label {
+  font-family: 'Noto Sans Devanagari', sans-serif;
+  font-size: 11px; font-weight: 600;
+  color: #7B1D1D; letter-spacing: 1.5px; text-transform: uppercase;
+}
+.meta-value {
+  font-family: 'Libre Baskerville', serif;
+  font-size: 18px; font-weight: 700;
+  color: #2C1810; margin-top: 2px;
+}
+.meta-divider { width: 1px; height: 40px; background: #C9A84C; opacity: 0.5; }
+
+/* ── BODY ── */
+.body { padding: 36px 40px; }
+
+/* ── RECEIPT TITLE ── */
+.receipt-title {
+  text-align: center;
+  font-family: 'Noto Sans Devanagari', sans-serif;
+  font-size: 17px; font-weight: 700;
+  color: #7B1D1D;
+  letter-spacing: 3px;
+  margin-bottom: 28px;
+  display: flex; align-items: center; gap: 16px;
+}
+.receipt-title::before, .receipt-title::after {
+  content: ''; flex: 1; height: 1px; background: #C9A84C;
+}
+
+/* ── FIELDS ── */
+.fields { display: flex; flex-direction: column; gap: 0; }
+
+.field-row {
+  display: flex; align-items: stretch;
+  border-bottom: 1px solid #E8D9B0;
+}
+.field-row:first-child { border-top: 1px solid #E8D9B0; }
+
+.field-label-wrap {
+  width: 220px; flex-shrink: 0;
+  background: #7B1D1D;
+  padding: 18px 20px;
+  display: flex; flex-direction: column; justify-content: center;
+}
+.field-label-mar {
+  font-family: 'Noto Sans Devanagari', sans-serif;
+  font-size: 17px; font-weight: 700; color: #FFE599;
+}
+.field-label-eng {
+  font-size: 11px; color: rgba(255,229,153,0.65);
+  letter-spacing: 1px; margin-top: 2px;
+  font-family: 'Libre Baskerville', serif;
+}
+
+.field-value-wrap {
+  flex: 1; padding: 18px 24px;
+  display: flex; align-items: center;
+  background: #FFFDF5;
+  position: relative;
+}
+.field-value {
+  font-family: 'Libre Baskerville', serif;
+  font-size: 24px; font-weight: 700;
+  color: #2C1810;
+}
+.field-value.amount {
+  font-size: 28px; color: #7B1D1D;
+}
+
+.field-dot-line {
+  position: absolute; bottom: 10px; left: 24px; right: 24px;
+  border-bottom: 1.5px dashed #C9A84C; opacity: 0.5;
+}
+
+/* ── AMOUNT HIGHLIGHT ── */
+.amount-highlight {
+  background: #7B1D1D;
+  border-radius: 8px;
+  padding: 20px 28px;
+  margin-top: 28px;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.amount-label {
+  font-family: 'Noto Sans Devanagari', sans-serif;
+  font-size: 18px; font-weight: 700; color: #FFE599;
+}
+.amount-label-sub { font-size: 12px; color: rgba(255,229,153,0.65); margin-top: 2px; }
+.amount-big {
+  font-family: 'Libre Baskerville', serif;
+  font-size: 42px; font-weight: 700;
+  color: #FFE599; letter-spacing: 1px;
+}
+
+/* ── FOOTER ── */
+.footer {
+  padding: 28px 40px 0;
+  border-top: 2px solid #C9A84C;
+  display: flex; justify-content: space-between; align-items: flex-start;
+}
+.sig-block { text-align: center; width: 200px; }
+.sig-line {
+  border-top: 1.5px solid #2C1810;
+  margin-bottom: 8px;
+}
+.sig-label {
+  font-family: 'Noto Sans Devanagari', sans-serif;
+  font-size: 13px; font-weight: 600; color: #7B1D1D;
+}
+
+.stamp-area {
+  width: 100px; height: 70px;
+  border: 1.5px dashed #C9A84C;
+  border-radius: 4px;
+  display: flex; align-items: center; justify-content: center;
+}
+.stamp-label {
+  font-family: 'Noto Sans Devanagari', sans-serif;
+  font-size: 11px; color: #C9A84C; text-align: center;
+}
+
+/* ── BOTTOM BAND ── */
+.bottom-band {
+  background: #7B1D1D;
+  padding: 14px 0 12px;
+  text-align: center;
+  margin-top: 28px;
+  color: #FFE599;
+  font-family: 'Noto Sans Devanagari', sans-serif;
+  font-size: 16px; font-weight: 700;
+  letter-spacing: 2px;
+}
+
+/* ── PRINT / DOWNLOAD ── */
+.actions {
+  margin-top: 24px; display: flex; gap: 12px;
+}
+.btn {
+  padding: 12px 28px; border: none; border-radius: 6px;
+  font-size: 15px; cursor: pointer; font-family: sans-serif;
+}
+.btn-primary { background: #7B1D1D; color: #FFE599; }
+.btn-secondary { background: #333; color: #fff; }
+
+@media print {
+  body { background: white; padding: 0; }
+  .actions { display: none; }
+  .page { border: none; }
+}
+</style>
+</head>
+<body>
+
+<div class="page" id="receipt">
+
+  <div class="top-band">॥ श्री गणेशाय नमः ॥</div>
+
+  <div class="header">
+    <div class="org-name">उषा कॉम्प्लेक्स</div>
+    <div class="org-sub">गणेश उत्सव मंडळ</div>
+    <hr class="gold-line">
+    <div class="org-addr">साकीनाका, अंधेरी पूर्व, मुंबई - ४०००७२</div>
+  </div>
+
+  <div class="meta-bar">
+    <div class="meta-item">
+      <div class="meta-label">पावती क्रमांक</div>
+      <div class="meta-value" id="v-receipt">GD-2026-001</div>
+    </div>
+    <div class="meta-divider"></div>
+    <div class="meta-item">
+      <div class="meta-label">वर्ष • Year</div>
+      <div class="meta-value">२०२६</div>
+    </div>
+    <div class="meta-divider"></div>
+    <div class="meta-item">
+      <div class="meta-label">दिनांक • Date</div>
+      <div class="meta-value" id="v-date">09 / 07 / 2026</div>
+    </div>
+    <div class="meta-divider"></div>
+    <div class="meta-item">
+      <div class="meta-label">वेळ • Time</div>
+      <div class="meta-value" id="v-time">11:30 AM</div>
+    </div>
+  </div>
+
+  <div class="body">
+    <div class="receipt-title">देणगी पावती &nbsp;·&nbsp; Donation Receipt</div>
+
+    <div class="fields">
+
+      <div class="field-row">
+        <div class="field-label-wrap">
+          <div class="field-label-mar">नाव</div>
+          <div class="field-label-eng">NAME</div>
+        </div>
+        <div class="field-value-wrap">
+          <div class="field-value" id="v-name">Ramesh Patil</div>
+          <div class="field-dot-line"></div>
+        </div>
+      </div>
+
+      <div class="field-row">
+        <div class="field-label-wrap">
+          <div class="field-label-mar">रूम क्रमांक</div>
+          <div class="field-label-eng">ROOM NO.</div>
+        </div>
+        <div class="field-value-wrap">
+          <div class="field-value" id="v-room">A - 101</div>
+          <div class="field-dot-line"></div>
+        </div>
+      </div>
+
+      <div class="field-row">
+        <div class="field-label-wrap">
+          <div class="field-label-mar">रकम</div>
+          <div class="field-label-eng">AMOUNT</div>
+        </div>
+        <div class="field-value-wrap">
+          <div class="field-value amount" id="v-amount">₹ 501 /-</div>
+          <div class="field-dot-line"></div>
+        </div>
+      </div>
+
+      <div class="field-row">
+        <div class="field-label-wrap">
+          <div class="field-label-mar">रोख / ऑनलाइन</div>
+          <div class="field-label-eng">PAYMENT MODE</div>
+        </div>
+        <div class="field-value-wrap">
+          <div class="field-value" id="v-mode">Cash</div>
+          <div class="field-dot-line"></div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="amount-highlight">
+      <div>
+        <div class="amount-label">एकूण रकम स्वीकारली</div>
+        <div class="amount-label-sub">Total Amount Received</div>
+      </div>
+      <div class="amount-big" id="v-amount-big">₹ 501 /-</div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <div class="sig-block">
+      <div style="height:48px"></div>
+      <div class="sig-line"></div>
+      <div class="sig-label">अध्यक्ष सही<br><span style="font-size:11px;color:#888">President</span></div>
+    </div>
+    <div class="stamp-area">
+      <div class="stamp-label">शिक्का<br>Stamp</div>
+    </div>
+    <div class="sig-block">
+      <div style="height:48px"></div>
+      <div class="sig-line"></div>
+      <div class="sig-label">खजिनदार सही<br><span style="font-size:11px;color:#888">Treasurer</span></div>
+    </div>
+  </div>
+
+  <div class="bottom-band">॥ गणपती बाप्पा मोरया &nbsp;·&nbsp; मंगलमूर्ती मोरया ॥</div>
+
+</div>
+
+<div class="actions">
+  <button class="btn btn-primary" onclick="window.print()">🖨️ Print / Save PDF</button>
+  <button class="btn btn-secondary" onclick="downloadImg()">📥 Download Image</button>
+</div>
+
+<script>
+// Pre-fill with URL params if provided: ?name=X&room=Y&amount=Z&receipt=W&date=D
+const p = new URLSearchParams(location.search);
+if(p.get('name'))    document.getElementById('v-name').textContent    = p.get('name');
+if(p.get('room'))    document.getElementById('v-room').textContent    = p.get('room');
+if(p.get('amount')) {
+  const a = '₹ ' + Number(p.get('amount')).toLocaleString('en-IN') + ' /-';
+  document.getElementById('v-amount').textContent     = a;
+  document.getElementById('v-amount-big').textContent = a;
+}
+if(p.get('receipt')) document.getElementById('v-receipt').textContent = p.get('receipt');
+if(p.get('date'))    document.getElementById('v-date').textContent    = p.get('date');
+if(p.get('time'))    document.getElementById('v-time').textContent    = p.get('time');
+
+async function downloadImg() {
+  const el = document.getElementById('receipt');
+  // Simple: open print dialog
+  window.print();
+}
+</script>
+</body>
+</html>
