@@ -825,7 +825,7 @@
   <div class="modal">
 
     <!-- Printable / shareable receipt card -->
-    <div id="receipt-card" style="width:100%;background:#fffdf5;border-radius:0 0 18px 18px;overflow:hidden;box-shadow:none;margin:0 0 20px 0;font-family:'Plus Jakarta Sans',system-ui,sans-serif;">
+    <div id="receipt-card" style="width:100%;background:#fffdf5;border-radius:0;overflow:hidden;box-shadow:none;margin:0;font-family:'Plus Jakarta Sans',system-ui,sans-serif;">
 
       <!-- header -->
       <div style="background:linear-gradient(170deg,#6b1717 0%,#7f1d1d 30%,#9f1239 65%,#a83218 100%);padding:18px 20px 0;text-align:center;position:relative;overflow:hidden;">
@@ -884,7 +884,7 @@
       </div>
 
       <!-- amount box -->
-      <div id="rc-amount-box" style="margin:10px 16px 14px;background:linear-gradient(160deg,#fefce8 0%,#fef9e7 40%,#fef3c7 100%);border:2.5px solid #d97706;border-radius:18px;padding:22px 20px 20px;text-align:center;box-shadow:inset 0 1px 6px rgba(217,119,6,0.08),0 2px 12px rgba(217,119,6,0.12);">
+      <div id="rc-amount-box" style="margin:10px 16px 14px;background:linear-gradient(160deg,#fefce8 0%,#fef9e7 40%,#fef3c7 100%);border:2.5px solid #d97706;border-radius:0;padding:22px 20px 20px;text-align:center;box-shadow:inset 0 1px 6px rgba(217,119,6,0.08),0 2px 12px rgba(217,119,6,0.12);">
         <div id="rc-amount-label" style="font-size:10px;font-weight:800;color:#1c1917;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;font-size:13px;white-space:nowrap;">Contribution Amount</div>
         <div id="r-amount" style="font-size:48px;font-weight:900;color:#1c1917;letter-spacing:-1px;line-height:1;font-feature-settings:'pnum' 1,'tnum' 0;">₹0</div>
         <div id="r-amount-words" style="display:none;"></div>
@@ -1589,7 +1589,7 @@
       navigator.clipboard.writeText(mobile).catch(() => {});
     }
 
-    const receiptNum = isNA ? `NA-${dateStr}-${wing}-${room}` : `Receipt #${pad(receiptCount++)}`;
+    const receiptNum = isNA ? `UCR-${wing}-${room}-NA` : isOthers ? `UCNR-${pad(receiptCount++)}` : `UCR-${wing}-${room}-${pad(receiptCount++)}`;
     const verEl = document.getElementById('r-verified-id');
     if (verEl) verEl.textContent = 'संगणकीय पावती – भौतिक शिक्का आवश्यक नाही · Computer-generated receipt';
     saveToSheet({
@@ -1615,8 +1615,7 @@
       _fromDashboard     = false;
       localStorage.removeItem('driveLink_' + receiptNum); // clear stale cache from previous sessions
       document.getElementById('receipt-num').textContent = receiptNum;
-      const _uc26 = isNA ? `UC26-${wing}-${room}-NA` : `UC26-${wing}-${room}-${pad(receiptCount-1)}`;
-      document.getElementById('receipt-num-uc26').textContent = _uc26;
+      document.getElementById('receipt-num-uc26').textContent = receiptNum;
       document.getElementById('modal').classList.add('open'); document.body.style.overflow='hidden'; document.body.style.position='fixed'; document.body.style.width='100%';
     }
   }
@@ -2188,8 +2187,9 @@ ${driveLink}
     const isNA    = r.status === 'Not Available';
 
     document.getElementById('receipt-num').textContent  = r.receiptNum || '—';
-    const _uc26m = String(r.receiptNum || '').match(/(\d+)/);
-    const _uc26  = _uc26m ? `UC26-${r.roomCode || 'OTH'}-${_uc26m[1].padStart(3,'0')}` : (r.receiptNum || '—');
+    const _rn    = r.receiptNum || '—';
+    const _uc26m = _rn.startsWith('Receipt #') ? _rn.match(/(\d+)/) : null;
+    const _uc26  = _uc26m ? `UC26-${r.roomCode || 'OTH'}-${_uc26m[1].padStart(3,'0')}` : _rn;
     document.getElementById('receipt-num-uc26').textContent = _uc26;
     document.getElementById('r-date').textContent       = r.date || '—';
     document.getElementById('r-name').textContent       = r.name || '—';
