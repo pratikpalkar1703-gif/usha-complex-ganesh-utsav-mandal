@@ -630,7 +630,6 @@
   <!-- ── TYPE CHOOSER ── -->
   <div id="type-chooser">
     <div style="text-align:center;margin-bottom:26px;">
-      <div style="font-size:11px;font-weight:800;color:#9f1239;letter-spacing:2.5px;text-transform:uppercase;margin-bottom:8px;">🌸 &nbsp; Ganpati Decoration 2026 &nbsp; 🌸</div>
       <div style="font-size:22px;font-weight:900;color:#1c1917;letter-spacing:-0.5px;margin-bottom:6px;">नवीन देणगी नोंद</div>
       <div style="font-size:13px;font-weight:500;color:#a8a29e;letter-spacing:0.3px;">New donation entry — select donor type</div>
     </div>
@@ -883,7 +882,7 @@
 
       <!-- amount box -->
       <div id="rc-amount-box" style="margin:10px 16px 14px;background:linear-gradient(160deg,#fefce8 0%,#fef9e7 40%,#fef3c7 100%);border:2.5px solid #d97706;border-radius:18px;padding:22px 20px 20px;text-align:center;box-shadow:inset 0 1px 6px rgba(217,119,6,0.08),0 2px 12px rgba(217,119,6,0.12);">
-        <div id="rc-amount-label" style="font-size:10px;font-weight:800;color:#1c1917;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;font-size:13px;white-space:nowrap;">योगदान रक्कम / Contribution Amount</div>
+        <div id="rc-amount-label" style="font-size:10px;font-weight:800;color:#1c1917;letter-spacing:2px;text-transform:uppercase;margin-bottom:10px;font-size:13px;white-space:nowrap;">Contribution Amount</div>
         <div id="r-amount" style="font-size:48px;font-weight:900;color:#1c1917;letter-spacing:-1px;line-height:1;font-feature-settings:'pnum' 1,'tnum' 0;">₹0</div>
         <div id="r-amount-words" style="display:none;"></div>
       </div>
@@ -1513,7 +1512,7 @@
       amtBox.style.background = 'linear-gradient(160deg,#fefce8 0%,#fef9e7 40%,#fef3c7 100%)'; amtLabel.style.color = '#92400e';
       amtVal.style.color = '#7f1d1d'; amtVal.style.fontSize = '82px';
       amtVal.textContent = '₹' + Number(amount).toLocaleString('en-IN');
-      if (amtLabel) { amtLabel.textContent = 'योगदान रक्कम / Contribution Amount'; amtLabel.style.whiteSpace = 'nowrap'; }
+      if (amtLabel) { amtLabel.textContent = 'Contribution Amount'; amtLabel.style.whiteSpace = 'nowrap'; }
       document.getElementById('r-amount-words').textContent = '';
     }
 
@@ -2143,7 +2142,7 @@ ${driveLink}
     } else {
       amtBox.style.background = 'linear-gradient(160deg,#fefce8 0%,#fef9e7 40%,#fef3c7 100%)'; amtLabel.style.color = '#92400e';
       amtVal.style.color = '#7f1d1d'; amtVal.style.fontSize = '82px';
-      amtLabel.textContent = 'योगदान रक्कम / Contribution Amount'; amtLabel.style.whiteSpace = 'nowrap';
+      amtLabel.textContent = 'Contribution Amount'; amtLabel.style.whiteSpace = 'nowrap';
       amtVal.textContent = '₹' + Number(r.amount).toLocaleString('en-IN');
     }
 
