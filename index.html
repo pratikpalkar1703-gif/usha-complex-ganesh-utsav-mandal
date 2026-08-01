@@ -607,6 +607,9 @@
 </head>
 <body>
 
+<!-- Offline banner -->
+<div id="offline-banner" style="display:none;position:fixed;top:0;left:0;right:0;z-index:10000;background:#dc2626;color:#fff;font-size:12px;font-weight:700;padding:9px 16px;text-align:center;align-items:center;justify-content:center;gap:10px;"></div>
+
 <div id="main-content">
 
 <!-- HEADER -->
@@ -1366,6 +1369,66 @@
     document.getElementById('payment-mode-field').style.display = '';
   }
 
+  // ── OFFLINE QUEUE ──────────────────────────────
+  const OFFLINE_QUEUE_KEY = 'ucGanesh_offlineQueue';
+
+  function getOfflineQueue() {
+    try { return JSON.parse(localStorage.getItem(OFFLINE_QUEUE_KEY) || '[]'); }
+    catch(e) { return []; }
+  }
+
+  function addToOfflineQueue(payload) {
+    const q = getOfflineQueue();
+    q.push({ ...payload, _queueId: Date.now() + '_' + Math.random() });
+    localStorage.setItem(OFFLINE_QUEUE_KEY, JSON.stringify(q));
+    updateOfflineBanner();
+  }
+
+  async function syncOfflineQueue() {
+    const q = getOfflineQueue();
+    if (!q.length || !navigator.onLine) return;
+    const synced = [];
+    for (const entry of q) {
+      const { _queueId, ...payload } = entry;
+      try {
+        await fetch(SHEET_URL, {
+          method: 'POST', mode: 'no-cors',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        synced.push(_queueId);
+      } catch(e) { break; }
+    }
+    if (synced.length) {
+      const remaining = getOfflineQueue().filter(e => !synced.includes(e._queueId));
+      localStorage.setItem(OFFLINE_QUEUE_KEY, JSON.stringify(remaining));
+      updateOfflineBanner();
+      if (!remaining.length) {
+        showSavedToast(`✅ ${synced.length} pending ${synced.length === 1 ? 'entry' : 'entries'} synced to sheet!`);
+      }
+    }
+  }
+
+  function updateOfflineBanner() {
+    const banner = document.getElementById('offline-banner');
+    if (!banner) return;
+    const q = getOfflineQueue();
+    if (!navigator.onLine) {
+      banner.style.display = 'flex';
+      banner.innerHTML = `<span>📵 Offline – entries are being saved locally</span>${q.length ? `<span style="background:rgba(255,255,255,0.25);border-radius:12px;padding:2px 10px;font-size:11px;margin-left:6px;">${q.length} pending</span>` : ''}`;
+    } else if (q.length) {
+      banner.style.display = 'flex';
+      banner.style.background = '#d97706';
+      banner.innerHTML = `<span>🔄 Syncing ${q.length} pending ${q.length === 1 ? 'entry' : 'entries'} to sheet…</span>`;
+    } else {
+      banner.style.display = 'none';
+    }
+  }
+
+  window.addEventListener('offline', updateOfflineBanner);
+  window.addEventListener('online', () => { updateOfflineBanner(); syncOfflineQueue(); });
+
+  // ── SAVE TO SHEET ──────────────────────────────
   function saveToSheet(payload) {
     if (!SHEET_URL) return;
     // Add to local cache immediately so duplicate check works in same session
@@ -1375,11 +1438,17 @@
         date: payload.date, receiptNum: payload.receiptNum
       };
     }
+    if (!navigator.onLine) {
+      addToOfflineQueue(payload);
+      return;
+    }
     fetch(SHEET_URL, {
       method: 'POST', mode: 'no-cors',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(payload)
-    }).catch(() => {});
+    }).catch(() => {
+      addToOfflineQueue(payload);
+    });
   }
 
   function amtToWords(n) {
@@ -2521,6 +2590,10 @@ let filtered = _dashCollected;
     } catch(e) { console.error(e); alert('Export failed: ' + e.message); }
     finally { btn.textContent = orig; btn.disabled = false; }
   }
+
+  // On load: show banner state and flush any queued entries
+  updateOfflineBanner();
+  if (navigator.onLine) syncOfflineQueue();
 </script>
 </body>
 </html>
