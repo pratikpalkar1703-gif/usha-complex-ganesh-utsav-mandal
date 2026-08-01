@@ -1691,21 +1691,33 @@
       const roomCode   = isResident ? (document.getElementById('r-location').textContent.trim()) : '';
       const date       = document.getElementById('r-date').textContent.trim();
 
-      // 1. Sheet-stored link (set by regenReceipt) or localStorage cache
-      let driveLink = _currentDriveLink || localStorage.getItem('driveLink_' + receiptNum);
-
-      // 2. Dashboard receipt with no cached link → ask server (no PDF generation)
-      if (!driveLink && _fromDashboard) {
-        const res  = await fetch(SHEET_URL + '?action=getLink&receiptNum=' + encodeURIComponent(receiptNum) + '&roomCode=' + encodeURIComponent(roomCode));
-        const json = await res.json();
-        if (json.status === 'ok' && json.link) {
-          driveLink = json.link;
-          _currentDriveLink = driveLink;
-          localStorage.setItem('driveLink_' + receiptNum, driveLink);
+      // 1. In-memory sheet data (most up-to-date, populated by background refresh)
+      if (_fromDashboard && _sheetData) {
+        const entry = _sheetData.find(r => String(r.receiptNum) === String(receiptNum));
+        if (entry && entry.driveLink) {
+          _currentDriveLink = entry.driveLink;
+          localStorage.setItem('driveLink_' + receiptNum, entry.driveLink);
         }
       }
 
-      // 3. Still no link → generate PDF and upload (new receipt or first-ever share)
+      // 2. Cached link (memory, localStorage)
+      let driveLink = _currentDriveLink || localStorage.getItem('driveLink_' + receiptNum);
+
+      // 3. Dashboard receipt still no link → ask server (no PDF, just Drive lookup)
+      if (!driveLink && _fromDashboard) {
+        btn.innerHTML = '⏳ Fetching…';
+        try {
+          const res  = await fetch(SHEET_URL + '?action=getLink&receiptNum=' + encodeURIComponent(receiptNum) + '&roomCode=' + encodeURIComponent(roomCode));
+          const json = await res.json();
+          if (json.status === 'ok' && json.link) {
+            driveLink = json.link;
+            _currentDriveLink = driveLink;
+            localStorage.setItem('driveLink_' + receiptNum, driveLink);
+          }
+        } catch(_) {}
+      }
+
+      // 4. Still no link → generate PDF and upload (new receipt or first-ever share)
       if (!driveLink) {
         btn.innerHTML = '⏳ Uploading…';
         const card = document.getElementById('receipt-card');
