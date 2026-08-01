@@ -1,3 +1,14 @@
 .clasp.json
 .claspignore
 deploy.command
+ganpati/
+*.PNG
+*.png
+*.pdf
+*.command
+.DS_Store
+089A7F1D-BC6F-4DA4-8815-B8F70F9B1740.PNG
+Sample_Receipt.pdf
+get_id.command
+ghpush.command
+push.command

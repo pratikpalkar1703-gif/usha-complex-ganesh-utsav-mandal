@@ -53,8 +53,23 @@ function doPost(e) {
         const existingFiles = folder.getFilesByName(fileName);
         if (existingFiles.hasNext()) {
           const existingFile = existingFiles.next();
+          const existingLink = existingFile.getUrl();
+          // Backfill column 12 if empty
+          try {
+            const sheet2 = getSheet();
+            const lr2 = sheet2.getLastRow();
+            if (lr2 > 1) {
+              const vs = sheet2.getRange(2, 1, lr2 - 1, 12).getValues();
+              for (let i = 0; i < vs.length; i++) {
+                if (String(vs[i][0]) === String(data.data.receiptNum) && !vs[i][11]) {
+                  sheet2.getRange(i + 2, 12).setValue(existingLink);
+                  break;
+                }
+              }
+            }
+          } catch(_) {}
           return ContentService
-            .createTextOutput(JSON.stringify({status:'ok', link: existingFile.getUrl()}))
+            .createTextOutput(JSON.stringify({status:'ok', link: existingLink}))
             .setMimeType(ContentService.MimeType.JSON);
         }
 
@@ -170,6 +185,61 @@ function doPost(e) {
 // ── GET ──
 function doGet(e) {
   const action = e && e.parameter && e.parameter.action;
+
+  // ── GET LINK: look up Drive link for a receipt (no PDF needed) ──
+  if (action === 'getLink') {
+    try {
+      const receiptNum = e.parameter.receiptNum || '';
+      const roomCode   = e.parameter.roomCode   || '';
+      const sheet      = getSheet();
+      const lastRow    = sheet.getLastRow();
+
+      // 1. Check column 12 in sheet first
+      if (lastRow > 1) {
+        const vals = sheet.getRange(2, 1, lastRow - 1, 12).getValues();
+        for (let i = 0; i < vals.length; i++) {
+          if (String(vals[i][0]) === String(receiptNum) && vals[i][11]) {
+            return ContentService
+              .createTextOutput(JSON.stringify({status:'ok', link: vals[i][11]}))
+              .setMimeType(ContentService.MimeType.JSON);
+          }
+        }
+      }
+
+      // 2. Not in sheet — search Drive by filename
+      const wingMatch     = String(roomCode).match(/^([A-La-l])-/i);
+      const subFolderName = wingMatch ? wingMatch[1].toUpperCase() + ' Wing' : 'Non Residents';
+      const fileName      = 'Receipt-' + receiptNum + '-' + roomCode + '.pdf';
+      const parent        = getOrCreateFolder(DRIVE_FOLDER);
+      const subFolder     = getOrCreateSubFolder(parent, subFolderName);
+      const files         = subFolder.getFilesByName(fileName);
+      if (files.hasNext()) {
+        const link = files.next().getUrl();
+        // Save to sheet column 12 for next time
+        if (lastRow > 1) {
+          const vs = sheet.getRange(2, 1, lastRow - 1, 1).getValues();
+          for (let i = 0; i < vs.length; i++) {
+            if (String(vs[i][0]) === String(receiptNum)) {
+              sheet.getRange(i + 2, 12).setValue(link);
+              break;
+            }
+          }
+        }
+        return ContentService
+          .createTextOutput(JSON.stringify({status:'ok', link: link}))
+          .setMimeType(ContentService.MimeType.JSON);
+      }
+
+      // 3. Not found anywhere
+      return ContentService
+        .createTextOutput(JSON.stringify({status:'not_found'}))
+        .setMimeType(ContentService.MimeType.JSON);
+    } catch(err) {
+      return ContentService
+        .createTextOutput(JSON.stringify({status:'error', message: err.toString()}))
+        .setMimeType(ContentService.MimeType.JSON);
+    }
+  }
 
   if (action === 'update') {
     try {
