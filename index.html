@@ -1613,6 +1613,7 @@
       _currentReceiptNum = receiptNum;
       _currentDriveLink  = null;
       _fromDashboard     = false;
+      localStorage.removeItem('driveLink_' + receiptNum); // clear stale cache from previous sessions
       document.getElementById('receipt-num').textContent = receiptNum;
       const _uc26 = isNA ? `UC26-${wing}-${room}-NA` : `UC26-${wing}-${room}-${pad(receiptCount-1)}`;
       document.getElementById('receipt-num-uc26').textContent = _uc26;
@@ -1794,6 +1795,11 @@
 
       // 4. Still no link → generate PDF and upload (new receipt or first-ever share)
       if (!driveLink) {
+        if (!navigator.onLine) {
+          btn.innerHTML = origHTML; btn.disabled = false;
+          alert('📵 No internet connection.\nReceipt saved locally. Tap Share again once you\'re back online to upload and send.');
+          return;
+        }
         btn.innerHTML = '⏳ Uploading…';
         const card = document.getElementById('receipt-card');
         card.scrollIntoView({ behavior: 'instant', block: 'start' });
