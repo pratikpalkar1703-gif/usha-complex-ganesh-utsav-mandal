@@ -206,15 +206,13 @@ function doGet(e) {
         }
       }
 
-      // 2. Not in sheet — search Drive by filename
-      const wingMatch     = String(roomCode).match(/^([A-La-l])-/i);
-      const subFolderName = wingMatch ? wingMatch[1].toUpperCase() + ' Wing' : 'Non Residents';
-      const fileName      = 'Receipt-' + receiptNum + '-' + roomCode + '.pdf';
-      const parent        = getOrCreateFolder(DRIVE_FOLDER);
-      const subFolder     = getOrCreateSubFolder(parent, subFolderName);
-      const files         = subFolder.getFilesByName(fileName);
+      // 2. Not in sheet — search ALL of Drive by filename (subfolder-independent)
+      const fileName = 'Receipt-' + receiptNum + '-' + roomCode + '.pdf';
+      Logger.log('getLink searching Drive for: ' + fileName);
+      const files = DriveApp.getFilesByName(fileName);
       if (files.hasNext()) {
         const link = files.next().getUrl();
+        Logger.log('getLink found: ' + link);
         // Save to sheet column 12 for next time
         if (lastRow > 1) {
           const vs = sheet.getRange(2, 1, lastRow - 1, 1).getValues();
