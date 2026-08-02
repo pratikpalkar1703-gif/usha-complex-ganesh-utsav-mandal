@@ -1756,7 +1756,7 @@
     const origHTML = btn.innerHTML;
     btn.innerHTML = '⏳ Preparing…'; btn.disabled = true;
     try {
-      // Get receipt data from DOM first
+      // Read all data from DOM (synchronous)
       const receiptNum = document.getElementById('receipt-num').textContent.trim();
       const name       = document.getElementById('r-name').textContent.trim();
       const mobile     = document.getElementById('r-mobile').textContent.trim().replace(/\D/g, '');
@@ -1766,7 +1766,7 @@
       const roomCode   = isResident ? (document.getElementById('r-location').textContent.trim()) : '';
       const date       = document.getElementById('r-date').textContent.trim();
 
-      // 1. In-memory sheet data (most up-to-date, populated by background refresh)
+      // Check for cached Drive link (memory → localStorage → in-memory sheet data)
       if (_fromDashboard && _sheetData) {
         const entry = _sheetData.find(r => String(r.receiptNum) === String(receiptNum));
         if (entry && entry.driveLink) {
@@ -1774,59 +1774,12 @@
           localStorage.setItem('driveLink_' + receiptNum, entry.driveLink);
         }
       }
+      const driveLink = _currentDriveLink || localStorage.getItem('driveLink_' + receiptNum) || '';
 
-      // 2. Cached link (memory, localStorage)
-      let driveLink = _currentDriveLink || localStorage.getItem('driveLink_' + receiptNum);
-
-      // 3. Dashboard receipt still no link → ask server (no PDF, just Drive lookup)
-      if (!driveLink && _fromDashboard) {
-        btn.innerHTML = '⏳ Fetching…';
-        try {
-          const res  = await fetch(SHEET_URL + '?action=getLink&receiptNum=' + encodeURIComponent(receiptNum) + '&roomCode=' + encodeURIComponent(roomCode));
-          const json = await res.json();
-          if (json.status === 'ok' && json.link) {
-            driveLink = json.link;
-            _currentDriveLink = driveLink;
-            localStorage.setItem('driveLink_' + receiptNum, driveLink);
-          }
-        } catch(_) {}
-      }
-
-      // 4. Still no link → generate PDF and upload (new receipt or first-ever share)
-      if (!driveLink) {
-        if (!navigator.onLine) {
-          btn.innerHTML = origHTML; btn.disabled = false;
-          alert('📵 No internet connection.\nReceipt saved locally. Tap Share again once you\'re back online to upload and send.');
-          return;
-        }
-        btn.innerHTML = '⏳ Uploading…';
-        const card = document.getElementById('receipt-card');
-        card.scrollIntoView({ behavior: 'instant', block: 'start' });
-        await new Promise(r => setTimeout(r, 80));
-
-        // Generate PDF from receipt card
-        const canvas  = await html2canvas(card, { scale: 3, useCORS: true, backgroundColor: '#ffffff', logging: false, scrollX: 0, scrollY: -window.scrollY });
-        const imgData = canvas.toDataURL('image/png');
-        const { jsPDF } = window.jspdf;
-        const mmW = 90;
-        const mmH = (canvas.height / canvas.width) * mmW;
-        const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: [mmW, mmH] });
-        pdf.addImage(imgData, 'PNG', 0, 0, mmW, mmH);
-        const b64 = pdf.output('datauristring').split(',')[1];
-
-        // Upload to Drive
-        const resp = await fetch(SHEET_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'text/plain' },
-          body: JSON.stringify({ action: 'uploadPDF', pdf: b64, data: { receiptNum, name, mobile, roomCode } })
-        });
-        const result = await resp.json();
-        if (result.status !== 'ok') throw new Error(result.message || 'Upload failed');
-
-        driveLink = result.link;
-        _currentDriveLink = driveLink;
-        localStorage.setItem('driveLink_' + receiptNum, driveLink);
-      }
+      // Build WhatsApp message — include Drive link if already available
+      const linkLine = driveLink
+        ? `\nआपली पावती येथून डाउनलोड करा 👇\n${driveLink}\n`
+        : '\n';
       const msg = encodeURIComponent(
 `नमस्कार ${name} जी! 🙏
 
@@ -1837,24 +1790,55 @@
 🏠 रूम  : *${roomCode || '—'}*
 📄 पावती क्र. : *${receiptNum}*
 📅 दिनांक : ${date}
-
-आपली पावती येथून डाउनलोड करा 👇
-${driveLink}
-
+${linkLine}
 आपल्या सहकार्याबद्दल मन:पूर्वक धन्यवाद! 🙏
 *गणपती बाप्पा मोरया!* 🎉
 
 — उषा कॉम्प्लेक्स समिती`
       );
 
-      window.location.href = `https://wa.me/91${mobile}?text=${msg}`;
+      // Open WhatsApp immediately — no waiting for upload
+      const waUrl = `https://wa.me/91${mobile}?text=${msg}`;
+      const a = document.createElement('a');
+      a.href = waUrl; a.target = '_blank'; a.rel = 'noopener noreferrer';
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
       btn.innerHTML = '✅ Sent!';
-      setTimeout(() => { btn.innerHTML = origHTML; btn.disabled = false; }, 3000);
-      return;
+      setTimeout(() => { btn.innerHTML = origHTML; btn.disabled = false; }, 2500);
+
+      // Background Drive upload — only if no link yet
+      if (!driveLink) {
+        (async () => {
+          try {
+            const card = document.getElementById('receipt-card');
+            card.scrollIntoView({ behavior: 'instant', block: 'start' });
+            await new Promise(r => setTimeout(r, 80));
+            const canvas  = await html2canvas(card, { scale: 3, useCORS: true, backgroundColor: '#ffffff', logging: false, scrollX: 0, scrollY: -window.scrollY });
+            const imgData = canvas.toDataURL('image/png');
+            const { jsPDF } = window.jspdf;
+            const mmW = 90, mmH = (canvas.height / canvas.width) * mmW;
+            const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: [mmW, mmH] });
+            pdf.addImage(imgData, 'PNG', 0, 0, mmW, mmH);
+            const b64 = pdf.output('datauristring').split(',')[1];
+            const resp = await fetch(SHEET_URL, {
+              method: 'POST',
+              headers: { 'Content-Type': 'text/plain' },
+              body: JSON.stringify({ action: 'uploadPDF', pdf: b64, data: { receiptNum, name, mobile, roomCode } })
+            });
+            const result = await resp.json();
+            if (result.status === 'ok') {
+              _currentDriveLink = result.link;
+              localStorage.setItem('driveLink_' + receiptNum, result.link);
+              showSavedToast('📁 Receipt uploaded to Drive');
+            }
+          } catch(e) {
+            console.warn('Background Drive upload failed:', e.message);
+          }
+        })();
+      }
     } catch(err) {
-      alert('Could not upload receipt: ' + err.message);
+      btn.innerHTML = origHTML; btn.disabled = false;
+      console.error('Share error:', err);
     }
-    btn.innerHTML = origHTML; btn.disabled = false;
   }
 
 
